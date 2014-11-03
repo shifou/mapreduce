@@ -1,20 +1,21 @@
 package main;
 
+import hdfs.NameNodeRemoteInterface;
+
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 
 public class Command {
+	public static Environment conf;
 public static void main(String[] args) throws IllegalArgumentException, SecurityException, IOException, ClassNotFoundException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
 		
-		try {
-			readConf();
-		} catch (Exception e) {
-			
-			e.printStackTrace();
-			
-			System.err.println("Cannot read configuration info.\n"
-					+ "Please confirm the hdfs.xml is placed as ./conf/hdfs.xml.\n");
-			
+		if(checkConf()==false) {
+			System.err.println("framework configuration error.\n"
+					+ "Please configure the hdfs.xml and mapred.xml first and restart hadoop\n");
 			System.exit(1);
 		} 
 		
@@ -63,21 +64,80 @@ public static void main(String[] args) throws IllegalArgumentException, Security
 			
 		}
 	}
-private static void listHandler() {
+private static boolean checkConf() {
 	// TODO Auto-generated method stub
-	
+	return true;
+}
+private static void listHandler() {
+	try {
+		Registry nameNodeRegistry = LocateRegistry.getRegistry(Environment.Dfs.NAME_NODE_IP, Environment.Dfs.NAME_NODE_REGISTRY_PORT);
+		NameNodeRemoteInterface nameNodeStub = (NameNodeRemoteInterface) nameNodeRegistry.lookup("NameNode");
+		String ans = nameNodeStub.listFiles();
+		System.out.println(ans);
+		} catch (RemoteException e){
+			System.out.println("list failed");
+			System.exit(-1);
+		} catch (NotBoundException e) {
+			System.out.println("Name node cant find");
+			System.exit(-1);
+		} catch (IOException e) {
+			System.out.println("File Error");
+			System.exit(-1);
+		}
+		
 }
 private static void deleteHandler(String hdfsFilePath) {
-	// TODO Auto-generated method stub
-	
+	try {
+		Registry nameNodeRegistry = LocateRegistry.getRegistry(Environment.Dfs.NAME_NODE_IP, Environment.Dfs.NAME_NODE_REGISTRY_PORT);
+		NameNodeRemoteInterface nameNodeStub = (NameNodeRemoteInterface) nameNodeRegistry.lookup("NameNode");
+		String ans = nameNodeStub.delete(hdfsFilePath);
+		System.out.println(ans);
+	} catch (RemoteException e){
+		System.out.println("delete failed");
+		System.exit(-1);
+	} catch (NotBoundException e) {
+		System.out.println("Name node cant find");
+		System.exit(-1);
+	} catch (IOException e) {
+		System.out.println("File Error");
+		System.exit(-1);
+	}
 }
 private static void getHandler(String hdfsFilePath, String localFilePath) {
-	// TODO Auto-generated method stub
+	try {
+	Registry nameNodeRegistry = LocateRegistry.getRegistry(Environment.Dfs.NAME_NODE_IP, Environment.Dfs.NAME_NODE_REGISTRY_PORT);
+	NameNodeRemoteInterface nameNodeStub = (NameNodeRemoteInterface) nameNodeRegistry.lookup("NameNode");
+	String ans = nameNodeStub.copyToLocal(hdfsFilePath,localFilePath);
+	System.out.println(ans);
+	} catch (RemoteException e){
+		System.out.println("copyToLocal failed");
+		System.exit(-1);
+	} catch (NotBoundException e) {
+		System.out.println("Name node cant find");
+		System.exit(-1);
+	} catch (IOException e) {
+		System.out.println("File Error");
+		System.exit(-1);
+	}
 	
 }
 private static void putHandler(String localFilePath, String hdfsFilePath) {
-	// TODO Auto-generated method stub
-	
+	try {
+		Registry nameNodeRegistry = LocateRegistry.getRegistry(Environment.Dfs.NAME_NODE_IP, Environment.Dfs.NAME_NODE_REGISTRY_PORT);
+		NameNodeRemoteInterface nameNodeStub = (NameNodeRemoteInterface) nameNodeRegistry.lookup("NameNode");
+		String ans = nameNodeStub.copyFromLocal(localFilePath,hdfsFilePath);
+		System.out.println(ans);
+		} catch (RemoteException e){
+			System.out.println("copyFromLocal failed");
+			System.exit(-1);
+		} catch (NotBoundException e) {
+			System.out.println("Name node cant find");
+			System.exit(-1);
+		} catch (IOException e) {
+			System.out.println("File Error");
+			System.exit(-1);
+		}
+		
 }
 // reminder: add -r option later
 private static void printRmUsage() {
@@ -95,11 +155,5 @@ private static void printPutUsage() {
 private static void printUsage() {
 	System.out.format("Usage1: java Command dfs put|get|rm|ls <files>\nUsage2: java Command hadoop lsJob|submit|kill\n");
 
-}
-
-private static void readConf() {
-	// TODO Auto-generated method stub
-	
-}
-	
+}	
 }

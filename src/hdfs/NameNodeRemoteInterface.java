@@ -6,6 +6,9 @@ import java.rmi.RemoteException;
 import data.Message;
 public interface NameNodeRemoteInterface extends Remote{
 	public Message heartBeat(int dataNodeId) throws RemoteException;
-	public void delete(String path) throws RemoteException, IOException;
+	public String delete(String path) throws RemoteException, IOException;
+	public String copyToLocal(String hdfsFilePath, String localFilePath);
+	public String copyFromLocal(String localFilePath, String hdfsFilePath);
+	public String listFiles();
 	
 }
