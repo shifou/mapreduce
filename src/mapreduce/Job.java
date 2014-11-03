@@ -1,7 +1,5 @@
 package mapreduce;
 
-import test.Text;
-
 public class Job {
 
 	public void setOutputKeyClass(Class<Text> class1) {
