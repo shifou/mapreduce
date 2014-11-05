@@ -136,8 +136,7 @@ private static void putHandler(String localFilePath, String hdfsFilePath) {
 		} catch (IOException e) {
 			System.out.println("File Error");
 			System.exit(-1);
-		}
-		
+		}		
 }
 // reminder: add -r option later
 private static void printRmUsage() {
