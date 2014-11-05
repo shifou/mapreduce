@@ -17,10 +17,12 @@ public class NameNode implements NameNodeRemoteInterface {
 	public int dataNodeAssignId;
 	private NameNodeRemoteInterface nameNodeStub;
 	public ConcurrentHashMap<String, HDFSFile> dfs;
+	public ConcurrentHashMap<String, Node> cluster;
 	//slaveCheck systemCheck;
 
 	public NameNode(int port) {
 		dfs =new ConcurrentHashMap<String, HDFSFile>();
+		cluster =new ConcurrentHashMap<String, Node>();
 		dataNodeAssignId = 0;
 		this.port = port;
 	}
@@ -39,9 +41,6 @@ public class NameNode implements NameNodeRemoteInterface {
 			e.printStackTrace();
 			return false;
 		}
-		systemCheck = new slaveCheck(0);
-		Thread ck = new Thread(systemCheck);
-		ck.start();
 		return true;
 	}
 	/*
@@ -114,7 +113,18 @@ public class NameNode implements NameNodeRemoteInterface {
 	@Override
 	public void quit() {
 
-		systemCheck.running = false;
+	}
 
+	@Override
+	public String join(String ip) {
+		
+		return "d"+this.dataNodeAssignId;
+	}
+	private class Node{
+		public String serviceName;
+		public String ip;
+		public int registryPort;
+		private DataNodeRemoteInterface nodeService;
+		
 	}
 }
