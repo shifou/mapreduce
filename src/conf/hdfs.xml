@@ -1,0 +1,9 @@
+<hdfs>
+	<dfs>		
+		<replica-factor>3</replica-factor>
+		<heartbeat-freq unit="sec"> 1 </heartbeat-freq>		
+		<timeout unit="sec"> 10 </timeout>
+		<datanode-registry-port>11555</datanode-registry-port>
+		<namenode-registry-port>11556</namenode-registry-por>
+	</dfs>
+</hdfs>

@@ -1,5 +1,7 @@
 package main;
 
+import java.io.File;
+
 public class Environment {
 	public static class Dfs 
 	{
@@ -7,11 +9,27 @@ public class Environment {
 		public static int NAME_NODE_REGISTRY_PORT;
 		public static int DATA_NODE_REGISTRY_PORT;
 		public static String DIRECTORY;
+		public static int NAME_NODE_CHECK_PERIOD;
 	}
 
 	public static void configure() {
 		// TODO Auto-generated method stub
 		
 	}
+
+	public static boolean createDirectory() {
+		
+			File folder = new File(Environment.Dfs.DIRECTORY);
+			if (!folder.exists()) {
+				if (folder.mkdir()) {
+					System.out.println("Directory created");
+				} else {
+					System.err.println("Directory already used please change directory name or delete the directory first");
+					return false;
+				}
+			}
+			return true;
+		}
+	
 
 }
