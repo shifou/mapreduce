@@ -11,10 +11,10 @@ import hdfs.NameNode;
 import hdfs.NameNodeRemoteInterface;
 
 public class Master {
-	public Timer monitor;
-	public ConcurrentHashMap<Integer, Integer> slaveStatus;
-	public NameNodeRemoteInterface nameNodeStub;
-	public void startTimer() {
+	public static Timer monitor;
+	public static NameNode nameNode;
+	public static ConcurrentHashMap<Integer, Integer> slaveStatus;
+	public static void startTimer() {
 		System.out.println("--heartbeat--");
 		monitor = new Timer(true);
 		TimerTask task = new TimerTask() {
@@ -22,29 +22,32 @@ public class Master {
 				checkAlive();
 			}
 		};
-		monitor.schedule(task, 0, 5000);
+		monitor.schedule(task, 0, Environment.Dfs.NAME_NODE_CHECK_PERIOD);
 	}
-	private void checkAlive() {
+	private static void checkAlive() {
 
-		ConcurrentHashMap<Integer, Integer> status = getSlaveStatus();
 		// System.out.println("check: "+status.size());
-		for (Integer one : status.keySet()) {
-			int hh = status.get(one);
-			if (status.get(one) == 0) {
+		for (Integer one : slaveStatus.keySet()) {
+			int hh = slaveStatus.get(one);
+			if (slaveStatus.get(one) == 0) {
 				System.out.println("slave Id: " + one
 						+ " disconnected, abondon all related tasks");
 				remove(one);
 				continue;
 			}
-			status.put(one, hh - 1);
-			Message msg = new Message(msgType.HEART);
-			send(one, msg);
+			slaveStatus.put(one, hh - 1);
+			//Message msg = new Message(msgType.HEART);
+			//send(one, msg);
 		}
 	}
 
 	public static void main(String[] args) {
 		try {
-		 Environment.configure();
+		if( Environment.configure()==false)
+		{
+			System.err.println("please configure hdfs and mapred first");
+			System.exit(1);
+		}
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -53,7 +56,7 @@ public class Master {
 			
 			System.exit(1);
 		}
-		NameNode nameNode = new NameNode(Environment.Dfs.NAME_NODE_REGISTRY_PORT);
+		nameNode = new NameNode(Environment.Dfs.NAME_NODE_REGISTRY_PORT);
 			try {
 				if(	nameNode.start()==false)
 				{
@@ -66,6 +69,6 @@ public class Master {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
+		startTimer();
 	}
 }

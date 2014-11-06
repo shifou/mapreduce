@@ -10,6 +10,7 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.concurrent.ConcurrentHashMap;
 
 import main.Environment;
+import main.Master;
 import data.Message;
 
 public class NameNode implements NameNodeRemoteInterface {
@@ -17,17 +18,20 @@ public class NameNode implements NameNodeRemoteInterface {
 	public int dataNodeAssignId;
 	private NameNodeRemoteInterface nameNodeStub;
 	public ConcurrentHashMap<String, HDFSFile> dfs;
+	public ConcurrentHashMap<String, Node> cluster;
 	//slaveCheck systemCheck;
 
 	public NameNode(int port) {
 		dfs =new ConcurrentHashMap<String, HDFSFile>();
-		dataNodeAssignId = 0;
+		cluster =new ConcurrentHashMap<String, Node>();
+		dataNodeAssignId = 1;
+		nameNodeStub=null;
 		this.port = port;
 	}
 
 	public boolean start() {
 
-		if (Environment.createDirectory())
+		if (Environment.createDirectory()==false)
 			return false;
 		Registry registry = null;
 		try {
@@ -39,9 +43,6 @@ public class NameNode implements NameNodeRemoteInterface {
 			e.printStackTrace();
 			return false;
 		}
-		systemCheck = new slaveCheck(0);
-		Thread ck = new Thread(systemCheck);
-		ck.start();
 		return true;
 	}
 	/*
@@ -114,7 +115,30 @@ public class NameNode implements NameNodeRemoteInterface {
 	@Override
 	public void quit() {
 
-		systemCheck.running = false;
+	}
 
+	@Override
+	public String join(String ip) {
+		
+		String ans= "d"+this.dataNodeAssignId;
+		Node one=null;
+		one = new Node(ip, ans);
+		this.cluster.put(ans, one);
+		Master.slaveStatus.put(dataNodeAssignId, 5);
+		System.out.println("one slave join in get id: "+dataNodeAssignId);
+		dataNodeAssignId++;
+		return ans;
+	}
+	private class Node{
+
+		public String serviceName;
+		public String ip;
+		private DataNodeRemoteInterface nodeService;
+		public Node(String ip2, String ans) {
+			ip=ip2;
+			serviceName=ans;
+			//Registry nodeRegistry = LocateRegistry.getRegistry(ip, Environment.Dfs.DATA_NODE_REGISTRY_PORT);
+			//nodeService = (DataNodeRemoteInterface) nodeRegistry.lookup(serviceName);
+		}
 	}
 }

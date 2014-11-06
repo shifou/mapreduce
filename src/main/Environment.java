@@ -6,13 +6,15 @@ public class Environment {
 	public static class Dfs 
 	{
 		public static String NAME_NODE_IP;
+		public static String NAMENODE_SERVICENAME;
 		public static int NAME_NODE_REGISTRY_PORT;
 		public static int DATA_NODE_REGISTRY_PORT;
 		public static String DIRECTORY;
 		public static int NAME_NODE_CHECK_PERIOD;
+		public static int REPLICA_NUMS;
 	}
 
-	public static void configure() {
+	public static boolean configure() {
 		// TODO Auto-generated method stub
 		
 	}
