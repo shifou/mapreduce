@@ -62,7 +62,7 @@ public class NameNode implements NameNodeRemoteInterface {
 			System.out.println("delete failed");
 			System.exit(-1);
 		} catch (NotBoundException e) {
-			System.out.println("Name node cant find");
+			System.out.println("data node cant find");
 			System.exit(-1);
 		} catch (IOException e) {
 			System.out.println("File Error");
