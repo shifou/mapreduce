@@ -49,11 +49,14 @@ public class NameNode implements NameNodeRemoteInterface {
 	@Override
 	public String delete(String path) throws RemoteException, IOException {
 		HDFSFile file = this.dfs.get(path);
-		for (HDFSBlock one : file.getBlockList()) {
+		ConcurrentHashMap<Integer, HDFSBlock> fileblocks= file.getBlockList();
+		
+		for (Integer one : fileblocks.keySet()) {
+			HDFSBlock hold = fileblocks.get(one);
 		try {
-			Registry nameNodeRegistry = LocateRegistry.getRegistry(Environment.Dfs.NAME_NODE_IP, Environment.Dfs.NAME_NODE_REGISTRY_PORT);
-			NameNodeRemoteInterface nameNodeStub = (NameNodeRemoteInterface) nameNodeRegistry.lookup("NameNode");
-			String ans = nameNodeStub.delete(hdfsFilePath);
+			Registry nameNodeRegistry = LocateRegistry.getRegistry(HDFSBlock.getIp(), HDFSBlock.getPort());
+			DataNodeRemoteInterface dataNodeStub = (DataNodeRemoteInterface) nameNodeRegistry.lookup(HDFSBlock.getServiceName());
+			String ans = dataNodeStub.delete(path);
 			System.out.println(ans);
 		} catch (RemoteException e){
 			System.out.println("delete failed");

@@ -43,4 +43,10 @@ public class DataNode  implements DataNodeRemoteInterface{
 		
 	}
 
+	@Override
+	public String delete(String path) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }
