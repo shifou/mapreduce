@@ -7,6 +7,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.concurrent.ConcurrentHashMap;
 
 import main.Environment;
 
@@ -15,9 +16,11 @@ public class DataNode  implements DataNodeRemoteInterface{
 	private int dataNodeRegistryPort;
 	private DataNodeRemoteInterface dataNodeStub;
 	private NameNodeRemoteInterface nameNodeStub;
+	private ConcurrentHashMap<String, HDFSBlock> fileToBlock;
 	
 	public DataNode(int dataNodeRegistryPort) {
 		this.dataNodeRegistryPort = dataNodeRegistryPort;
+		this.fileToBlock = new ConcurrentHashMap<String, HDFSBlock>();
 	}
 
 	public boolean start() {
@@ -44,8 +47,12 @@ public class DataNode  implements DataNodeRemoteInterface{
 
 	@Override
 	public String delete(String path) {
-		// TODO Auto-generated method stub
-		return null;
+		
+		HDFSBlock block = this.fileToBlock.get(path);
+		if (block != null){
+			block.delete();
+		}
+		
 	}
 
 }

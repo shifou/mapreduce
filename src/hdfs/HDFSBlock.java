@@ -1,19 +1,33 @@
 package hdfs;
 
+import java.io.Serializable;
+
 public class HDFSBlock implements Serializable {
+	
+	private String blockFileName;
+	private int ID; 
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3110335214705117456L;
+	
+	public HDFSBlock(String blockFileName, int ID){
+		
+	}
 
 	public static String getIp() {
-		// TODO Auto-generated method stub
+		
 		return null;
 	}
 
 	public static int getPort() {
-		// TODO Auto-generated method stub
+		
 		return 0;
 	}
 
 	public static String getServiceName() {
-		// TODO Auto-generated method stub
+		
 		return null;
 	}
 
