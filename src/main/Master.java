@@ -36,14 +36,18 @@ public class Master {
 				continue;
 			}
 			slaveStatus.put(one, hh - 1);
-			Message msg = new Message(msgType.HEART);
-			send(one, msg);
+			//Message msg = new Message(msgType.HEART);
+			//send(one, msg);
 		}
 	}
 
 	public static void main(String[] args) {
 		try {
-		 Environment.configure();
+		if( Environment.configure()==false)
+		{
+			System.err.println("please configure hdfs and mapred first");
+			System.exit(1);
+		}
 		}
 		catch (Exception e) {
 			e.printStackTrace();

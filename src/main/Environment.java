@@ -10,9 +10,10 @@ public class Environment {
 		public static int DATA_NODE_REGISTRY_PORT;
 		public static String DIRECTORY;
 		public static int NAME_NODE_CHECK_PERIOD;
+		public static int REPLICA_NUMS;
 	}
 
-	public static void configure() {
+	public static boolean configure() {
 		// TODO Auto-generated method stub
 		
 	}
