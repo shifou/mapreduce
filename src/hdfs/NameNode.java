@@ -1,12 +1,14 @@
 package hdfs;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 import main.Environment;
@@ -78,15 +80,55 @@ public class NameNode implements NameNodeRemoteInterface {
 
 	@Override
 	public String copyToLocal(String hdfsFilePath, String localFilePath) {
-
-		return null;
+		
 	}
-
+	public List<Node> select(int nums)
+	{
+		List<Node> ans=null;
+		
+		return ans;
+		
+	}
 	@Override
 	public String copyFromLocal(String localFilePath, String hdfsFilePath) {
-		// TODO Auto-generated method stub
-		return null;
+		if(cluster.size()<Environment.Dfs.REPLICA_NUMS)
+		{
+			return "can not copy because replica number greater than slaves\n";
+		}
+		if(dfs.containsKey(localFilePath))
+		{
+			return "file duplicate already exist\n";
+		}
+		byte[] buff = new byte[Environment.Dfs.BUF_SIZE];
+		try {
+			FileInputStream in = new FileInputStream(localFilePath);
+			int c = 0;
+			
+			HDFSFile file = new HDFSFile(localFilePath);
+
+			
+			while ((c = in.read(buff)) != -1) {
+				bout.write(buff, 0, c);
+			}
+			
+			bout.close();
+			in.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println("Error! Failed to put file to HDFS.");
+			System.exit(-1);
+		}
+		HDFSFile newfile = HDFSFile(localFilePath);
+		
+		List<Node> locations = select(Environment.Dfs.REPLICA_NUMS);
+		for(Node temp: locations)
+		{
+			
+		}
+		return listFiles();
 	}
+
+
 
 	@Override
 	public String listFiles() {

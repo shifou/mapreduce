@@ -10,7 +10,7 @@ import java.rmi.server.UnicastRemoteObject;
 
 import main.Environment;
 
-public class DataNode  implements DataNodeRemoteInterface{
+public class DataNode implements DataNodeRemoteInterface{
 
 	private int dataNodeRegistryPort;
 	private DataNodeRemoteInterface dataNodeStub;

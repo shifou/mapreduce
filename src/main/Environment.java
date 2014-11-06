@@ -12,11 +12,11 @@ public class Environment {
 		public static String DIRECTORY;
 		public static int NAME_NODE_CHECK_PERIOD;
 		public static int REPLICA_NUMS;
+		public static int BUF_SIZE;
 	}
 
 	public static boolean configure() {
-		// TODO Auto-generated method stub
-		
+		return false;
 	}
 
 	public static boolean createDirectory() {

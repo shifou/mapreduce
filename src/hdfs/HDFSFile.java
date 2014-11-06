@@ -14,6 +14,9 @@ public class HDFSFile implements Serializable {
 	public int getBlockSize(){
 		return blocks.size();
 	}
+	public void addBlock(){
+		
+	}
 	public HDFSFile(String filename)
 	{
 		this.filename=filename;
