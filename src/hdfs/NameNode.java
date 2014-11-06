@@ -38,39 +38,14 @@ public class NameNode implements NameNodeRemoteInterface {
 			registry = LocateRegistry.createRegistry(this.port);
 			this.nameNodeStub = (NameNodeRemoteInterface) UnicastRemoteObject
 					.exportObject(this, 0);
-			registry.rebind("NameNode", nameNodeStub);
+			registry.rebind(Environment.Dfs.NAMENODE_SERVICENAME, nameNodeStub);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 			return false;
 		}
 		return true;
 	}
-	/*
-	private class slaveCheck implements Runnable {
-		private volatile boolean running;
-
-		public slaveCheck(int i) {
-			running = true;
-		}
-
-		public void run() {
-
-			while (running) {
-				check();
-				try {
-					Thread.sleep(Environment.Dfs.NAME_NODE_CHECK_PERIOD);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-	}
-
-	public void check() {
-		// TODO Auto-generated method stub
-
-	}
-	*/
+	
 	@Override
 	public String delete(String path) throws RemoteException, IOException {
 		HDFSFile file = this.dfs.get(path);
@@ -108,8 +83,15 @@ public class NameNode implements NameNodeRemoteInterface {
 
 	@Override
 	public String listFiles() {
-		// TODO Auto-generated method stub
-		return null;
+		String ans="";
+		int id=1;
+		if(dfs.isEmpty())
+			 return "there is no file yet";
+		for(String file: dfs.keySet())
+		{
+			ans+=(id+": "+file+"\n");
+		}
+		return ans;
 	}
 
 	@Override

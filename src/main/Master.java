@@ -32,7 +32,7 @@ public class Master {
 			if (slaveStatus.get(one) == 0) {
 				System.out.println("slave Id: " + one
 						+ " disconnected, abondon all related tasks");
-				remove(one);
+				//remove(one);
 				continue;
 			}
 			slaveStatus.put(one, hh - 1);
