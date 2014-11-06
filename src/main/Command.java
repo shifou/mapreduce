@@ -71,7 +71,7 @@ private static boolean checkConf() {
 private static void listHandler() {
 	try {
 		Registry nameNodeRegistry = LocateRegistry.getRegistry(Environment.Dfs.NAME_NODE_IP, Environment.Dfs.NAME_NODE_REGISTRY_PORT);
-		NameNodeRemoteInterface nameNodeStub = (NameNodeRemoteInterface) nameNodeRegistry.lookup("NameNode");
+		NameNodeRemoteInterface nameNodeStub = (NameNodeRemoteInterface) nameNodeRegistry.lookup(Environment.Dfs.NAMENODE_SERVICENAME);
 		String ans = nameNodeStub.listFiles();
 		System.out.println(ans);
 		} catch (RemoteException e){
@@ -89,7 +89,7 @@ private static void listHandler() {
 private static void deleteHandler(String hdfsFilePath) {
 	try {
 		Registry nameNodeRegistry = LocateRegistry.getRegistry(Environment.Dfs.NAME_NODE_IP, Environment.Dfs.NAME_NODE_REGISTRY_PORT);
-		NameNodeRemoteInterface nameNodeStub = (NameNodeRemoteInterface) nameNodeRegistry.lookup("NameNode");
+		NameNodeRemoteInterface nameNodeStub = (NameNodeRemoteInterface) nameNodeRegistry.lookup(Environment.Dfs.NAMENODE_SERVICENAME);
 		String ans = nameNodeStub.delete(hdfsFilePath);
 		System.out.println(ans);
 	} catch (RemoteException e){
@@ -106,7 +106,7 @@ private static void deleteHandler(String hdfsFilePath) {
 private static void getHandler(String hdfsFilePath, String localFilePath) {
 	try {
 	Registry nameNodeRegistry = LocateRegistry.getRegistry(Environment.Dfs.NAME_NODE_IP, Environment.Dfs.NAME_NODE_REGISTRY_PORT);
-	NameNodeRemoteInterface nameNodeStub = (NameNodeRemoteInterface) nameNodeRegistry.lookup("NameNode");
+	NameNodeRemoteInterface nameNodeStub = (NameNodeRemoteInterface) nameNodeRegistry.lookup(Environment.Dfs.NAMENODE_SERVICENAME);
 	String ans = nameNodeStub.copyToLocal(hdfsFilePath,localFilePath);
 	System.out.println(ans);
 	} catch (RemoteException e){
@@ -124,7 +124,7 @@ private static void getHandler(String hdfsFilePath, String localFilePath) {
 private static void putHandler(String localFilePath, String hdfsFilePath) {
 	try {
 		Registry nameNodeRegistry = LocateRegistry.getRegistry(Environment.Dfs.NAME_NODE_IP, Environment.Dfs.NAME_NODE_REGISTRY_PORT);
-		NameNodeRemoteInterface nameNodeStub = (NameNodeRemoteInterface) nameNodeRegistry.lookup("NameNode");
+		NameNodeRemoteInterface nameNodeStub = (NameNodeRemoteInterface) nameNodeRegistry.lookup(Environment.Dfs.NAMENODE_SERVICENAME);
 		String ans = nameNodeStub.copyFromLocal(localFilePath,hdfsFilePath);
 		System.out.println(ans);
 		} catch (RemoteException e){

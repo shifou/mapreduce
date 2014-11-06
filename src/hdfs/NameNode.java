@@ -19,19 +19,20 @@ public class NameNode implements NameNodeRemoteInterface {
 	private NameNodeRemoteInterface nameNodeStub;
 	public ConcurrentHashMap<String, HDFSFile> dfs;
 	public ConcurrentHashMap<String, Node> cluster;
-	//slaveCheck systemCheck;
+
+	// slaveCheck systemCheck;
 
 	public NameNode(int port) {
-		dfs =new ConcurrentHashMap<String, HDFSFile>();
-		cluster =new ConcurrentHashMap<String, Node>();
+		dfs = new ConcurrentHashMap<String, HDFSFile>();
+		cluster = new ConcurrentHashMap<String, Node>();
 		dataNodeAssignId = 1;
-		nameNodeStub=null;
+		nameNodeStub = null;
 		this.port = port;
 	}
 
 	public boolean start() {
 
-		if (Environment.createDirectory()==false)
+		if (Environment.createDirectory() == false)
 			return false;
 		Registry registry = null;
 		try {
@@ -45,36 +46,39 @@ public class NameNode implements NameNodeRemoteInterface {
 		}
 		return true;
 	}
-	
+
 	@Override
 	public String delete(String path) throws RemoteException, IOException {
 		HDFSFile file = this.dfs.get(path);
-		ConcurrentHashMap<Integer, HDFSBlock> fileblocks= file.getBlockList();
-		
+		dfs.remove(path);
+		ConcurrentHashMap<Integer, HDFSBlock> fileblocks = file.getBlockList();
+
 		for (Integer one : fileblocks.keySet()) {
 			HDFSBlock hold = fileblocks.get(one);
-		try {
-			Registry nameNodeRegistry = LocateRegistry.getRegistry(HDFSBlock.getIp(), HDFSBlock.getPort());
-			DataNodeRemoteInterface dataNodeStub = (DataNodeRemoteInterface) nameNodeRegistry.lookup(HDFSBlock.getServiceName());
-			String ans = dataNodeStub.delete(path);
-			System.out.println(ans);
-		} catch (RemoteException e){
-			System.out.println("delete failed");
-			System.exit(-1);
-		} catch (NotBoundException e) {
-			System.out.println("data node cant find");
-			System.exit(-1);
-		} catch (IOException e) {
-			System.out.println("File Error");
-			System.exit(-1);
-		}
+			try {
+				Registry nameNodeRegistry = LocateRegistry.getRegistry(
+						HDFSBlock.getIp(), HDFSBlock.getPort());
+				DataNodeRemoteInterface dataNodeStub = (DataNodeRemoteInterface) nameNodeRegistry
+						.lookup(HDFSBlock.getServiceName());
+				String ans = dataNodeStub.delete(path);
+				System.out.println(ans);
+			} catch (RemoteException e) {
+				System.out.println("delete failed");
+				System.exit(-1);
+			} catch (NotBoundException e) {
+				System.out.println("data node cant find");
+				System.exit(-1);
+			} catch (IOException e) {
+				System.out.println("File Error");
+				System.exit(-1);
+			}
 		}
 		return null;
 	}
 
 	@Override
 	public String copyToLocal(String hdfsFilePath, String localFilePath) {
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -86,13 +90,12 @@ public class NameNode implements NameNodeRemoteInterface {
 
 	@Override
 	public String listFiles() {
-		String ans="";
-		int id=1;
-		if(dfs.isEmpty())
-			 return "there is no file yet";
-		for(String file: dfs.keySet())
-		{
-			ans+=(id+": "+file+"\n");
+		String ans = "";
+		int id = 1;
+		if (dfs.isEmpty())
+			return "there is no file yet";
+		for (String file : dfs.keySet()) {
+			ans += (id + ": " + file + "\n");
 		}
 		return ans;
 	}
@@ -104,26 +107,30 @@ public class NameNode implements NameNodeRemoteInterface {
 
 	@Override
 	public String join(String ip) {
-		
-		String ans= "d"+this.dataNodeAssignId;
-		Node one=null;
+
+		String ans = "d" + this.dataNodeAssignId;
+		Node one = null;
 		one = new Node(ip, ans);
 		this.cluster.put(ans, one);
 		Master.slaveStatus.put(dataNodeAssignId, 5);
-		System.out.println("one slave join in get id: "+dataNodeAssignId);
+		System.out.println("one slave join in get id: " + dataNodeAssignId);
 		dataNodeAssignId++;
 		return ans;
 	}
-	private class Node{
+
+	private class Node {
 
 		public String serviceName;
 		public String ip;
 		private DataNodeRemoteInterface nodeService;
+
 		public Node(String ip2, String ans) {
-			ip=ip2;
-			serviceName=ans;
-			//Registry nodeRegistry = LocateRegistry.getRegistry(ip, Environment.Dfs.DATA_NODE_REGISTRY_PORT);
-			//nodeService = (DataNodeRemoteInterface) nodeRegistry.lookup(serviceName);
+			ip = ip2;
+			serviceName = ans;
+			// Registry nodeRegistry = LocateRegistry.getRegistry(ip,
+			// Environment.Dfs.DATA_NODE_REGISTRY_PORT);
+			// nodeService = (DataNodeRemoteInterface)
+			// nodeRegistry.lookup(serviceName);
 		}
 	}
 }
