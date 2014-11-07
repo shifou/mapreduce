@@ -1,5 +1,6 @@
 package hdfs;
 
+import java.io.File;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.rmi.NotBoundException;
@@ -16,11 +17,11 @@ public class DataNode implements DataNodeRemoteInterface{
 	private int dataNodeRegistryPort;
 	private DataNodeRemoteInterface dataNodeStub;
 	private NameNodeRemoteInterface nameNodeStub;
-	private ConcurrentHashMap<String, HDFSBlock> fileToBlock;
+	private ConcurrentHashMap<String, ConcurrentHashMap<Integer, HDFSBlock>> fileToBlock;
 	
 	public DataNode(int dataNodeRegistryPort) {
 		this.dataNodeRegistryPort = dataNodeRegistryPort;
-		this.fileToBlock = new ConcurrentHashMap<String, HDFSBlock>();
+		this.fileToBlock = new ConcurrentHashMap<String, ConcurrentHashMap<Integer, HDFSBlock>>();
 	}
 
 	public boolean start() {
@@ -46,12 +47,26 @@ public class DataNode implements DataNodeRemoteInterface{
 	}
 
 	@Override
-	public String delete(String path) {
-		
-		HDFSBlock block = this.fileToBlock.get(path);
-		if (block != null){
-			block.delete();
+	public boolean delete(String path, int ID) {
+
+		File toDelete = new File(path);
+		if (toDelete.delete()){
+			ConcurrentHashMap<Integer, HDFSBlock> blocks = this.fileToBlock.get(path);
+			if (blocks != null){
+				blocks.remove(ID);
+				if (blocks.isEmpty()){
+					this.fileToBlock.remove(blocks);
+				}
+				return true;
+			}
+			else {
+				return false;
+			}
 		}
+		else {
+			return false;
+		}
+		
 		
 	}
 
