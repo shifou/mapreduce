@@ -123,7 +123,7 @@ public class NameNode implements NameNodeRemoteInterface {
 		{
 			return "file duplicate already exist\n";
 		}
-		byte[] buff = new byte[Environment.Dfs.BUF_SIZE];
+		Byte[] buff = new Byte[Environment.Dfs.BUF_SIZE];
 		try {
 			FileInputStream in = new FileInputStream(localFilePath);
 			int c = 0;
