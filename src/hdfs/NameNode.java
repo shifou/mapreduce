@@ -10,6 +10,7 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.PriorityBlockingQueue;
 
 import main.Environment;
 import main.Master;
@@ -21,12 +22,13 @@ public class NameNode implements NameNodeRemoteInterface {
 	private NameNodeRemoteInterface nameNodeStub;
 	public ConcurrentHashMap<String, HDFSFile> dfs;
 	public ConcurrentHashMap<String, Node> cluster;
-
+	public PriorityBlockingQueue<Node> load;
 	// slaveCheck systemCheck;
 
 	public NameNode(int port) {
 		dfs = new ConcurrentHashMap<String, HDFSFile>();
 		cluster = new ConcurrentHashMap<String, Node>();
+		
 		dataNodeAssignId = 1;
 		nameNodeStub = null;
 		this.port = port;
@@ -58,12 +60,15 @@ public class NameNode implements NameNodeRemoteInterface {
 		for (Integer one : fileblocks.keySet()) {
 			HDFSBlock hold = fileblocks.get(one);
 			try {
+				/*
 				Registry nameNodeRegistry = LocateRegistry.getRegistry(
 						HDFSBlock.getIp(), HDFSBlock.getPort());
 				DataNodeRemoteInterface dataNodeStub = (DataNodeRemoteInterface) nameNodeRegistry
 						.lookup(HDFSBlock.getServiceName());
 				String ans = dataNodeStub.delete(path);
-				System.out.println(ans);
+				*/
+				if(hold.delete()==false)
+					System.out.println("notice some nodes fail when delete the block");
 			} catch (RemoteException e) {
 				System.out.println("delete failed");
 				System.exit(-1);
@@ -80,14 +85,31 @@ public class NameNode implements NameNodeRemoteInterface {
 
 	@Override
 	public String copyToLocal(String hdfsFilePath, String localFilePath) {
-		
+		if(cluster.containsKey(hdfsFilePath)==false)
+			return "no such file in the hdfs";
+		else
+		{
+			
+		}
 	}
 	public List<Node> select(int nums)
 	{
 		List<Node> ans=null;
-		
+		Node hold;
+		int i=0;
+		synchronized(this.load)
+		{
+			while(load.isEmpty()==false&&i<nums)
+			{
+				i++;
+				hold=load.poll();
+				hold.blockload++;
+				ans.add(hold);
+			}
+			for(Node temp : ans )
+				load.add(temp);
+		}
 		return ans;
-		
 	}
 	@Override
 	public String copyFromLocal(String localFilePath, String hdfsFilePath) {
@@ -106,29 +128,23 @@ public class NameNode implements NameNodeRemoteInterface {
 			
 			HDFSFile file = new HDFSFile(localFilePath);
 
-			
+			int blocksize=0;
 			while ((c = in.read(buff)) != -1) {
-				bout.write(buff, 0, c);
+				List<Node> locations = select(Environment.Dfs.REPLICA_NUMS);
+				if(locations.size()!=Environment.Dfs.REPLICA_NUMS)
+				{
+					return "Abondon put task Reason: can not fulfil replica nums during putting the block\n";
+				}
+				file.addBlock(buff, blocksize, c,locations);
 			}
-			
-			bout.close();
 			in.close();
+			this.dfs.put(localFilePath, file);
 		} catch (Exception e) {
 			e.printStackTrace();
-			System.out.println("Error! Failed to put file to HDFS.");
-			System.exit(-1);
+			return "Error! Failed to put file to HDFS.";
 		}
-		HDFSFile newfile = HDFSFile(localFilePath);
-		
-		List<Node> locations = select(Environment.Dfs.REPLICA_NUMS);
-		for(Node temp: locations)
-		{
-			
-		}
-		return listFiles();
+		return "success!\n";
 	}
-
-
 
 	@Override
 	public String listFiles() {
@@ -160,19 +176,26 @@ public class NameNode implements NameNodeRemoteInterface {
 		return ans;
 	}
 
-	private class Node {
+	private class Node implements Comparable<Node>{
 
 		public String serviceName;
 		public String ip;
+		public int blockload;
 		private DataNodeRemoteInterface nodeService;
 
 		public Node(String ip2, String ans) {
 			ip = ip2;
 			serviceName = ans;
+			blockload=0;
 			// Registry nodeRegistry = LocateRegistry.getRegistry(ip,
 			// Environment.Dfs.DATA_NODE_REGISTRY_PORT);
 			// nodeService = (DataNodeRemoteInterface)
 			// nodeRegistry.lookup(serviceName);
+		}
+
+		@Override
+		public int compareTo(Node o) {
+			return this.blockload-o.blockload;
 		}
 	}
 }
