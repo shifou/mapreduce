@@ -30,7 +30,7 @@ public class NameNode implements NameNodeRemoteInterface {
 	public NameNode(int port) {
 		dfs = new ConcurrentHashMap<String, HDFSFile>();
 		cluster = new ConcurrentHashMap<String, Node>();
-		
+		load= new PriorityBlockingQueue<Node>();
 		dataNodeAssignId = 1;
 		nameNodeStub = null;
 		this.port = port;
@@ -115,6 +115,9 @@ public class NameNode implements NameNodeRemoteInterface {
 			System.out.println("READ: " + counter);
 		}
 	}
+	/*
+	 *  
+	 */
 	public List<String> select(int nums)
 	{
 		List<String> res=null;
@@ -176,6 +179,10 @@ public class NameNode implements NameNodeRemoteInterface {
 		return "success!\n";
 	}
 
+	public static int handlerRecovery(int slaveId) {
+		
+		;
+	}
 	@Override
 	public String listFiles() {
 		String ans = "";
@@ -189,6 +196,19 @@ public class NameNode implements NameNodeRemoteInterface {
 	}
 
 	@Override
+	public String heart(int slaveId) {
+		if(cluster.containsKey("d"+slaveId)==false)
+		{
+			System.out.println("slave "+slaveId+" turn to alive");
+			return "join";
+		}
+		else
+		{
+			Master.slaveStatus.put(slaveId,Master.slaveStatus.get(slaveId)+1);
+			return "ok";
+		}
+	}
+	@Override
 	public void quit() {
 
 	}
@@ -201,20 +221,16 @@ public class NameNode implements NameNodeRemoteInterface {
 		one = new Node(ip, ans);
 		this.cluster.put(ans, one);
 		load.put(one);
-		Master.slaveStatus.put(dataNodeAssignId, 5);
+		Master.slaveStatus.put(dataNodeAssignId, Environment.TIME_LIMIT);
 		System.out.println("one slave join in get id: " + dataNodeAssignId);
 		dataNodeAssignId++;
 		return ans;
 	}
-
 	private class Node implements Comparable<Node>{
-
 		public String serviceName;
 		public String ip;
 		public int blockload;
-
-
-		public Node(String ip2, String ans) {
+	public Node(String ip2, String ans) {
 			ip = ip2;
 			serviceName = ans;
 			blockload=0;
@@ -223,10 +239,11 @@ public class NameNode implements NameNodeRemoteInterface {
 			// nodeService = (DataNodeRemoteInterface)
 			// nodeRegistry.lookup(serviceName);
 		}
-
 		@Override
 		public int compareTo(Node o) {
 			return this.blockload-o.blockload;
 		}
 	}
+
+
 }

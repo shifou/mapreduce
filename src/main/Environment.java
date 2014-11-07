@@ -3,6 +3,7 @@ package main;
 import java.io.File;
 
 public class Environment {
+	public static int TIME_LIMIT;
 	public static class Dfs 
 	{
 		public static String NAME_NODE_IP;

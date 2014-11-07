@@ -10,5 +10,6 @@ public interface NameNodeRemoteInterface extends Remote{
 	public String copyFromLocal(String localFilePath, String hdfsFilePath);
 	public String join(String ip);
 	public String listFiles();
+	public String heart(int id);
 	public void quit();
 }

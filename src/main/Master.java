@@ -33,6 +33,7 @@ public class Master {
 				System.out.println("slave Id: " + one
 						+ " disconnected, abondon all related tasks");
 				//remove(one);
+				handlerRecovery(one);
 				continue;
 			}
 			slaveStatus.put(one, hh - 1);
@@ -41,6 +42,16 @@ public class Master {
 		}
 	}
 
+	private static void handlerRecovery(Integer one) {
+		int reply=NameNode.handlerRecovery(one);
+		if(reply==Environment.Dfs.REPLICA_NUMS)
+			System.out.println("recovery and still maintain the file replica successfully !");
+		else if (reply>0)
+			System.out.println("can recovery but can not maintain the file replica right now");
+		else
+			System.out.println("can not recovery the file and need to delete the file");
+		
+	}
 	public static void main(String[] args) {
 		try {
 		if( Environment.configure()==false)
