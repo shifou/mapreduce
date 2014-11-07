@@ -92,8 +92,9 @@ public class NameNode implements NameNodeRemoteInterface {
 			
 		}
 	}
-	public List<Node> select(int nums)
+	public List<String> select(int nums)
 	{
+		List<String> res=null;
 		List<Node> ans=null;
 		Node hold;
 		int i=0;
@@ -105,11 +106,12 @@ public class NameNode implements NameNodeRemoteInterface {
 				hold=load.poll();
 				hold.blockload++;
 				ans.add(hold);
+				res.add(hold.serviceName);
 			}
 			for(Node temp : ans )
 				load.add(temp);
 		}
-		return ans;
+		return res;
 	}
 	@Override
 	public String copyFromLocal(String localFilePath, String hdfsFilePath) {
@@ -130,7 +132,7 @@ public class NameNode implements NameNodeRemoteInterface {
 
 			int blocksize=0;
 			while ((c = in.read(buff)) != -1) {
-				List<Node> locations = select(Environment.Dfs.REPLICA_NUMS);
+				List<String> locations = select(Environment.Dfs.REPLICA_NUMS);
 				if(locations.size()!=Environment.Dfs.REPLICA_NUMS)
 				{
 					return "Abondon put task Reason: can not fulfil replica nums during putting the block\n";
@@ -181,7 +183,6 @@ public class NameNode implements NameNodeRemoteInterface {
 		public String serviceName;
 		public String ip;
 		public int blockload;
-		private DataNodeRemoteInterface nodeService;
 
 		public Node(String ip2, String ans) {
 			ip = ip2;
