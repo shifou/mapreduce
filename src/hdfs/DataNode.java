@@ -1,6 +1,8 @@
 package hdfs;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.rmi.NotBoundException;
@@ -69,5 +71,37 @@ public class DataNode implements DataNodeRemoteInterface{
 		
 		
 	}
+
+	@Override
+	public void putFile(Byte[] data, int blockSize, HDFSBlock block) {
+		String fullPath = Environment.Dfs.DIRECTORY+"/"+block.getFileName()+"."+block.getID();
+		File file = new File(fullPath);
+		
+		try {
+			file.createNewFile();
+			FileOutputStream out = new FileOutputStream(file);
+			byte[] toPut = new byte[blockSize];
+			for (int i = 0; i< blockSize; i++){
+				toPut[i] = data[i];
+			}
+			out.write(toPut);
+			out.close();
+			if (this.fileToBlock.get(fullPath) != null){
+				this.fileToBlock.get(fullPath).put(block.getID(), block);
+			}
+			else {
+				ConcurrentHashMap<Integer, HDFSBlock> newFile = new ConcurrentHashMap<Integer, HDFSBlock>();
+				newFile.put(block.getID(), block);
+				this.fileToBlock.put(fullPath, newFile);
+			}
+		} catch (IOException e) {
+			
+			e.printStackTrace();
+		}
+		
+			
+	}
+
+
 
 }
