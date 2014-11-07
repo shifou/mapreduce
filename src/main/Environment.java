@@ -20,9 +20,9 @@ public class Environment {
 		return false;
 	}
 
-	public static boolean createDirectory() {
+	public static boolean createDirectory(String name) {
 		
-			File folder = new File(Environment.Dfs.DIRECTORY);
+			File folder = new File(Environment.Dfs.DIRECTORY+name);
 			if (!folder.exists()) {
 				if (folder.mkdir()) {
 					System.out.println("Directory created");

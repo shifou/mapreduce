@@ -38,7 +38,7 @@ public class NameNode implements NameNodeRemoteInterface {
 
 	public boolean start() {
 
-		if (Environment.createDirectory() == false)
+		if (Environment.createDirectory(Environment.Dfs.NAMENODE_SERVICENAME) == false)
 			return false;
 		Registry registry = null;
 		try {
@@ -181,7 +181,7 @@ public class NameNode implements NameNodeRemoteInterface {
 
 	public static int handlerRecovery(int slaveId) {
 		
-		;
+		
 	}
 	@Override
 	public String listFiles() {
