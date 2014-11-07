@@ -2,6 +2,8 @@ package hdfs;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
@@ -84,12 +86,33 @@ public class NameNode implements NameNodeRemoteInterface {
 	}
 
 	@Override
-	public String copyToLocal(String hdfsFilePath, String localFilePath) {
-		if(cluster.containsKey(hdfsFilePath)==false)
+	public String copyToLocal(String hdfsFilePath, String localFilePath) 
+	{
+		if(dfs.containsKey(hdfsFilePath)==false)
 			return "no such file in the hdfs";
 		else
 		{
-			
+			File f = new File(localFilePath);
+			if(f.isDirectory())
+				return "can not delete directory";
+			if(f.exists())
+				return "file already in local filesystem, please type in another filename";
+			HDFSFile hdfsfile = dfs.get(hdfsFilePath);
+			FileOutputStream out = null;
+			out =  new FileOutputStream(localFilePath);
+			int c;
+			int counter = 0;
+			byte[] buff = new byte[Environment.Dfs.BUF_SIZE];
+			for(int i=0;i<hdfsfile.getBlockSize();i++)
+			{
+				c = hdfsfile.getBlock(buff,i);
+				if(c==-1)
+					return "get file failed due to too many node crush and can not get a complete file";
+				out.write(buff, 0, c);
+				counter += c;
+			}
+			out.close();
+			System.out.println("READ: " + counter);
 		}
 	}
 	public List<String> select(int nums)
@@ -124,6 +147,9 @@ public class NameNode implements NameNodeRemoteInterface {
 			return "file duplicate already exist\n";
 		}
 		try {
+			File f=new File(localFilePath);
+			if(f.isDirectory())
+				return "can not put the directory to hdfs";
 			FileInputStream in = new FileInputStream(localFilePath);
 			int c = 0;
 			HDFSFile file = new HDFSFile(localFilePath);
@@ -174,6 +200,7 @@ public class NameNode implements NameNodeRemoteInterface {
 		Node one = null;
 		one = new Node(ip, ans);
 		this.cluster.put(ans, one);
+		load.put(one);
 		Master.slaveStatus.put(dataNodeAssignId, 5);
 		System.out.println("one slave join in get id: " + dataNodeAssignId);
 		dataNodeAssignId++;
