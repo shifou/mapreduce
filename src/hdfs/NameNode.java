@@ -123,21 +123,23 @@ public class NameNode implements NameNodeRemoteInterface {
 		{
 			return "file duplicate already exist\n";
 		}
-		Byte[] buff = new Byte[Environment.Dfs.BUF_SIZE];
 		try {
 			FileInputStream in = new FileInputStream(localFilePath);
 			int c = 0;
-			
 			HDFSFile file = new HDFSFile(localFilePath);
-
 			int blocksize=0;
+			byte[] buff = new byte[Environment.Dfs.BUF_SIZE];
 			while ((c = in.read(buff)) != -1) {
 				List<String> locations = select(Environment.Dfs.REPLICA_NUMS);
 				if(locations.size()!=Environment.Dfs.REPLICA_NUMS)
 				{
 					return "Abondon put task Reason: can not fulfil replica nums during putting the block\n";
 				}
-				file.addBlock(buff, blocksize, c,locations);
+				int id=0;
+				Byte[]data = new Byte[Environment.Dfs.BUF_SIZE];
+				for(byte b: buff)
+					   data[id++] = b;
+				file.addBlock(data, blocksize, c,locations);
 			}
 			in.close();
 			this.dfs.put(localFilePath, file);
@@ -183,6 +185,7 @@ public class NameNode implements NameNodeRemoteInterface {
 		public String serviceName;
 		public String ip;
 		public int blockload;
+
 
 		public Node(String ip2, String ans) {
 			ip = ip2;
