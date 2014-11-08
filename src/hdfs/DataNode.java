@@ -76,8 +76,16 @@ public class DataNode implements DataNodeRemoteInterface{
 	}
 
 	@Override
-	public void putFile(Byte[] data, int blockSize, HDFSBlock block) {
-		String fullPath = Environment.Dfs.DIRECTORY+"/"+block.getFileName()+"."+block.getID();
+	public void putFile(Byte[] data, int blockSize, HDFSBlock block, String folderName) {
+		String fullPath;
+		if (folderName != null){
+			File folder = new File(Environment.Dfs.DIRECTORY+"/"+folderName);
+			folder.mkdir();
+			fullPath = Environment.Dfs.DIRECTORY+"/"+folderName+"/"+block.getFileName()+"."+block.getID();
+		}
+		else {
+			fullPath = Environment.Dfs.DIRECTORY+"/"+block.getFileName()+"."+block.getID();
+		}
 		File file = new File(fullPath);
 		
 		try {

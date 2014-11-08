@@ -20,7 +20,7 @@ public class HDFSBlock implements Serializable {
 	 */
 	private static final long serialVersionUID = -3110335214705117456L;
 	
-	public HDFSBlock(String blockFileName, int ID, Byte[] data, int blockSize, List<String> locations){
+	public HDFSBlock(String blockFileName, int ID, Byte[] data, int blockSize, List<String> locations, String folderName){
 		this.blockFileName = blockFileName;
 		this.ID = ID;
 		this.repIDtoLoc = new ConcurrentHashMap<Integer, String>();
@@ -31,7 +31,7 @@ public class HDFSBlock implements Serializable {
 			Registry reg = LocateRegistry.getRegistry(Environment.Dfs.DATA_NODE_REGISTRY_PORT);
 			for (Integer repID : this.repIDtoLoc.keySet()){
 				DataNodeRemoteInterface dataNodeStub = (DataNodeRemoteInterface)reg.lookup(this.repIDtoLoc.get(repID));
-				dataNodeStub.putFile(data, blockSize, this);
+				dataNodeStub.putFile(data, blockSize, this, folderName);
 			}
 		} catch (RemoteException | NotBoundException e) {
 			

@@ -17,8 +17,9 @@ import main.Environment;
 public class HDFSFile implements Serializable{
 
 	private static final long serialVersionUID = 3326499942746127733L;
-	public String filename;
-	public ConcurrentHashMap<Integer, HDFSBlock> blocks;
+	private String filename;
+	private String folderName;
+	private ConcurrentHashMap<Integer, HDFSBlock> blocks;
 
 	public ConcurrentHashMap<Integer, HDFSBlock> getBlockList() {
 		return blocks;
@@ -28,11 +29,11 @@ public class HDFSFile implements Serializable{
 		return blocks.size();
 	}
 
-	public void addBlock(Byte[] data, int blockID, int blocksize,
+	private void addBlock(Byte[] data, int blockID, int blocksize,
 			List<String> locations) {
 
 		HDFSBlock block = new HDFSBlock(this.filename, blockID, data,
-				blocksize, locations);
+				blocksize, locations, this.folderName);
 
 		this.blocks.put(blockID, block);
 
@@ -44,9 +45,10 @@ public class HDFSFile implements Serializable{
 		return -1;
 	}
 
-	public HDFSFile(String filename) {
+	public HDFSFile(String filename, String folderName) {
 		this.filename = filename;
 		this.blocks = new ConcurrentHashMap<Integer, HDFSBlock>();
+		this.folderName = folderName;
 	}
 	@Override
 	public String delete() {
@@ -96,7 +98,7 @@ public class HDFSFile implements Serializable{
 				Byte[]data = new Byte[Environment.Dfs.BUF_SIZE];
 				for(byte b: buff)
 					   data[ct++] = b;
-				file.addBlock(data, blocksize, ct,locations);
+				addBlock(data, blocksize, ct,locations);
 		    	temp="";
 		    }
 		}
