@@ -7,7 +7,7 @@ import java.rmi.RemoteException;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class HDFSFile implements Serializable,HDFSAbstraction {
+public class HDFSFile implements Serializable {
 
 	private static final long serialVersionUID = 3326499942746127733L;
 	public String filename;
