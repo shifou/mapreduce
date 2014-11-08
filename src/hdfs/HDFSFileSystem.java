@@ -2,10 +2,14 @@ package hdfs;
 
 import hdfs.NameNode.Node;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.List;
@@ -17,12 +21,11 @@ import main.Environment;
 public class HDFSFileSystem {
 	public ConcurrentHashMap<String, HDFSFolder> folderList;
 	public ConcurrentHashMap<String, HDFSFile> fileList;
-	public PriorityBlockingQueue<DataNodeInfo> load;
+
 	public HDFSFileSystem(){
 		folderList=new  ConcurrentHashMap<String, HDFSFolder>();
 		fileList = new  ConcurrentHashMap<String, HDFSFile>();
-		load= new PriorityBlockingQueue<DataNodeInfo>();
-	}
+		}
 	public String deleteFile(String filename)
 	{
 		HDFSFile file = this.fileList.get(filename);
@@ -85,86 +88,25 @@ public class HDFSFileSystem {
 	
 	}
 	public String putFile(String localFileName, String hdfsFileName) {
-		try {
-			File f=new File(localFilePath);
+			File f=new File(localFileName);
+			if(f.exists()==false)
+				return "this file does not exist in the local filesystem";
 			if(f.isDirectory())
-				return "can not put the directory to hdfs";
-			FileInputStream in = new FileInputStream(localFilePath);
-			int c = 0;
-			HDFSFile file = new HDFSFile(localFilePath);
-			int blocksize=0;
-			byte[] buff = new byte[Environment.Dfs.BUF_SIZE];
-			while ((c = in.read(buff)) != -1) {
-				List<String> locations = select(Environment.Dfs.REPLICA_NUMS);
-				if(locations.size()!=Environment.Dfs.REPLICA_NUMS)
-				{
-					return "Abondon put task Reason: can not fulfil replica nums during putting the block\n";
-				}
-				int id=0;
-				Byte[]data = new Byte[Environment.Dfs.BUF_SIZE];
-				for(byte b: buff)
-					   data[id++] = b;
-				file.addBlock(data, blocksize, c,locations);
-				blocksize++;
-			}
-			in.close();
-			this.dfs.put(localFilePath, file);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return "Error! Failed to put file to HDFS.";
-		}
+				return "can not put the directory to hdfs using put";
+			HDFSFile file =new HDFSFile(hdfsFileName);
+			String ans = file.createFrom(localFileName);
+			fileList.put(hdfsFileName,file);
+			return ans;
 	}
 	public String putFolder(String localFolderName, String hdfsFolderPath) {
-		try {
-			File f=new File(localFilePath);
-			if(f.isDirectory())
-				return "can not put the directory to hdfs";
-			FileInputStream in = new FileInputStream(localFilePath);
-			int c = 0;
-			HDFSFile file = new HDFSFile(localFilePath);
-			int blocksize=0;
-			byte[] buff = new byte[Environment.Dfs.BUF_SIZE];
-			while ((c = in.read(buff)) != -1) {
-				List<String> locations = select(Environment.Dfs.REPLICA_NUMS);
-				if(locations.size()!=Environment.Dfs.REPLICA_NUMS)
-				{
-					return "Abondon put task Reason: can not fulfil replica nums during putting the block\n";
-				}
-				int id=0;
-				Byte[]data = new Byte[Environment.Dfs.BUF_SIZE];
-				for(byte b: buff)
-					   data[id++] = b;
-				file.addBlock(data, blocksize, c,locations);
-				blocksize++;
-			}
-			in.close();
-			this.dfs.put(localFilePath, file);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return "Error! Failed to put file to HDFS.";
-		}
+			File f=new File(localFolderName);
+			if(f.isDirectory()==true && f.exists()==false)
+				return "this folder does not exist in the local filesystem";
+			if(f.isDirectory()==false)
+				return "can not put file to hdfs using putr";
+			
 		return "success!\n";
 	}
-	public List<String> select(int nums)
-	{
-		List<String> res=null;
-		List<DataNodeInfo> ans=null;
-		DataNodeInfo hold;
-		int i=0;
-		synchronized(load)
-		{
-			while(load.isEmpty()==false&&i<nums)
-			{
-				i++;
-				hold=load.poll();
-				hold.blockload++;
-				ans.add(hold);
-				res.add(hold.serviceName);
-			}
-			for(DataNodeInfo temp : ans )
-				load.add(temp);
-		}
-		return res;
-	}
+	
 	
 }

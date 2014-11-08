@@ -21,6 +21,7 @@ import data.Message;
 public class NameNode implements NameNodeRemoteInterface {
 	private int port;
 	public int dataNodeAssignId;
+	public static PriorityBlockingQueue<DataNodeInfo> load;
 	private NameNodeRemoteInterface nameNodeStub;
 	public HDFSFileSystem fileSystem;
 	public ConcurrentHashMap<String, DataNodeInfo> cluster;
@@ -31,6 +32,7 @@ public class NameNode implements NameNodeRemoteInterface {
 		fileSystem = new HDFSFileSystem();
 		cluster = new ConcurrentHashMap<String, DataNodeInfo>();
 		dataNodeAssignId = 1;
+		load= new PriorityBlockingQueue<DataNodeInfo>();
 		nameNodeStub = null;
 		this.port = port;
 	}
@@ -154,11 +156,31 @@ public class NameNode implements NameNodeRemoteInterface {
 		DataNodeInfo one = null;
 		one = new DataNodeInfo(ip, ans);
 		this.cluster.put(ans, one);
-		fileSystem.load.put(one);
+		load.put(one);
 		Master.slaveStatus.put(dataNodeAssignId, Environment.TIME_LIMIT);
 		System.out.println("one slave join in get id: " + dataNodeAssignId);
 		dataNodeAssignId++;
 		return ans;
 	}
-	
+	public static List<String> select(int nums)
+	{
+		List<String> res=null;
+		List<DataNodeInfo> ans=null;
+		DataNodeInfo hold;
+		int i=0;
+		synchronized(load)
+		{
+			while(load.isEmpty()==false&&i<nums)
+			{
+				i++;
+				hold=load.poll();
+				hold.blockload++;
+				ans.add(hold);
+				res.add(hold.serviceName);
+			}
+			for(DataNodeInfo temp : ans )
+				load.add(temp);
+		}
+		return res;
+	}
 }
