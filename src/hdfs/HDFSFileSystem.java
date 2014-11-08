@@ -28,6 +28,8 @@ public class HDFSFileSystem {
 		}
 	public String deleteFile(String filename)
 	{
+		if(fileList.containsKey(filename)==false)
+			return "file does not exist";
 		HDFSFile file = this.fileList.get(filename);
 		String ans = file.delete();
 		fileList.remove(filename);
@@ -35,57 +37,28 @@ public class HDFSFileSystem {
 	}
 	public String deleteFolder(String foldername)
 	{
+		if(folderList.containsKey(foldername)==false)
+			return "folder does not exist";
 		HDFSFolder folder = folderList.get(foldername);
 		String ans = folder.delete();
 		folderList.remove(foldername);
 		return ans;
 	}
-	public String getFolder(String hdfsFilePath, String localFilePath) {
-		File f = new File(localFilePath);
-		if(f.isDirectory())
-			return "can not delete directory";
-		if(f.exists())
-			return "file already in local filesystem, please type in another filename";
-		HDFSFile hdfsfile = dfs.get(hdfsFilePath);
-		FileOutputStream out = null;
-		out =  new FileOutputStream(localFilePath);
-		int c;
-		int counter = 0;
-		byte[] buff = new byte[Environment.Dfs.BUF_SIZE];
-		for(int i=0;i<hdfsfile.getBlockSize();i++)
-		{
-			c = hdfsfile.getBlock(buff,i);
-			if(c==-1)
-				return "get file failed due to too many node crush and can not get a complete file";
-			out.write(buff, 0, c);
-			counter += c;
-		}
-		out.close();
-		System.out.println("READ: " + counter);
+	public String getFolder(String hdfsFolderName, String localFilePath) {
+		if(folderList.containsKey(hdfsFolderName)==false)
+			return "folder does not exist";
+		HDFSFolder hdfsfolder = folderList.get(hdfsFolderName);
+		String ans = hdfsfolder.moveTo(localFilePath);
+		return ans;
+		
 	}
-	public String getFiles(String hdfsFilePath, String localFilePath) {
-		File f = new File(localFilePath);
-		if(f.isDirectory())
-			return "can not delete directory";
-		if(f.exists())
-			return "file already in local filesystem, please type in another filename";
-		HDFSFile hdfsfile = dfs.get(hdfsFilePath);
-		FileOutputStream out = null;
-		out =  new FileOutputStream(localFilePath);
-		int c;
-		int counter = 0;
-		byte[] buff = new byte[Environment.Dfs.BUF_SIZE];
-		for(int i=0;i<hdfsfile.getBlockSize();i++)
-		{
-			c = hdfsfile.getBlock(buff,i);
-			if(c==-1)
-				return "get file failed due to too many node crush and can not get a complete file";
-			out.write(buff, 0, c);
-			counter += c;
-		}
-		out.close();
-		System.out.println("READ: " + counter);
-	
+	public String getFiles(String hdfsFileName, String localFilePath) {
+		if(fileList.containsKey(hdfsFileName)==false)
+			return "file does not exist";
+		HDFSFile hdfsfile = fileList.get(hdfsFileName);
+		String ans = hdfsfile.moveTo(localFilePath);
+		return ans;
+		
 	}
 	public String putFile(String localFileName, String hdfsFileName) {
 			File f=new File(localFileName);

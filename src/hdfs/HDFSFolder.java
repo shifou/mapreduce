@@ -35,4 +35,8 @@ public class HDFSFolder{
 		}
 		return foldername;
 	}
+	public String moveTo(String localFilePath) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
