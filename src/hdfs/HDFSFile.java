@@ -59,5 +59,6 @@ public class HDFSFile implements Serializable,HDFSAbstraction {
 				System.exit(-1);
 			}
 		}
+		return filename;
 	}
 }
