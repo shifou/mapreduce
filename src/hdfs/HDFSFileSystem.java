@@ -93,7 +93,7 @@ public class HDFSFileSystem {
 				return "this file does not exist in the local filesystem";
 			if(f.isDirectory())
 				return "can not put the directory to hdfs using put";
-			HDFSFile file =new HDFSFile(hdfsFileName);
+			HDFSFile file =new HDFSFile(hdfsFileName,'.');
 			String ans = file.createFrom(localFileName);
 			fileList.put(hdfsFileName,file);
 			return ans;
@@ -104,8 +104,10 @@ public class HDFSFileSystem {
 				return "this folder does not exist in the local filesystem";
 			if(f.isDirectory()==false)
 				return "can not put file to hdfs using putr";
-			
-		return "success!\n";
+			HDFSFolder folder = new HDFSFolder(localFolderName);
+			String ans = folder.createFrom(localFolderName);
+			folderList.put(hdfsFolderPath,folder);
+			return ans;
 	}
 	
 	

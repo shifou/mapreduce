@@ -1,5 +1,6 @@
 package hdfs;
 
+import java.io.File;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class HDFSFolder{
@@ -22,10 +23,15 @@ public class HDFSFolder{
 		return foldername;
 	}
 	public String createFrom(String localFolderName) {
-		for(String name:files.keySet())
+		File f=new File(localFolderName);
+		File [] ff= f.listFiles();
+		for(File each : ff)
 		{
-			HDFSFile hold = files.get(name);
-			System.out.println(hold.delete());
+			if(each.isDirectory())
+				continue;
+			HDFSFile file =new HDFSFile(each.getName(),foldername);
+			file.createFrom(String localFolderName);
+			files.put(file.filename, file);
 		}
 		return foldername;
 	}
