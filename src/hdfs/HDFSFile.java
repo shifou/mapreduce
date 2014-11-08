@@ -19,7 +19,7 @@ import main.Environment;
 public class HDFSFile implements Serializable{
 
 	private static final long serialVersionUID = 3326499942746127733L;
-	private String filename;
+	public String filename;
 	private String folderName;
 	private ConcurrentHashMap<Integer, HDFSBlock> blocks;
 
