@@ -3,6 +3,7 @@ package hdfs;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -103,5 +104,33 @@ public class HDFSFile implements Serializable{
 		e.printStackTrace();
 		return "Error! Failed to put file to HDFS.";
 	}
+	}
+
+	public String moveTo(String localFilePath) {
+		FileOutputStream out = null;
+		try {
+			out =  new FileOutputStream(localFilePath);
+		
+		int c;
+		int counter = 0;
+		byte[] buff = new byte[Environment.Dfs.BUF_SIZE];
+		for(int i=0;i<blocks.size();i++)
+		{
+			c = getBlock(buff,i);
+			if(c==-1)
+				return "get file failed due to too many node crush and can not get a complete file";
+			out.write(buff, 0, c);
+			counter += c;
+		}
+		out.close();
+		System.out.println("READ: " + counter);
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return "ok";
 	}
 }
