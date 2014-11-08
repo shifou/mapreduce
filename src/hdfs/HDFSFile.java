@@ -54,18 +54,8 @@ public class HDFSFile implements Serializable{
 	public String delete() {
 		for (Integer one : blocks.keySet()) {
 			HDFSBlock hold = blocks.get(one);
-			try {
-				if(hold.delete()==false)
-					System.out.println("notice some nodes fail when delete the block");
-			} catch (RemoteException e) {
-				System.out.println("delete failed");
-				System.exit(-1);
-			} catch (NotBoundException e) {
-				System.out.println("data node cant find");
-				System.exit(-1);
-			} catch (IOException e) {
-				System.out.println("File Error");
-				System.exit(-1);
+			if(hold.delete()==false){
+				System.out.println("notice some nodes fail when delete the block");
 			}
 		}
 		return filename;
