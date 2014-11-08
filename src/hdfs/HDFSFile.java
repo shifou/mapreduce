@@ -1,10 +1,13 @@
 package hdfs;
 
+import java.io.IOException;
 import java.io.Serializable;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class HDFSFile implements Serializable {
+public class HDFSFile implements Serializable,HDFSAbstraction {
 
 	private static final long serialVersionUID = 3326499942746127733L;
 	public String filename;
@@ -27,5 +30,24 @@ public class HDFSFile implements Serializable {
 	public HDFSFile(String filename)
 	{
 		this.filename=filename;
+	}
+	@Override
+	public String delete() {
+		for (Integer one : blocks.keySet()) {
+			HDFSBlock hold = blocks.get(one);
+			try {
+				if(hold.delete()==false)
+					System.out.println("notice some nodes fail when delete the block");
+			} catch (RemoteException e) {
+				System.out.println("delete failed");
+				System.exit(-1);
+			} catch (NotBoundException e) {
+				System.out.println("data node cant find");
+				System.exit(-1);
+			} catch (IOException e) {
+				System.out.println("File Error");
+				System.exit(-1);
+			}
+		}
 	}
 }
