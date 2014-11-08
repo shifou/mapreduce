@@ -30,13 +30,17 @@ public class HDFSFolder{
 			if(each.isDirectory())
 				continue;
 			HDFSFile file =new HDFSFile(each.getName(),foldername);
-			file.createFrom(String localFolderName);
+			file.createFrom(localFolderName);
 			files.put(file.filename, file);
 		}
 		return foldername;
 	}
 	public String moveTo(String localFilePath) {
-		// TODO Auto-generated method stub
-		return null;
+		for(String each: files.keySet())
+		{
+			HDFSFile hold = files.get(each);
+			hold.moveTo(localFilePath);
+		}
+		return "ok";
 	}
 }

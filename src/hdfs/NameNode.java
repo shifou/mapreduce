@@ -116,7 +116,7 @@ public class NameNode implements NameNodeRemoteInterface {
 
 	
 	public static int handlerRecovery(int slaveId) {
-		
+		return 1;
 		
 	}
 	@Override
@@ -146,7 +146,7 @@ public class NameNode implements NameNodeRemoteInterface {
 	}
 	@Override
 	public void quit() {
-		Environment.cleanup(Environment.Dfs.NAMENODE_SERVICENAME);
+		//.cleanup(Environment.Dfs.NAMENODE_SERVICENAME);
 	}
 
 	@Override
