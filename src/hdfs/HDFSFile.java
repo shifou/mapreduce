@@ -2,6 +2,7 @@ package hdfs;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -50,7 +51,6 @@ public class HDFSFile implements Serializable{
 		this.blocks = new ConcurrentHashMap<Integer, HDFSBlock>();
 		this.folderName = folderName;
 	}
-	@Override
 	public String delete() {
 		for (Integer one : blocks.keySet()) {
 			HDFSBlock hold = blocks.get(one);
@@ -78,8 +78,8 @@ public class HDFSFile implements Serializable{
 		BufferedReader br;
 		String         line;
 		String temp="";
-		fis = new FileInputStream(localFileName);
 		try{
+			fis = new FileInputStream(localFileName);
 		br = new BufferedReader(new InputStreamReader(fis, Charset.forName("UTF-8")));
 		while ((line = br.readLine()) != null) {
 			if(line.getBytes().length>Environment.Dfs.BUF_SIZE)
@@ -102,10 +102,10 @@ public class HDFSFile implements Serializable{
 		    	temp="";
 		    }
 		}
-		// Done with the file
 		br.close();
 		br = null;
 		fis = null;
+		return "ok";
 	} catch (Exception e) {
 		e.printStackTrace();
 		return "Error! Failed to put file to HDFS.";
