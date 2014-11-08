@@ -81,7 +81,7 @@ public class HDFSBlock implements Serializable {
 		} 
 	}
 	
-	public void get(){
+	public int get(){
 		
 	}
 

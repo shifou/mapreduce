@@ -52,6 +52,9 @@ public class HDFSFile implements Serializable{
 		this.folderName = folderName;
 	}
 	public String delete() {
+		
+		//TODO: fix the return, a kind of status. Not a string!
+		
 		for (Integer one : blocks.keySet()) {
 			HDFSBlock hold = blocks.get(one);
 			if(hold.delete()==false){
