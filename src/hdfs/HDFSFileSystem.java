@@ -26,32 +26,16 @@ public class HDFSFileSystem {
 	public String deleteFile(String filename)
 	{
 		HDFSFile file = this.fileList.get(filename);
+		String ans = file.delete();
 		fileList.remove(filename);
-		ConcurrentHashMap<Integer, HDFSBlock> fileblocks = file.getBlockList();
-
-		for (Integer one : fileblocks.keySet()) {
-			HDFSBlock hold = fileblocks.get(one);
-			try {
-				if(hold.delete()==false)
-					System.out.println("notice some nodes fail when delete the block");
-			} catch (RemoteException e) {
-				System.out.println("delete failed");
-				System.exit(-1);
-			} catch (NotBoundException e) {
-				System.out.println("data node cant find");
-				System.exit(-1);
-			} catch (IOException e) {
-				System.out.println("File Error");
-				System.exit(-1);
-			}
-		}
+		return ans;
 	}
 	public String deleteFolder(String foldername)
 	{
 		HDFSFolder folder = folderList.get(foldername);
 		String ans = folder.delete();
 		folderList.remove(foldername);
-		
+		return ans;
 	}
 	public String getFolder(String hdfsFilePath, String localFilePath) {
 		File f = new File(localFilePath);
