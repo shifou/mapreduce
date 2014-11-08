@@ -1,6 +1,8 @@
 package hdfs;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -28,14 +30,15 @@ public class DataNode implements DataNodeRemoteInterface{
 
 	public boolean start() {
 		
-		if (!Environment.createDirectory()){
-			return false;
-		}
+
 		Registry reg;
 		try {
 			reg = LocateRegistry.getRegistry(Environment.Dfs.NAME_NODE_REGISTRY_PORT);
 			this.nameNodeStub = (NameNodeRemoteInterface)reg.lookup(Environment.Dfs.NAMENODE_SERVICENAME);
 			String serviceName = this.nameNodeStub.join(InetAddress.getLocalHost().getHostAddress());
+			if (!Environment.createDirectory(serviceName)){
+				return false;
+			}
 			this.dataNodeStub = (DataNodeRemoteInterface)UnicastRemoteObject.exportObject(this, 0);
 			reg.rebind(serviceName, this.dataNodeStub);
 		} catch (RemoteException | NotBoundException | UnknownHostException e) {
@@ -102,6 +105,28 @@ public class DataNode implements DataNodeRemoteInterface{
 			
 	}
 
+	@Override
+	public Byte[] getFile(HDFSBlock block) {
+		try {
+			String fullPath = Environment.Dfs.DIRECTORY+"/"+block.getFileName()+"."+block.getID();
+			File file = new File(fullPath);
+			FileInputStream in = new FileInputStream(file);
+			int count = 0;
+			byte[] buffer = new byte[Environment.Dfs.BUF_SIZE];
+			count = in.read(buffer);
+			in.close();
+			Byte[] data = new Byte[count];
+			for (int i = 0; i < count; i++){
+				data[i] = buffer[i];
+			}
+			return data;
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 
+	
 
 }
