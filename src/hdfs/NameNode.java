@@ -132,9 +132,13 @@ public class NameNode implements NameNodeRemoteInterface {
 		for(String folder: fileSystem.folderList.keySet())
 		{
 			ans+=(folder+"\n");
-			for(String one: fileSystem.folderList.get(folder).files.keySet())
+			for(String one: fileSystem.folderList.get(folder).files.keySet()){
 				ans+=("----"+one+"\n");
+				ff++;
+			}
+			fd++;
 		}
+		ans+=("total files: "+ff+"\t"+"total folder: "+fd+"\n");
 		return ans;
 	}
 
