@@ -25,12 +25,14 @@ public class HDFSFolder{
 	public String createFrom(String localFolderName) {
 		File f=new File(localFolderName);
 		File [] ff= f.listFiles();
+		System.out.println("copy from folder "+ localFolderName);
 		for(File each : ff)
 		{
-			if(each.isDirectory())
+			if(each.isDirectory() || each.isHidden())
 				continue;
 			HDFSFile file =new HDFSFile(each.getName(),foldername);
-			file.createFrom(localFolderName);
+			System.out.println("find "+each.getName());
+			file.createFrom(localFolderName+"/"+file.filename);
 			files.put(file.filename, file);
 		}
 		return "ok";

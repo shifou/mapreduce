@@ -82,6 +82,12 @@ public class Command {
 				deleteRHandler(hdfsFilePath);
 			}else if (args[1].equals("ls"))
 				listHandler();
+			else
+			{
+				printPutUsage();
+				return;
+			}
+				
 		} else {
 			// for mapreduce
 

@@ -66,7 +66,7 @@ public class DataNode implements DataNodeRemoteInterface{
 			if (blocks != null){
 				blocks.remove(ID);
 				if (blocks.isEmpty()){
-					this.fileToBlock.remove(blocks);
+					this.fileToBlock.remove(path);
 				}
 				return true;
 			}

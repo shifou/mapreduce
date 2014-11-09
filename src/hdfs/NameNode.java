@@ -58,8 +58,8 @@ public class NameNode implements NameNodeRemoteInterface {
 
 	@Override
 	public String delete(String filename) throws RemoteException, IOException {
-		if(fileSystem.fileList.containsKey(filename))
-			return "file duplicate in hdfs";
+		if(fileSystem.fileList.containsKey(filename)==false)
+			return "file not exist in hdfs";
 		String ans = fileSystem.deleteFile(filename);
 		return ans;
 	}
