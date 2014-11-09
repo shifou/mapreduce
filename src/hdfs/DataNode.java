@@ -151,6 +151,18 @@ public class DataNode implements DataNodeRemoteInterface{
 		return null;
 	}
 
+	@Override
+	public String deleteFolder(String foldername) throws RemoteException {
+		String path = Environment.Dfs.DIRECTORY+"/"+foldername;
+		File toDelete = new File(path);
+		if (toDelete.delete()){
+			return "folder deleted: " + foldername;
+		}
+		else{
+			return "delete folder failed: " + foldername;
+		}
+	}
+
 	
 
 }
