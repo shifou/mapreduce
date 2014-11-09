@@ -122,12 +122,23 @@ public class NameNode implements NameNodeRemoteInterface {
 	@Override
 	public String list() {
 		String ans = "";
-		int id = 1;
-		if (dfs.isEmpty())
-			return "there is no file yet";
-		for (String file : dfs.keySet()) {
-			ans += (id + ": " + file + "\n");
+		int ff = 0,fd=0;
+		if (fileSystem.fileList.isEmpty()&&fileSystem.folderList.isEmpty())
+			return "there is no file and folder yet";
+		for (String file : fileSystem.fileList.keySet()) {
+			ans += (file + "\n");
+			ff++;
 		}
+		for(String folder: fileSystem.folderList.keySet())
+		{
+			ans+=(folder+"\n");
+			for(String one: fileSystem.folderList.get(folder).files.keySet()){
+				ans+=("----"+one+"\n");
+				ff++;
+			}
+			fd++;
+		}
+		ans+=("total files: "+ff+"\t"+"total folder: "+fd+"\n");
 		return ans;
 	}
 
