@@ -10,6 +10,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.PriorityBlockingQueue;
@@ -62,9 +63,17 @@ public class HDFSFileSystem {
 			if(fileList.containsKey(hdfsFileName))
 				return "this file duplicate in the hdfs filesystem";
 			HDFSFile file =new HDFSFile(hdfsFileName,null);
-			String ans = file.createFrom(localFileName);
+			HashSet<String> ans = file.createFrom(localFileName);
 			fileList.put(hdfsFileName,file);
-			return ans;
+			String res="";
+			if(ans.contains("#")==true)
+				ans.remove("#");
+			for(String each:ans)
+			{
+				if(each.charAt(0)=='?'||each.charAt(0)=='#')
+				res+=each;
+			}
+			return res;
 	}
 	public String putFolder(String localFolderName, String hdfsFolderPath) {
 			if(folderList.containsKey(hdfsFolderPath))

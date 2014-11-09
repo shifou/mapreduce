@@ -25,7 +25,7 @@ public class NameNode implements NameNodeRemoteInterface {
 	public static PriorityBlockingQueue<DataNodeInfo> load;
 	private NameNodeRemoteInterface nameNodeStub;
 	public HDFSFileSystem fileSystem;
-	public ConcurrentHashMap<String, DataNodeInfo> cluster;
+	public static ConcurrentHashMap<String, DataNodeInfo> cluster;
 	
 	// slaveCheck systemCheck;
 
@@ -124,6 +124,14 @@ public class NameNode implements NameNodeRemoteInterface {
 	public static int handlerRecovery(int slaveId) {
 		return 1;
 		
+	}
+	public static String findIp(String name){
+		if(cluster.containsKey(name))
+		{
+			return cluster.get(name).ip;
+		}
+		else 
+			return "";
 	}
 	@Override
 	public String list() throws RemoteException{

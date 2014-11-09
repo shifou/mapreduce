@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.nio.charset.Charset;
+import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -62,8 +63,9 @@ public class HDFSFile implements Serializable{
 		}
 		return filename;
 	}
-	public String createFrom( String localFileName)
+	public HashSet<String> createFrom( String localFileName)
 	{
+		HashSet<String> ans =new HashSet<String>();
 		int blocksize=0;
 		InputStream    fis;
 		BufferedReader br;
@@ -77,7 +79,9 @@ public class HDFSFile implements Serializable{
 		while ((line = br.readLine()) != null) {
 			if(line.getBytes().length>Environment.Dfs.BUF_SIZE){
 				br.close();
-				return "Abondon some line too big to fit even in a block. ";
+				ans.add("#");
+				ans.add("#Abondon some line too big to fit even in a block. ");
+				return ans;
 			}
 				
 		    if((temp+line+"\n").getBytes().length <=Environment.Dfs.BUF_SIZE)
@@ -88,8 +92,12 @@ public class HDFSFile implements Serializable{
 				if(locations.size()!=Environment.Dfs.REPLICA_NUMS)
 				{
 					br.close();
-					return "Abondon put task Reason: can not fulfil replica nums during putting the block\n";
+					ans.add("#");
+					ans.add("#Abondon some line too big to fit even in a block. ");
+					return ans;
 				}
+				for(DataNodeInfo one: locations)
+					ans.add(one.serviceName);
 				byte[] buff = temp.getBytes();
 				int ct=0;
 				Byte[]data = new Byte[Environment.Dfs.BUF_SIZE];
@@ -107,8 +115,12 @@ public class HDFSFile implements Serializable{
 			if(locations.size()!=Environment.Dfs.REPLICA_NUMS)
 			{
 				br.close();
-				return "Abondon put task Reason: can not fulfil replica nums during putting the block\n";
+				ans.add("#");
+				ans.add("#Abondon some line too big to fit even in a block. ");
+				return ans;
 			}
+			for(DataNodeInfo one: locations)
+				ans.add(one.serviceName);
 			byte[] buff = temp.getBytes();
 			int ct=0;
 			Byte[]data = new Byte[Environment.Dfs.BUF_SIZE];
@@ -121,10 +133,13 @@ public class HDFSFile implements Serializable{
 		br.close();
 		br = null;
 		fis = null;
-		return "ok";
+		ans.add("?put "+filename+" ok");
+		return ans;
 	} catch (Exception e) {
 		e.printStackTrace();
-		return "Error! Failed to put file to HDFS.";
+		ans.add("#");
+		ans.add("#Error! Failed to put file to HDFS.");
+		return ans;
 	}
 	}
 
