@@ -76,8 +76,9 @@ public class DataNode implements DataNodeRemoteInterface{
 	}
 
 	@Override
-	public void putFile(Byte[] data, int blockSize, HDFSBlock block, String folderName) {
+	public void putFile(Byte[] data, int blockSize, HDFSBlock block) {
 		String fullPath;
+		String folderName = block.getFolderName();
 		if (folderName != null){
 			File folder = new File(Environment.Dfs.DIRECTORY+"/"+folderName);
 			folder.mkdir();
@@ -116,7 +117,14 @@ public class DataNode implements DataNodeRemoteInterface{
 	@Override
 	public Byte[] getFile(HDFSBlock block) {
 		try {
-			String fullPath = Environment.Dfs.DIRECTORY+"/"+block.getFileName()+"."+block.getID();
+			String fullPath;
+			String folderName = block.getFolderName();
+			if (folderName != null){
+				fullPath = Environment.Dfs.DIRECTORY+"/"+folderName+"/"+block.getFileName()+"."+block.getID();
+			}
+			else {
+				fullPath = Environment.Dfs.DIRECTORY+"/"+block.getFileName()+"."+block.getID();
+			}
 			File file = new File(fullPath);
 			FileInputStream in = new FileInputStream(file);
 			int count = 0;

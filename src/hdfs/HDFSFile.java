@@ -2,15 +2,12 @@ package hdfs;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.nio.charset.Charset;
-import java.rmi.NotBoundException;
-import java.rmi.RemoteException;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -43,7 +40,10 @@ public class HDFSFile implements Serializable{
 
 	public int getBlock(byte[] data, int blockID) {
 
-		
+		HDFSBlock block = this.blocks.get(blockID);
+		if (block != null){
+			return block.get(data);
+		}
 		return -1;
 	}
 
@@ -53,7 +53,6 @@ public class HDFSFile implements Serializable{
 		this.folderName = folderName;
 	}
 	public String delete() {
-		
 		
 		for (Integer one : blocks.keySet()) {
 			HDFSBlock hold = blocks.get(one);
@@ -65,7 +64,6 @@ public class HDFSFile implements Serializable{
 	}
 	public String createFrom( String localFileName)
 	{
-		int c = 0;
 		int blocksize=0;
 		InputStream    fis;
 		BufferedReader br;
@@ -75,8 +73,11 @@ public class HDFSFile implements Serializable{
 			fis = new FileInputStream(localFileName);
 		br = new BufferedReader(new InputStreamReader(fis, Charset.forName("UTF-8")));
 		while ((line = br.readLine()) != null) {
-			if(line.getBytes().length>Environment.Dfs.BUF_SIZE)
+			if(line.getBytes().length>Environment.Dfs.BUF_SIZE){
+				br.close();
 				return "Abondon some line too big to fit even in a block. ";
+			}
+				
 		    if((temp+line).getBytes().length <=Environment.Dfs.BUF_SIZE)
 		    	temp=temp+line;
 		    else
@@ -84,6 +85,7 @@ public class HDFSFile implements Serializable{
 		    	List<String> locations = NameNode.select(Environment.Dfs.REPLICA_NUMS);
 				if(locations.size()!=Environment.Dfs.REPLICA_NUMS)
 				{
+					br.close();
 					return "Abondon put task Reason: can not fulfil replica nums during putting the block\n";
 				}
 				byte[] buff = temp.getBytes();
@@ -116,18 +118,17 @@ public class HDFSFile implements Serializable{
 		for(int i=0;i<blocks.size();i++)
 		{
 			c = getBlock(buff,i);
-			if(c==-1)
+			if(c==-1){
+				out.close();
 				return "get file failed due to too many node crush and can not get a complete file";
+			}
+				
 			out.write(buff, 0, c);
 			counter += c;
 		}
 		out.close();
 		System.out.println("READ: " + counter);
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return "ok";
