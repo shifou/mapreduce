@@ -1,6 +1,10 @@
 package hdfs;
 
-public class DataNodeInfo implements Comparable<DataNodeInfo> {
+import java.io.Serializable;
+
+public class DataNodeInfo implements Comparable<DataNodeInfo>,Serializable {
+
+	private static final long serialVersionUID = -6929193118742452681L;
 	public String serviceName;
 	public String ip;
 	public int blockload;

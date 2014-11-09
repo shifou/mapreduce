@@ -78,8 +78,8 @@ public class HDFSFile implements Serializable{
 				return "Abondon some line too big to fit even in a block. ";
 			}
 				
-		    if((temp+line).getBytes().length <=Environment.Dfs.BUF_SIZE)
-		    	temp=temp+line;
+		    if((temp+line+"\n").getBytes().length <=Environment.Dfs.BUF_SIZE)
+		    	temp=temp+line+"\n";
 		    else
 		    {
 		    	List<DataNodeInfo> locations = NameNode.select(Environment.Dfs.REPLICA_NUMS);

@@ -10,6 +10,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.PriorityBlockingQueue;
@@ -180,9 +181,10 @@ public class NameNode implements NameNodeRemoteInterface {
 	}
 	public static List<DataNodeInfo> select(int nums)
 	{
-		List<DataNodeInfo> ans=null;
-		DataNodeInfo hold;
+		List<DataNodeInfo> ans=new ArrayList<DataNodeInfo>();
+		DataNodeInfo hold=null;
 		int i=0;
+		System.out.println("now cluster:"+load.size());
 		synchronized(load)
 		{
 			while(load.isEmpty()==false&&i<nums)
@@ -195,9 +197,9 @@ public class NameNode implements NameNodeRemoteInterface {
 			for(DataNodeInfo temp : ans )
 				load.add(temp);
 		}
-		System.out.print("select: ");
+		System.out.print("select: \n");
 		for(DataNodeInfo k:ans)
-			System.out.print(k.serviceName+"\t"+k.ip);
+			System.out.println(k.serviceName+"\t"+k.ip);
 		return ans;
 	}
 }
