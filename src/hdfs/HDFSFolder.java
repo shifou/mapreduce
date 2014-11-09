@@ -33,7 +33,7 @@ public class HDFSFolder{
 			file.createFrom(localFolderName);
 			files.put(file.filename, file);
 		}
-		return foldername;
+		return "ok";
 	}
 	public String moveTo(String localFilePath) {
 		for(String each: files.keySet())

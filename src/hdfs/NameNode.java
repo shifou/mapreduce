@@ -68,6 +68,8 @@ public class NameNode implements NameNodeRemoteInterface {
 		return ans;
 	}
 	public String copyFromLocalR(String localFolderName, String hdfsFolderPath) {
+		if(hdfsFolderPath.indexOf("/")!=-1)
+			return "folder format error";
 		if(cluster.size()<Environment.Dfs.REPLICA_NUMS)
 		{
 			return "can not copy because replica number greater than slaves\n";
@@ -81,6 +83,8 @@ public class NameNode implements NameNodeRemoteInterface {
 		
 	}
 	public String copyFromLocal(String localFileName, String hdfsFileName) {
+		if(hdfsFileName.indexOf("/")!=-1)
+			return "please input the new filename you want to store as instead of the folder";
 		if(cluster.size()<Environment.Dfs.REPLICA_NUMS)
 		{
 			return "can not copy because replica number greater than slaves\n";
@@ -169,7 +173,7 @@ public class NameNode implements NameNodeRemoteInterface {
 		this.cluster.put(ans, one);
 		load.put(one);
 		Master.slaveStatus.put(dataNodeAssignId, Environment.TIME_LIMIT);
-		System.out.println("one slave join in get id: " + dataNodeAssignId);
+		System.out.println("one slave join in with ip "+ip+" get id: " + dataNodeAssignId);
 		dataNodeAssignId++;
 		return ans;
 	}
@@ -192,6 +196,9 @@ public class NameNode implements NameNodeRemoteInterface {
 			for(DataNodeInfo temp : ans )
 				load.add(temp);
 		}
+		System.out.print("select: ");
+		for(String k:res)
+			System.out.print(k+"\t");
 		return res;
 	}
 }

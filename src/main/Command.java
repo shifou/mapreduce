@@ -16,7 +16,7 @@ public class Command {
 			IllegalAccessException, InvocationTargetException,
 			NoSuchMethodException {
 
-		if (checkConf() == false) {
+		if (Environment.configure() == false) {
 			System.err
 					.println("framework configuration error.\n"
 							+ "Please configure the hdfs.xml and mapred.xml first and restart hadoop\n");
@@ -241,10 +241,7 @@ public class Command {
 		}
 	}
 
-	private static boolean checkConf() {
-		// TODO Auto-generated method stub
-		return true;
-	}
+
 	
 	private static void printPutrUsage() {
 		System.out.println("Usage: hadoop putr <local folder> <hdfs path>");

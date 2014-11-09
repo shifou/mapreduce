@@ -1,7 +1,7 @@
 package mapreduce;
 
 public class Job {
-
+/*
 	public void setOutputKeyClass(Class<Text> class1) {
 		// TODO Auto-generated method stub
 		
@@ -21,5 +21,5 @@ public class Job {
 		// TODO Auto-generated method stub
 		
 	}
-
+*/
 }

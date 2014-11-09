@@ -14,7 +14,7 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 public class Environment {
-	public static int TIME_LIMIT;
+	public static int TIME_LIMIT=5;
 
 	public static class Dfs {
 		public static String NAME_NODE_IP;
@@ -134,8 +134,8 @@ public class Environment {
 			if (folder.mkdir()) {
 				System.out.println("Directory created");
 			} else {
-				System.err
-						.println("Directory already used please change directory name or delete the directory first");
+				System.out
+						.println("Warning Directory already used please change directory name or delete the directory first");
 				return false;
 			}
 		}
