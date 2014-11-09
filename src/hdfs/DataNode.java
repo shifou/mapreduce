@@ -86,15 +86,16 @@ public class DataNode implements DataNodeRemoteInterface{
 		String fullPath;
 		String folderName = block.getFolderName();
 		if (folderName != null){
-			File folder = new File(Environment.Dfs.DIRECTORY+this.serviceName+"/"+folderName);
+			File folder = new File(Environment.Dfs.DIRECTORY+"/"+this.serviceName+"/"+folderName);
 			folder.mkdir();
-			fullPath = Environment.Dfs.DIRECTORY+this.serviceName+"/"+folderName+"/"+block.getFileName()+"."+block.getID();
+			fullPath = Environment.Dfs.DIRECTORY+"/"+this.serviceName+"/"+folderName+"/"+block.getFileName()+"."+block.getID();
 		}
 		else {
-			fullPath = Environment.Dfs.DIRECTORY+this.serviceName+"/"+block.getFileName()+"."+block.getID();
+			fullPath = Environment.Dfs.DIRECTORY+"/"+this.serviceName+"/"+block.getFileName()+"."+block.getID();
 		}
 		System.out.println("trying to add block: "+fullPath);
 		File file = new File(fullPath);
+		System.out.println("Path written to: "+ fullPath);
 		
 		try {
 			file.createNewFile();
@@ -127,10 +128,10 @@ public class DataNode implements DataNodeRemoteInterface{
 			String fullPath;
 			String folderName = block.getFolderName();
 			if (folderName != null){
-				fullPath = Environment.Dfs.DIRECTORY+this.serviceName+"/"+folderName+"/"+block.getFileName()+"."+block.getID();
+				fullPath = Environment.Dfs.DIRECTORY+"/"+this.serviceName+"/"+folderName+"/"+block.getFileName()+"."+block.getID();
 			}
 			else {
-				fullPath = Environment.Dfs.DIRECTORY+this.serviceName+"/"+block.getFileName()+"."+block.getID();
+				fullPath = Environment.Dfs.DIRECTORY+"/"+this.serviceName+"/"+block.getFileName()+"."+block.getID();
 			}
 			File file = new File(fullPath);
 			FileInputStream in = new FileInputStream(file);

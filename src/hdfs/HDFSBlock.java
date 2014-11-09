@@ -79,10 +79,10 @@ public class HDFSBlock implements Serializable {
 				DataNodeRemoteInterface dataNodeStub = (DataNodeRemoteInterface)reg.lookup(this.repIDtoLoc.get(repId).serviceName);
 				String fullPath;
 				if (this.blockFolderName != null){
-					fullPath = Environment.Dfs.DIRECTORY+this.repIDtoLoc.get(repId).serviceName+"/"+this.blockFolderName+"/"+this.blockFileName+"."+this.ID;
+					fullPath = Environment.Dfs.DIRECTORY+"/"+this.repIDtoLoc.get(repId).serviceName+"/"+this.blockFolderName+"/"+this.blockFileName+"."+this.ID;
 				}
 				else {
-					fullPath = Environment.Dfs.DIRECTORY+this.repIDtoLoc.get(repId).serviceName+"/"+this.blockFileName+"."+this.ID;
+					fullPath = Environment.Dfs.DIRECTORY+"/"+this.repIDtoLoc.get(repId).serviceName+"/"+this.blockFileName+"."+this.ID;
 				}
 				if (dataNodeStub.delete(fullPath, this.ID) == false){
 					return false;
