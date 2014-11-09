@@ -1,6 +1,7 @@
 package main;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -27,7 +28,7 @@ public class Environment {
 		public static int BUF_SIZE = 2048;
 	}
 
-	public static boolean configure() {
+	public static boolean configure() throws FileNotFoundException {
 		System.out.println("----------check conf----------\n");
 		String[] str = { "NAMENODE_SERVICENAME", "DIRECTORY", "NAME_NODE_IP" };
 		String[] num = { "REPLICA_NUMS", "BUF_SIZE", "NAME_NODE_CHECK_PERIOD",
@@ -74,7 +75,7 @@ public class Environment {
 						if (eElement.getElementsByTagName(num[i]) != null) {
 							int hold = Integer.valueOf(eElement
 									.getElementsByTagName(num[i]).item(0)
-									.getTextContent());
+									.getTextContent().trim());
 							switch (num[i]) {
 							case "NAME_NODE_REGISTRY_PORT":
 								Dfs.NAME_NODE_REGISTRY_PORT = hold;
@@ -115,11 +116,6 @@ public class Environment {
 			System.out.println(" error! exit...");
 			e.printStackTrace();
 			return false;
-		} catch (Exception e) {
-
-			System.out.println(" error! exit...");
-			e.printStackTrace();
-			return false;
 		}
 		return true;
 	}
@@ -127,6 +123,7 @@ public class Environment {
 	public static boolean createDirectory(String name) {
 
 		File folder = new File(Environment.Dfs.DIRECTORY + "/" + name);
+		System.out.println("trying to create: "+folder.getAbsolutePath());
 		if (!folder.exists()) {
 			if (folder.mkdir()) {
 				System.out.println("Directory created");

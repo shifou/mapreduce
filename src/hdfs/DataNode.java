@@ -24,6 +24,7 @@ public class DataNode implements DataNodeRemoteInterface{
 	private ConcurrentHashMap<String, ConcurrentHashMap<Integer, HDFSBlock>> fileToBlock;
 	
 	public DataNode(int dataNodeRegistryPort) {
+		Environment.createDirectory("");
 		this.dataNodeRegistryPort = dataNodeRegistryPort;
 		this.fileToBlock = new ConcurrentHashMap<String, ConcurrentHashMap<Integer, HDFSBlock>>();
 	}

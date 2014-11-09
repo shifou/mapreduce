@@ -6,6 +6,8 @@ import hdfs.DataNode;
 
 public class Slave {
 	public static void main(String[] args) {
+		System.out.println("start Slave");
+		
 		try {
 			if( Environment.configure()==false)
 			{

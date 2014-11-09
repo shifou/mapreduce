@@ -71,7 +71,7 @@ public class HDFSFileSystem {
 			File f=new File(localFolderName);
 			if(f.exists()==false )
 				return "this folder does not exist in the local filesystem";
-				HDFSFolder folder = new HDFSFolder(localFolderName);
+			HDFSFolder folder = new HDFSFolder(localFolderName);
 			String ans = folder.createFrom(localFolderName);
 			folderList.put(hdfsFolderPath,folder);
 			return ans;

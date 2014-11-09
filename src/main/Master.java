@@ -53,10 +53,11 @@ public class Master {
 		
 	}
 	public static void main(String[] args) {
+		System.out.println("start Master");
 		try {
 		if( Environment.configure()==false)
 		{
-			System.err.println("please configure hdfs and mapred first");
+			System.out.println("please configure hdfs and mapred first");
 			System.exit(1);
 		}
 		}

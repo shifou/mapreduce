@@ -29,6 +29,7 @@ public class NameNode implements NameNodeRemoteInterface {
 	// slaveCheck systemCheck;
 
 	public NameNode(int port) {
+		Environment.createDirectory("");
 		fileSystem = new HDFSFileSystem();
 		cluster = new ConcurrentHashMap<String, DataNodeInfo>();
 		dataNodeAssignId = 1;
