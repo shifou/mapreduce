@@ -155,6 +155,10 @@ public class DataNode implements DataNodeRemoteInterface{
 	public String deleteFolder(String foldername) throws RemoteException {
 		String path = Environment.Dfs.DIRECTORY+"/"+foldername;
 		File toDelete = new File(path);
+		File[] allFiles = toDelete.listFiles();
+		for (File f : allFiles){
+			System.out.println(f.getName());
+		}
 		if (toDelete.delete()){
 			return "folder deleted: " + foldername;
 		}
