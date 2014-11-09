@@ -29,7 +29,7 @@ public class HDFSFile implements Serializable{
 	}
 
 	private void addBlock(Byte[] data, int blockID, int blocksize,
-			List<String> locations) {
+			List<DataNodeInfo> locations) {
 
 		HDFSBlock block = new HDFSBlock(this.filename, blockID, data,
 				blocksize, locations, this.folderName);
@@ -100,7 +100,7 @@ public class HDFSFile implements Serializable{
 		}
 		if(temp.equals("")==false)
 		{
-			List<String> locations = NameNode.select(Environment.Dfs.REPLICA_NUMS);
+			List<DataNodeInfo> locations = NameNode.select(Environment.Dfs.REPLICA_NUMS);
 			if(locations.size()!=Environment.Dfs.REPLICA_NUMS)
 			{
 				br.close();

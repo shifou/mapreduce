@@ -14,25 +14,26 @@ public class HDFSBlock implements Serializable {
 	
 	private String blockFileName;
 	private int ID; 
-	private ConcurrentHashMap<Integer, String> repIDtoLoc;
+	private ConcurrentHashMap<Integer, DataNodeInfo> repIDtoLoc;
 	private String blockFolderName;
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -3110335214705117456L;
 	
-	public HDFSBlock(String blockFileName, int ID, Byte[] data, int blockSize, List<String> locations, String folderName){
+	public HDFSBlock(String blockFileName, int ID, Byte[] data, int blockSize, List<DataNodeInfo> locations, String folderName){
 		this.blockFileName = blockFileName;
 		this.blockFolderName = folderName;
 		this.ID = ID;
-		this.repIDtoLoc = new ConcurrentHashMap<Integer, String>();
+		this.repIDtoLoc = new ConcurrentHashMap<Integer, DataNodeInfo>();
 		for (int i = 0; i < locations.size(); i++){
 			this.repIDtoLoc.put(i, locations.get(i));
 		}
 		try {
-			Registry reg = LocateRegistry.getRegistry(Environment.Dfs.DATA_NODE_REGISTRY_PORT);
+			
 			for (Integer repID : this.repIDtoLoc.keySet()){
-				DataNodeRemoteInterface dataNodeStub = (DataNodeRemoteInterface)reg.lookup(this.repIDtoLoc.get(repID));
+				Registry reg = LocateRegistry.getRegistry(this.repIDtoLoc.get(repID).ip,Environment.Dfs.DATA_NODE_REGISTRY_PORT);
+				DataNodeRemoteInterface dataNodeStub = (DataNodeRemoteInterface)reg.lookup(this.repIDtoLoc.get(repID).serviceName);
 				dataNodeStub.putFile(data, blockSize, this);
 			}
 		} catch (RemoteException | NotBoundException e) {
@@ -72,9 +73,10 @@ public class HDFSBlock implements Serializable {
 	public boolean delete(){
 		
 		try {
-			Registry reg = LocateRegistry.getRegistry(Environment.Dfs.DATA_NODE_REGISTRY_PORT);
+			
 			for (Integer repId: this.repIDtoLoc.keySet()){
-				DataNodeRemoteInterface dataNodeStub = (DataNodeRemoteInterface)reg.lookup(this.repIDtoLoc.get(repId));
+				Registry reg = LocateRegistry.getRegistry(this.repIDtoLoc.get(repId).ip, Environment.Dfs.DATA_NODE_REGISTRY_PORT);
+				DataNodeRemoteInterface dataNodeStub = (DataNodeRemoteInterface)reg.lookup(this.repIDtoLoc.get(repId).serviceName);
 				String fullPath;
 				if (this.blockFolderName != null){
 					fullPath = Environment.Dfs.DIRECTORY+"/"+this.blockFolderName+"/"+this.blockFileName+"."+this.ID;
@@ -96,9 +98,9 @@ public class HDFSBlock implements Serializable {
 	
 	public int get(byte[] data){
 		try {
-			Registry reg = LocateRegistry.getRegistry(Environment.Dfs.DATA_NODE_REGISTRY_PORT);
 			for (Integer repId: this.repIDtoLoc.keySet()){
-				DataNodeRemoteInterface dataNodeStub = (DataNodeRemoteInterface)reg.lookup(this.repIDtoLoc.get(repId));
+				Registry reg = LocateRegistry.getRegistry(this.repIDtoLoc.get(repId).ip, Environment.Dfs.DATA_NODE_REGISTRY_PORT);
+				DataNodeRemoteInterface dataNodeStub = (DataNodeRemoteInterface)reg.lookup(this.repIDtoLoc.get(repId).serviceName);
 				Byte[] b = dataNodeStub.getFile(this);
 				if (b != null){
 					int len = b.length;
