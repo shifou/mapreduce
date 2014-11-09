@@ -53,7 +53,7 @@ public class DataNode implements DataNodeRemoteInterface{
 	}
 
 	@Override
-	public boolean delete(String path, int ID) {
+	public boolean delete(String path, int ID) throws RemoteException{
 
 		File toDelete = new File(path);
 		if (toDelete.delete()){
@@ -77,7 +77,7 @@ public class DataNode implements DataNodeRemoteInterface{
 	}
 
 	@Override
-	public void putFile(Byte[] data, int blockSize, HDFSBlock block) {
+	public void putFile(Byte[] data, int blockSize, HDFSBlock block) throws RemoteException{
 		String fullPath;
 		String folderName = block.getFolderName();
 		if (folderName != null){
@@ -116,7 +116,7 @@ public class DataNode implements DataNodeRemoteInterface{
 	}
 
 	@Override
-	public Byte[] getFile(HDFSBlock block) {
+	public Byte[] getFile(HDFSBlock block) throws RemoteException{
 		try {
 			String fullPath;
 			String folderName = block.getFolderName();

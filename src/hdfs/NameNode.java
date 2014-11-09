@@ -68,7 +68,7 @@ public class NameNode implements NameNodeRemoteInterface {
 		String ans = fileSystem.deleteFolder(foldername);
 		return ans;
 	}
-	public String copyFromLocalR(String localFolderName, String hdfsFolderPath) {
+	public String copyFromLocalR(String localFolderName, String hdfsFolderPath) throws RemoteException{
 		if(hdfsFolderPath.indexOf("/")!=-1)
 			return "folder format error";
 		if(cluster.size()<Environment.Dfs.REPLICA_NUMS)
@@ -83,7 +83,7 @@ public class NameNode implements NameNodeRemoteInterface {
 		return ans;
 		
 	}
-	public String copyFromLocal(String localFileName, String hdfsFileName) {
+	public String copyFromLocal(String localFileName, String hdfsFileName) throws RemoteException{
 		if(hdfsFileName.indexOf("/")!=-1)
 			return "please input the new filename you want to store as instead of the folder";
 		if(cluster.size()<Environment.Dfs.REPLICA_NUMS)
@@ -98,7 +98,7 @@ public class NameNode implements NameNodeRemoteInterface {
 		return ans;
 	}
 
-	public String copyToLocalR(String hdfsFilePath, String localFilePath) 
+	public String copyToLocalR(String hdfsFilePath, String localFilePath) throws RemoteException
 	{
 		if(fileSystem.folderList.containsKey(hdfsFilePath))
 			return "folder duplicate in the hdfs";
@@ -108,7 +108,7 @@ public class NameNode implements NameNodeRemoteInterface {
 			return ans;
 		}
 	}
-	public String copyToLocal(String hdfsFilePath, String localFilePath) 
+	public String copyToLocal(String hdfsFilePath, String localFilePath) throws RemoteException
 	{
 		if(fileSystem.fileList.containsKey(hdfsFilePath)==false)
 			return "no such file in the hdfs";
@@ -125,7 +125,7 @@ public class NameNode implements NameNodeRemoteInterface {
 		
 	}
 	@Override
-	public String list() {
+	public String list() throws RemoteException{
 		String ans = "";
 		int ff = 0,fd=0;
 		if (fileSystem.fileList.isEmpty()&&fileSystem.folderList.isEmpty())
@@ -148,7 +148,7 @@ public class NameNode implements NameNodeRemoteInterface {
 	}
 
 	@Override
-	public String heart(int slaveId) {
+	public String heart(int slaveId) throws RemoteException{
 		if(cluster.containsKey("d"+slaveId)==false)
 		{
 			System.out.println("slave "+slaveId+" turn to alive");
@@ -161,12 +161,12 @@ public class NameNode implements NameNodeRemoteInterface {
 		}
 	}
 	@Override
-	public void quit() {
+	public void quit() throws RemoteException{
 		//.cleanup(Environment.Dfs.NAMENODE_SERVICENAME);
 	}
 
 	@Override
-	public String join(String ip) {
+	public String join(String ip) throws RemoteException{
 
 		String ans = "d" + this.dataNodeAssignId;
 		DataNodeInfo one = null;
