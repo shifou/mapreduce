@@ -16,6 +16,8 @@ public class Master {
 	public static ConcurrentHashMap<Integer, Integer> slaveStatus;
 	public static void startTimer() {
 		System.out.println("--heartbeat--");
+		slaveStatus=new  ConcurrentHashMap<Integer, Integer>();
+		/*
 		monitor = new Timer(true);
 		TimerTask task = new TimerTask() {
 			public void run() {
@@ -23,6 +25,7 @@ public class Master {
 			}
 		};
 		monitor.schedule(task, 0, Environment.Dfs.NAME_NODE_CHECK_PERIOD);
+		*/
 	}
 	private static void checkAlive() {
 
@@ -81,6 +84,6 @@ public class Master {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		//startTimer();
+		startTimer();
 	}
 }
