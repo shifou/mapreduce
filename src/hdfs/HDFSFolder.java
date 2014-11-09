@@ -6,9 +6,10 @@ import java.util.concurrent.ConcurrentHashMap;
 public class HDFSFolder{
 	public int fileSize;
 	public String foldername;
-	ConcurrentHashMap<String, HDFSFile> files;
+	public ConcurrentHashMap<String, HDFSFile> files;
 	public HDFSFolder(String localFolderName) {
 		foldername=localFolderName;
+		files =new ConcurrentHashMap<String, HDFSFile> ();
 	}
 	public int filesize() {
 		// TODO Auto-generated method stub
@@ -31,7 +32,7 @@ public class HDFSFolder{
 			if(each.isDirectory() || each.isHidden())
 				continue;
 			HDFSFile file =new HDFSFile(each.getName(),foldername);
-			System.out.println("find "+each.getName());
+			System.out.println("find "+localFolderName+"/"+each.getName());
 			file.createFrom(localFolderName+"/"+file.filename);
 			files.put(file.filename, file);
 		}

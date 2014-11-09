@@ -71,6 +71,8 @@ public class HDFSFile implements Serializable{
 		String temp="";
 		try{
 			fis = new FileInputStream(localFileName);
+			if(fis==null)
+				System.out.println("--------");
 		br = new BufferedReader(new InputStreamReader(fis, Charset.forName("UTF-8")));
 		while ((line = br.readLine()) != null) {
 			if(line.getBytes().length>Environment.Dfs.BUF_SIZE){
@@ -94,6 +96,7 @@ public class HDFSFile implements Serializable{
 				for(byte b: buff)
 					   data[ct++] = b;
 				addBlock(data, blocksize, ct,locations);
+				System.out.println("add block "+blocksize+" of "+filename);
 				blocksize++;
 		    	temp=line;
 		    }
