@@ -54,14 +54,14 @@ public class HDFSFile implements Serializable{
 		this.folderName = folderName;
 	}
 	public String delete() {
-		
+		String ans="";
 		for (Integer one : blocks.keySet()) {
 			HDFSBlock hold = blocks.get(one);
 			if(hold.delete()==false){
-				System.out.println("notice some nodes fail when delete the block");
+				ans+=("notice some nodes fail when delete the block");
 			}
 		}
-		return filename;
+		return ans+"delete ok\n";
 	}
 	public HashSet<String> createFrom( String localFileName)
 	{
