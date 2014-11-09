@@ -35,7 +35,9 @@ public class DataNode implements DataNodeRemoteInterface{
 		Registry reg;
 		try {
 			reg = LocateRegistry.getRegistry(Environment.Dfs.NAME_NODE_IP, Environment.Dfs.NAME_NODE_REGISTRY_PORT);
+
 			this.nameNodeStub = (NameNodeRemoteInterface)reg.lookup(Environment.Dfs.NAMENODE_SERVICENAME);
+			
 			String serviceName = this.nameNodeStub.join(InetAddress.getLocalHost().getHostAddress());
 			if (!Environment.createDirectory(serviceName)){
 				return false;

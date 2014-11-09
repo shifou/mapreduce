@@ -133,6 +133,8 @@ public class Environment {
 				return false;
 			}
 		}
+		else
+			System.out.println("Warning Directory already used please change directory name or delete the directory first");
 		return true;
 	}
 

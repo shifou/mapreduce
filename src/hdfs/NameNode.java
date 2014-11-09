@@ -178,9 +178,8 @@ public class NameNode implements NameNodeRemoteInterface {
 		dataNodeAssignId++;
 		return ans;
 	}
-	public static List<String> select(int nums)
+	public static List<DataNodeInfo> select(int nums)
 	{
-		List<String> res=null;
 		List<DataNodeInfo> ans=null;
 		DataNodeInfo hold;
 		int i=0;
@@ -192,14 +191,13 @@ public class NameNode implements NameNodeRemoteInterface {
 				hold=load.poll();
 				hold.blockload++;
 				ans.add(hold);
-				res.add(hold.serviceName);
 			}
 			for(DataNodeInfo temp : ans )
 				load.add(temp);
 		}
 		System.out.print("select: ");
-		for(String k:res)
-			System.out.print(k+"\t");
-		return res;
+		for(DataNodeInfo k:ans)
+			System.out.print(k.serviceName+"\t"+k.ip);
+		return ans;
 	}
 }
