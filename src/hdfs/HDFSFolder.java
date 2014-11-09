@@ -33,6 +33,7 @@ public class HDFSFolder{
 		}
 		for(String name:folderInSlave)
 		{
+			System.out.println("folder in "+name);
 			String ipaddr= NameNode.findIp(name);
 			Registry reg;
 			try {
@@ -48,7 +49,7 @@ public class HDFSFolder{
 			}
 			
 		}
-		return foldername;
+		return res;
 	}
 	public String createFrom(String localFolderName) {
 		File f=new File(localFolderName);
@@ -73,7 +74,7 @@ public class HDFSFolder{
 			{
 				for(String tt:ans)
 				{
-					if(res.charAt(0)=='?')
+					if(tt.charAt(0)=='?')
 					res+=(tt+"\n");
 					else
 						folderInSlave.add(tt);
