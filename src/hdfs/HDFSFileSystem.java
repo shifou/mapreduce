@@ -60,10 +60,8 @@ public class HDFSFileSystem {
 	}
 	public String putFile(String localFileName, String hdfsFileName) {
 			File f=new File(localFileName);
-			if(f.exists()==false)
-				return "this file does not exist in the local filesystem";
-			if(f.isDirectory())
-				return "can not put the directory to hdfs using put";
+			if(f.exists()==true && f.isDirectory()==false)
+				return "this file duplicate in the local filesystem";
 			HDFSFile file =new HDFSFile(hdfsFileName,null);
 			String ans = file.createFrom(localFileName);
 			fileList.put(hdfsFileName,file);
@@ -71,11 +69,9 @@ public class HDFSFileSystem {
 	}
 	public String putFolder(String localFolderName, String hdfsFolderPath) {
 			File f=new File(localFolderName);
-			if(f.isDirectory()==true && f.exists()==false)
+			if(f.exists()==false )
 				return "this folder does not exist in the local filesystem";
-			if(f.isDirectory()==false)
-				return "can not put file to hdfs using putr";
-			HDFSFolder folder = new HDFSFolder(localFolderName);
+				HDFSFolder folder = new HDFSFolder(localFolderName);
 			String ans = folder.createFrom(localFolderName);
 			folderList.put(hdfsFolderPath,folder);
 			return ans;

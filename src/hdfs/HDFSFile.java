@@ -94,8 +94,26 @@ public class HDFSFile implements Serializable{
 				for(byte b: buff)
 					   data[ct++] = b;
 				addBlock(data, blocksize, ct,locations);
-		    	temp="";
+				blocksize++;
+		    	temp=line;
 		    }
+		}
+		if(temp.equals("")==false)
+		{
+			List<String> locations = NameNode.select(Environment.Dfs.REPLICA_NUMS);
+			if(locations.size()!=Environment.Dfs.REPLICA_NUMS)
+			{
+				br.close();
+				return "Abondon put task Reason: can not fulfil replica nums during putting the block\n";
+			}
+			byte[] buff = temp.getBytes();
+			int ct=0;
+			Byte[]data = new Byte[Environment.Dfs.BUF_SIZE];
+			for(byte b: buff)
+				   data[ct++] = b;
+			addBlock(data, blocksize, ct,locations);
+			blocksize++;
+	    	temp="";
 		}
 		br.close();
 		br = null;
