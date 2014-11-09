@@ -60,7 +60,7 @@ public class HDFSFileSystem {
 	}
 	public String putFile(String localFileName, String hdfsFileName) {
 			if(fileList.containsKey(hdfsFileName))
-				return "this file duplicate in the local filesystem";
+				return "this file duplicate in the hdfs filesystem";
 			HDFSFile file =new HDFSFile(hdfsFileName,null);
 			String ans = file.createFrom(localFileName);
 			fileList.put(hdfsFileName,file);
@@ -68,7 +68,7 @@ public class HDFSFileSystem {
 	}
 	public String putFolder(String localFolderName, String hdfsFolderPath) {
 			if(folderList.containsKey(hdfsFolderPath))
-				return "this folder does not exist in the local filesystem";
+				return "this folder duplicate in the hdfs filesystem";
 			HDFSFolder folder = new HDFSFolder(localFolderName);
 			String ans = folder.createFrom(localFolderName);
 			folderList.put(hdfsFolderPath,folder);
