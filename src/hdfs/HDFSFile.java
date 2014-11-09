@@ -82,7 +82,7 @@ public class HDFSFile implements Serializable{
 		    	temp=temp+line;
 		    else
 		    {
-		    	List<String> locations = NameNode.select(Environment.Dfs.REPLICA_NUMS);
+		    	List<DataNodeInfo> locations = NameNode.select(Environment.Dfs.REPLICA_NUMS);
 				if(locations.size()!=Environment.Dfs.REPLICA_NUMS)
 				{
 					br.close();
