@@ -43,7 +43,8 @@ public class DataNode implements DataNodeRemoteInterface{
 				return false;
 			}
 			this.dataNodeStub = (DataNodeRemoteInterface)UnicastRemoteObject.exportObject(this, 0);
-			reg.rebind(serviceName, this.dataNodeStub);
+			Registry r = LocateRegistry.createRegistry(Environment.Dfs.DATA_NODE_REGISTRY_PORT);
+			r.rebind(serviceName, this.dataNodeStub);
 		} catch (RemoteException | NotBoundException | UnknownHostException e) {
 			e.printStackTrace();
 			return false;
