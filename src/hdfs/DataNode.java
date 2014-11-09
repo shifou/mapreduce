@@ -23,6 +23,7 @@ public class DataNode implements DataNodeRemoteInterface{
 	private DataNodeRemoteInterface dataNodeStub;
 	private NameNodeRemoteInterface nameNodeStub;
 	private ConcurrentHashMap<String, ConcurrentHashMap<Integer, HDFSBlock>> fileToBlock;
+	private String serviceName;
 	
 	public DataNode(int dataNodeRegistryPort) {
 		Environment.createDirectory("");
@@ -39,8 +40,8 @@ public class DataNode implements DataNodeRemoteInterface{
 
 			this.nameNodeStub = (NameNodeRemoteInterface)reg.lookup(Environment.Dfs.NAMENODE_SERVICENAME);
 			
-			String serviceName = this.nameNodeStub.join(InetAddress.getLocalHost().getHostAddress());
-			if (!Environment.createDirectory(serviceName)){
+			this.serviceName = this.nameNodeStub.join(InetAddress.getLocalHost().getHostAddress());
+			if (!Environment.createDirectory(this.serviceName)){
 				return false;
 			}
 			this.dataNodeStub = (DataNodeRemoteInterface)UnicastRemoteObject.exportObject(this, 0);
@@ -85,12 +86,12 @@ public class DataNode implements DataNodeRemoteInterface{
 		String fullPath;
 		String folderName = block.getFolderName();
 		if (folderName != null){
-			File folder = new File(Environment.Dfs.DIRECTORY+"/"+folderName);
+			File folder = new File(Environment.Dfs.DIRECTORY+this.serviceName+"/"+folderName);
 			folder.mkdir();
-			fullPath = Environment.Dfs.DIRECTORY+"/"+folderName+"/"+block.getFileName()+"."+block.getID();
+			fullPath = Environment.Dfs.DIRECTORY+this.serviceName+"/"+folderName+"/"+block.getFileName()+"."+block.getID();
 		}
 		else {
-			fullPath = Environment.Dfs.DIRECTORY+"/"+block.getFileName()+"."+block.getID();
+			fullPath = Environment.Dfs.DIRECTORY+this.serviceName+"/"+block.getFileName()+"."+block.getID();
 		}
 		File file = new File(fullPath);
 		
@@ -125,10 +126,10 @@ public class DataNode implements DataNodeRemoteInterface{
 			String fullPath;
 			String folderName = block.getFolderName();
 			if (folderName != null){
-				fullPath = Environment.Dfs.DIRECTORY+"/"+folderName+"/"+block.getFileName()+"."+block.getID();
+				fullPath = Environment.Dfs.DIRECTORY+this.serviceName+"/"+folderName+"/"+block.getFileName()+"."+block.getID();
 			}
 			else {
-				fullPath = Environment.Dfs.DIRECTORY+"/"+block.getFileName()+"."+block.getID();
+				fullPath = Environment.Dfs.DIRECTORY+this.serviceName+"/"+block.getFileName()+"."+block.getID();
 			}
 			File file = new File(fullPath);
 			FileInputStream in = new FileInputStream(file);
