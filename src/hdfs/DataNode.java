@@ -93,6 +93,7 @@ public class DataNode implements DataNodeRemoteInterface{
 		else {
 			fullPath = Environment.Dfs.DIRECTORY+this.serviceName+"/"+block.getFileName()+"."+block.getID();
 		}
+		System.out.println("trying to add block: "+fullPath);
 		File file = new File(fullPath);
 		
 		try {
