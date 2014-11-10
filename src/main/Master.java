@@ -59,9 +59,16 @@ public class Master {
 					TaskTrackerRemoteInterface taskTrackerStub = (TaskTrackerRemoteInterface) reg.lookup(taskTrackerName);	
 					Boolean b = taskInfo.health > 0;
 					taskTrackerStub.healthCheck(b);
+					
+					
 				} catch (RemoteException | NotBoundException e) {
 				
-					e.printStackTrace();
+					taskInfo.health -= 1;
+					jobTracker.getTaskTrackers().put(taskTrackerName, taskInfo);
+				}
+				
+				if (taskInfo.health == 0){
+					jobTracker.getTaskTrackers().remove(taskTrackerName);
 				}
 						
 			
