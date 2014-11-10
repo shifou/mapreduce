@@ -9,5 +9,6 @@ public interface DataNodeRemoteInterface extends Remote{
 	public void putFile(Byte[] data, int blockSize, HDFSBlock block) throws RemoteException; 
 	public Byte[] getFile(HDFSBlock block) throws RemoteException;
 	public String deleteFolder(String foldername) throws RemoteException;
+	public void healthCheck(Boolean b) throws RemoteException;
 	
 }

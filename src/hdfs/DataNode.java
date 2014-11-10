@@ -162,6 +162,28 @@ public class DataNode implements DataNodeRemoteInterface{
 			return "delete folder failed: " + foldername;
 		}
 	}
+	
+	private void deleteDirectory(File f){
+		if (f.isDirectory()){
+			File[] files = f.listFiles();
+			for (File file : files){
+				deleteDirectory(file);
+			}
+			f.delete();
+		}
+		else {
+			f.delete();
+		}
+	}
+
+	@Override
+	public void healthCheck(Boolean b) throws RemoteException {
+		
+		if (!b){
+			deleteDirectory(new File(Environment.Dfs.DIRECTORY+"/"+this.serviceName));
+		}
+		
+	}
 
 	
 
