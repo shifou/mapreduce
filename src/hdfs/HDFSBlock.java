@@ -5,6 +5,7 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
@@ -15,8 +16,7 @@ public class HDFSBlock implements Serializable {
 	
 	private String blockFileName;
 	private int ID; 
-	private ConcurrentHashMap<Integer, DataNodeInfo> repIDtoLoc;
-	public ConcurrentHashMap<String, Integer> slaves;  
+	private ConcurrentHashMap<Integer, DataNodeInfo> repIDtoLoc; 
 	private String blockFolderName;
 
 	private static final long serialVersionUID = -3110335214705117456L;
@@ -115,6 +115,47 @@ public class HDFSBlock implements Serializable {
 			return -1;
 		}
 		return -1;
+	}
+	
+	public String newReplica(String oldServiceName){
+		
+		HashSet<String> existing;
+		int id = -1;
+		for (Integer ID: this.repIDtoLoc.keySet()){
+			
+			if (this.repIDtoLoc.get(ID).serviceName.equals(oldServiceName)){
+				this.repIDtoLoc.remove(ID);
+				id = ID;
+			}
+			else {
+				existing.add(this.repIDtoLoc.get(ID).serviceName);
+			}
+			
+		}
+		
+		if (existing.isEmpty()){
+			return "Can't be replicated, not enough nodes in the system!";
+		}
+		String newServiceName = NameNode.select(existing);
+		byte[] data = new byte[Environment.Dfs.BUF_SIZE];
+		int blockSize = this.get(data);
+		Byte[] toPut = new Byte[Environment.Dfs.BUF_SIZE];
+		
+		for (int i = 0; i < blockSize; i++){
+			toPut[i] = data[i];
+		}
+		this.repIDtoLoc.put(id, new DataNodeInfo(NameNode.findIp(newServiceName), newServiceName, Environment.TIME_LIMIT));
+		try{
+			Registry reg = LocateRegistry.getRegistry(this.repIDtoLoc.get(id).ip,Environment.Dfs.DATA_NODE_REGISTRY_PORT);
+			DataNodeRemoteInterface dataNodeStub = (DataNodeRemoteInterface)reg.lookup(this.repIDtoLoc.get(id).serviceName);
+			dataNodeStub.putFile(toPut, blockSize, this);
+		} catch (RemoteException | NotBoundException e) {
+			
+			e.printStackTrace();
+			
+		}
+		return "ok#"+newServiceName;
+		
 	}
 	
 
