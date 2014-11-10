@@ -16,6 +16,12 @@ import org.xml.sax.SAXException;
 
 public class Environment {
 	public static int TIME_LIMIT=5;
+	
+	public static class MapReduceInfo {
+		
+		public static String JOBTRACKER_SERVICENAME = "jobtracker";
+		public static int JOBTRACKER_CHECK_PERIOD = 5000;
+	}
 
 	public static class Dfs {
 		public static String NAME_NODE_IP;
