@@ -174,14 +174,17 @@ public class HDFSFile implements Serializable{
 	}
 
 	public String Replica(String serviceName) {
-		Vector<Integer> info = hold.slaves.get(slave.serviceName);
+		String ans="",res="";
+		Vector<Integer> info = slaves2blocklist.get(serviceName);
 		for(Integer one:info)
 		{
-			HDFSBlock temp = hold.blocks.get(one);
-			temp.newReplica(slave);
-			hold.put()
+			HDFSBlock temp = blocks.get(one);
+			String newServiceName = temp.newReplica(serviceName);
+			String[] fk = newServiceName.split("#");
+			if(fk.length==2)
+				hold.put()
 		}
-		hold.slaves.remove(slave.serviceName);
+		slaves2blocklist.remove(serviceName);
 		return "";
 	}
 
