@@ -94,7 +94,8 @@ public class HDFSFileSystem {
 		{
 			HDFSFile hold = fileList.get(name);
 			String ans = hold.Replica(slave.serviceName);
-			res+=(ans+"\n");
+			String[] fk = ans.split("#");
+			res+=(fk[0]+"\n");
 			fileList.put(name, hold);
 		}
 		for(String name: slave.folders.keySet())

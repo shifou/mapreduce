@@ -181,11 +181,25 @@ public class HDFSFile implements Serializable{
 			HDFSBlock temp = blocks.get(one);
 			String newServiceName = temp.newReplica(serviceName);
 			String[] fk = newServiceName.split("#");
-			if(fk.length==2)
-				hold.put()
+			if(fk.length==2){
+				
+				if(slaves2blocklist.containsKey(fk[1]))
+					slaves2blocklist.get(fk[1]).add(one);
+				else
+				{
+					Vector<Integer> a= new Vector<Integer>();
+					a.add(one);
+					slaves2blocklist.put(fk[1],a);
+				}
+				if(res.equals(""))
+				res=fk[1];
+				else
+					res+=("#"+fk[1]);
+			}
+			ans+=("block: "+one+" "+fk[0]+"\n");
 		}
 		slaves2blocklist.remove(serviceName);
-		return "";
+		return ans+"#"+res;
 	}
 
 

@@ -5,6 +5,8 @@ import java.io.Serializable;
 public class Configuration implements Serializable {
 
 
+	private static final long serialVersionUID = 7052047607831227454L;
+
 	private String jobName;
 	
 	private String inputPath;

@@ -119,7 +119,7 @@ public class HDFSBlock implements Serializable {
 	
 	public String newReplica(String oldServiceName){
 		
-		HashSet<String> existing;
+		HashSet<String> existing=new HashSet<String>();
 		int id = -1;
 		for (Integer ID: this.repIDtoLoc.keySet()){
 			
@@ -136,7 +136,7 @@ public class HDFSBlock implements Serializable {
 		if (existing.isEmpty()){
 			return "Can't be replicated, not enough nodes in the system!";
 		}
-		String newServiceName = NameNode.select(existing);
+		String newServiceName = NameNode.replica_select(existing);
 		byte[] data = new byte[Environment.Dfs.BUF_SIZE];
 		int blockSize = this.get(data);
 		Byte[] toPut = new Byte[Environment.Dfs.BUF_SIZE];

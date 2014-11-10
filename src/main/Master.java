@@ -120,7 +120,7 @@ public class Master {
 	}
 
 	private static String handleLost(DataNodeInfo one) {
-		String reply=NameNode.handlerRecovery(one);
+		String reply=nameNode.handlerRecovery(one);
 		return reply;
 		/*
 		if(reply==Environment.Dfs.REPLICA_NUMS)

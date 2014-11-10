@@ -11,6 +11,7 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
@@ -53,7 +54,38 @@ public class NameNode implements NameNodeRemoteInterface {
 		}
 		return true;
 	}
-
+	public synchronized String handler(hdfsOP tp,String f1,String f2,DataNodeInfo slave)
+	{
+		try{
+		switch(tp)
+		{
+		case DEL:
+			return delete(f1);
+		case DELR:
+			return deleteR(f1);
+		 case PUT:
+			return copyFromLocal(f1,f2);
+			case PUTR:
+			return copyFromLocalR(f1,f2);
+		case GET:
+			return copyToLocal(f1,f2);
+			case GETR:
+			return copyToLocalR(f1,f2);
+		case LIST:
+			return list();
+		case REPLICA:
+			return handlerRecovery(slave);
+		case JOIN:
+			return join(f1);
+		default:
+			return "wrong operation received!";
+		}
+		}catch(Exception e)
+		{
+			e.printStackTrace();
+			return "execute: "+tp+" error!";
+		}
+	}
 	@Override
 	public String delete(String filename) throws RemoteException, IOException {
 		if(fileSystem.fileList.containsKey(filename)==false)
@@ -118,11 +150,14 @@ public class NameNode implements NameNodeRemoteInterface {
 		}
 	}
 
-	
-	public static String handlerRecovery(DataNodeInfo slave) {
+	public String replica(DataNodeInfo slave)
+	{
 		if(slave.lostTime==0)
 			load.remove(slave);
 		return fileSystem.ReAllocate(slave);
+	}
+	public String handlerRecovery(DataNodeInfo slave) {
+		return handler(hdfsOP.REPLICA,null,null,slave);
 	}
 	public static String findIp(String name){
 		if(cluster.containsKey(name))
@@ -178,8 +213,6 @@ public class NameNode implements NameNodeRemoteInterface {
 		DataNodeInfo hold=null;
 		int i=0;
 		System.out.println("now cluster:"+load.size());
-		synchronized(load)
-		{
 			while(load.isEmpty()==false&&i<nums)
 			{
 				i++;
@@ -189,10 +222,28 @@ public class NameNode implements NameNodeRemoteInterface {
 			}
 			for(DataNodeInfo temp : ans )
 				load.add(temp);
-		}
 		System.out.print("select: \n");
 		for(DataNodeInfo k:ans)
 			System.out.println(k.serviceName+"\t"+k.ip);
+		return ans;
+	}
+
+	public static String replica_select(HashSet<String> existing) {
+		Vector<DataNodeInfo> tp=new Vector<DataNodeInfo>();	
+		DataNodeInfo hold=null;
+		String ans="";
+			while(load.isEmpty()==false)
+			{
+				hold=load.poll();
+				if(existing.contains(hold.serviceName)==false)
+				{
+					hold.blockload++;
+					ans=hold.serviceName;
+				}
+				tp.add(hold);
+			}
+			for(DataNodeInfo temp : tp )
+				load.add(temp);
 		return ans;
 	}
 }
