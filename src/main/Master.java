@@ -55,7 +55,7 @@ public class Master {
 			}
 			if (NameNode.cluster.get(name).lostTime == 0) {
 				System.out.println("slave "+name+"\t"+NameNode.findIp(name)+" assumed disconnected, abondon all related tasks but try to connect in 5 times");
-				handleLost(hh);
+				System.out.println(handleLost(hh));
 			}
 			if(NameNode.cluster.get(name).lostTime==-5){
 				System.out.println("slave "+name+"\t"+NameNode.findIp(name)+" disconnected, abondon all related tasks");
@@ -64,14 +64,14 @@ public class Master {
 		}
 	}
 
-	private static void handleLost(DataNodeInfo one) {
+	private static String handleLost(DataNodeInfo one) {
 		int reply=NameNode.handlerRecovery(one);
 		if(reply==Environment.Dfs.REPLICA_NUMS)
-			System.out.println("recovery and still maintain the file replica successfully !");
+			return("recovery and still maintain the file replica successfully !");
 		else if (reply>0)
-			System.out.println("can recovery but can not maintain the file replica right now");
+			return("can recovery but can not maintain the file replica right now");
 		else
-			System.out.println("can not recovery the file and need to delete the file");
+			return("can not recovery the file and lost all files in slave "+one.serviceName+"\t"+one.ip);
 		
 	}
 	public static void main(String[] args) {

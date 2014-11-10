@@ -12,22 +12,20 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.PriorityBlockingQueue;
 
 import main.Environment;
-import main.Master;
-import data.Message;
 
 public class NameNode implements NameNodeRemoteInterface {
 	private int port;
 	public int dataNodeAssignId;
 	public static PriorityBlockingQueue<DataNodeInfo> load;
 	private NameNodeRemoteInterface nameNodeStub;
-	public HDFSFileSystem fileSystem;
+	public static HDFSFileSystem fileSystem;
 	public static ConcurrentHashMap<String, DataNodeInfo> cluster;
 	
-	// slaveCheck systemCheck;
 
 	public NameNode(int port) {
 		Environment.createDirectory("");
@@ -121,9 +119,10 @@ public class NameNode implements NameNodeRemoteInterface {
 	}
 
 	
-	public static int handlerRecovery(int slaveId) {
-		return 1;
-		
+	public static int handlerRecovery(DataNodeInfo slave) {
+		if(slave.lostTime==0)
+			load.remove(slave);
+		return fileSystem.ReAllocate(slave);
 	}
 	public static String findIp(String name){
 		if(cluster.containsKey(name))
@@ -156,9 +155,6 @@ public class NameNode implements NameNodeRemoteInterface {
 		return ans;
 	}
 
-	public static String heart(DataNodeInfo hh, boolean b){
-		
-	}
 	@Override
 	public void quit() throws RemoteException{
 		//.cleanup(Environment.Dfs.NAMENODE_SERVICENAME);
@@ -176,9 +172,9 @@ public class NameNode implements NameNodeRemoteInterface {
 		dataNodeAssignId++;
 		return ans;
 	}
-	public static List<DataNodeInfo> select(int nums)
+	public static Vector<DataNodeInfo> select(int nums)
 	{
-		List<DataNodeInfo> ans=new ArrayList<DataNodeInfo>();
+		Vector<DataNodeInfo> ans=new Vector<DataNodeInfo>();
 		DataNodeInfo hold=null;
 		int i=0;
 		System.out.println("now cluster:"+load.size());

@@ -6,6 +6,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.List;
+import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 
 import main.Environment;
@@ -15,10 +16,9 @@ public class HDFSBlock implements Serializable {
 	private String blockFileName;
 	private int ID; 
 	private ConcurrentHashMap<Integer, DataNodeInfo> repIDtoLoc;
+	public ConcurrentHashMap<String, Integer> slaves;  
 	private String blockFolderName;
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = -3110335214705117456L;
 	
 	public HDFSBlock(String blockFileName, int ID, Byte[] data, int blockSize, List<DataNodeInfo> locations, String folderName){

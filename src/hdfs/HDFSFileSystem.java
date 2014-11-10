@@ -12,6 +12,7 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.PriorityBlockingQueue;
 
@@ -83,6 +84,36 @@ public class HDFSFileSystem {
 			folderList.put(hdfsFolderPath,folder);
 			return ans;
 	}
+	public void deleteSlave(DataNodeInfo slave) {
+		// TODO Auto-generated method stub
+		
+	}
+	public String ReAllocate(DataNodeInfo slave) {
+		String res="";
+		for(String name: slave.files)
+		{
+			HDFSFile hold = fileList.get(name);
+			String ans = hold.Replica();
+			res+=(ans+"\n");
+			fileList.put(name, hold);
+		}
+		for(String foldername: slave.folders.keySet())
+		{
+			HashSet<String> flist = slave.folders.get(foldername);
+			for(String name: flist)
+			{
+			HDFSFile hold = fileList.get(name);
+			Vector<Integer> info = hold.slaves.get(slave.serviceName);
+			for(Integer one:info)
+			{
+				HDFSBlock temp = hold.blocks.get(one);
+				temp.newReplica(slave)
+			}
+			}
+		}
+		return 3;
+	}
+	
 	
 	
 }

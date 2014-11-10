@@ -10,6 +10,7 @@ import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 
 import main.Environment;
@@ -19,8 +20,8 @@ public class HDFSFile implements Serializable{
 	private static final long serialVersionUID = 3326499942746127733L;
 	public String filename;
 	private String folderName;
-	private ConcurrentHashMap<Integer, HDFSBlock> blocks;
-
+	public ConcurrentHashMap<Integer, HDFSBlock> blocks;
+	public ConcurrentHashMap<String, Vector<Integer>> slaves;  
 	public ConcurrentHashMap<Integer, HDFSBlock> getBlockList() {
 		return blocks;
 	}
@@ -52,6 +53,7 @@ public class HDFSFile implements Serializable{
 		this.filename = filename;
 		this.blocks = new ConcurrentHashMap<Integer, HDFSBlock>();
 		this.folderName = folderName;
+		slaves= new ConcurrentHashMap<String, Vector<Integer>>();
 	}
 	public String delete() {
 		String ans="";
@@ -88,7 +90,7 @@ public class HDFSFile implements Serializable{
 		    	temp=temp+line+"\n";
 		    else
 		    {
-		    	List<DataNodeInfo> locations = NameNode.select(Environment.Dfs.REPLICA_NUMS);
+		    	Vector<DataNodeInfo> locations = NameNode.select(Environment.Dfs.REPLICA_NUMS);
 				if(locations.size()!=Environment.Dfs.REPLICA_NUMS)
 				{
 					br.close();
@@ -111,7 +113,7 @@ public class HDFSFile implements Serializable{
 		}
 		if(temp.equals("")==false)
 		{
-			List<DataNodeInfo> locations = NameNode.select(Environment.Dfs.REPLICA_NUMS);
+			Vector<DataNodeInfo> locations = NameNode.select(Environment.Dfs.REPLICA_NUMS);
 			if(locations.size()!=Environment.Dfs.REPLICA_NUMS)
 			{
 				br.close();

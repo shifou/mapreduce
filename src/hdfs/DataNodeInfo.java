@@ -1,6 +1,8 @@
 package hdfs;
 
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class DataNodeInfo implements Comparable<DataNodeInfo>,Serializable {
 
@@ -9,16 +11,24 @@ public class DataNodeInfo implements Comparable<DataNodeInfo>,Serializable {
 	public String ip;
 	public int blockload;
 	public int lostTime;
-
+	public HashSet<String> files ;
+	public ConcurrentHashMap<String,HashSet<String>> folders ;
+	
 	public DataNodeInfo(String ip2, String ans, int ll) {
 		ip = ip2;
 		serviceName = ans;
+		files = new HashSet<String>();
+		folders =new ConcurrentHashMap<String,HashSet<String>>();
 		blockload = 0;
 		lostTime=ll;
 	}
 
 	@Override
 	public int compareTo(DataNodeInfo o) {
-		return this.blockload - o.blockload;
+		int temp = this.blockload - o.blockload;
+		if(temp==0)
+			return this.serviceName.compareTo(o.serviceName);
+		else
+			return temp;
 	}
 }
