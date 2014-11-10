@@ -119,7 +119,7 @@ public class NameNode implements NameNodeRemoteInterface {
 	}
 
 	
-	public static int handlerRecovery(DataNodeInfo slave) {
+	public static String handlerRecovery(DataNodeInfo slave) {
 		if(slave.lostTime==0)
 			load.remove(slave);
 		return fileSystem.ReAllocate(slave);

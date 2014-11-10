@@ -93,25 +93,18 @@ public class HDFSFileSystem {
 		for(String name: slave.files)
 		{
 			HDFSFile hold = fileList.get(name);
-			String ans = hold.Replica();
+			String ans = hold.Replica(slave.serviceName);
 			res+=(ans+"\n");
 			fileList.put(name, hold);
 		}
-		for(String foldername: slave.folders.keySet())
+		for(String name: slave.folders.keySet())
 		{
-			HashSet<String> flist = slave.folders.get(foldername);
-			for(String name: flist)
-			{
-			HDFSFile hold = fileList.get(name);
-			Vector<Integer> info = hold.slaves.get(slave.serviceName);
-			for(Integer one:info)
-			{
-				HDFSBlock temp = hold.blocks.get(one);
-				temp.newReplica(slave)
-			}
-			}
+			HDFSFolder hold = folderList.get(name);
+			String ans = hold.Replica(slave.serviceName);
+			res+=(ans+"\n");
+			folderList.put(name, hold);
 		}
-		return 3;
+		return res;
 	}
 	
 	

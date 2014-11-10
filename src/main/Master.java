@@ -65,14 +65,16 @@ public class Master {
 	}
 
 	private static String handleLost(DataNodeInfo one) {
-		int reply=NameNode.handlerRecovery(one);
+		String reply=NameNode.handlerRecovery(one);
+		return reply;
+		/*
 		if(reply==Environment.Dfs.REPLICA_NUMS)
 			return("recovery and still maintain the file replica successfully !");
 		else if (reply>0)
 			return("can recovery but can not maintain the file replica right now");
 		else
 			return("can not recovery the file and lost all files in slave "+one.serviceName+"\t"+one.ip);
-		
+		*/
 	}
 	public static void main(String[] args) {
 		System.out.println("start Master");

@@ -15,10 +15,12 @@ public class HDFSFolder{
 	public String foldername;
 	public ConcurrentHashMap<String, HDFSFile> files;
 	public HashSet<String> folderInSlave;
+	public ConcurrentHashMap<String, HashSet<String>> slave2file;
 	public HDFSFolder(String localFolderName) {
 		foldername=localFolderName;
 		files =new ConcurrentHashMap<String, HDFSFile> ();
 		folderInSlave= new HashSet<String>();
+		slave2file = new ConcurrentHashMap<String, HashSet<String>>();
 	}
 	public int filesize() {
 		// TODO Auto-generated method stub
@@ -29,7 +31,7 @@ public class HDFSFolder{
 		for(String name:files.keySet())
 		{
 			HDFSFile hold = files.get(name);
-			System.out.println(hold.delete());
+			res+=(hold.delete()+"\n");
 		}
 		for(String name:folderInSlave)
 		{
@@ -47,7 +49,7 @@ public class HDFSFolder{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
+			//folderInSlave.remove(name);
 		}
 		return res;
 	}
@@ -77,7 +79,17 @@ public class HDFSFolder{
 					if(tt.charAt(0)=='?')
 					res+=(tt+"\n");
 					else
+					{
 						folderInSlave.add(tt);
+						if(slave2file.containsKey(tt)==false)
+						{
+							HashSet<String> a=new HashSet<String>();
+							a.add(each.getName());
+							slave2file.put(tt, a);
+						}
+						else
+							slave2file.get(tt).add(each.getName());
+					}
 				}
 			files.put(file.filename, file);
 			}
@@ -91,5 +103,30 @@ public class HDFSFolder{
 			hold.moveTo(localFilePath);
 		}
 		return "ok";
+	}
+	public String Replica(String serviceName) {
+		String res="";
+		HashSet<String> flist = slave2file.get(serviceName);
+		for(String name: flist)
+		{
+			HDFSFile hold = files.get(name);
+			String ans = hold.Replica(serviceName);
+			String[]fk=ans.split("#");
+			res+=(fk[0]+"\n");
+			for(int i=1;i<fk.length;i++)
+			{
+			if(slave2file.containsKey(fk[i])==false)
+			{
+				HashSet<String> a=new HashSet<String>();
+				a.add(name);
+				slave2file.put(fk[i], a);
+			}
+			else
+				slave2file.get(fk[i]).add(name);
+			}
+			files.put(name, hold);
+		}
+		slave2file.remove(serviceName);
+		return res;
 	}
 }

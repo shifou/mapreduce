@@ -21,7 +21,7 @@ public class HDFSFile implements Serializable{
 	public String filename;
 	private String folderName;
 	public ConcurrentHashMap<Integer, HDFSBlock> blocks;
-	public ConcurrentHashMap<String, Vector<Integer>> slaves;  
+	public ConcurrentHashMap<String, Vector<Integer>> slaves2blocklist;  
 	public ConcurrentHashMap<Integer, HDFSBlock> getBlockList() {
 		return blocks;
 	}
@@ -53,7 +53,7 @@ public class HDFSFile implements Serializable{
 		this.filename = filename;
 		this.blocks = new ConcurrentHashMap<Integer, HDFSBlock>();
 		this.folderName = folderName;
-		slaves= new ConcurrentHashMap<String, Vector<Integer>>();
+		slaves2blocklist= new ConcurrentHashMap<String, Vector<Integer>>();
 	}
 	public String delete() {
 		String ans="";
@@ -172,4 +172,18 @@ public class HDFSFile implements Serializable{
 		}
 		return "ok";
 	}
+
+	public String Replica(String serviceName) {
+		Vector<Integer> info = hold.slaves.get(slave.serviceName);
+		for(Integer one:info)
+		{
+			HDFSBlock temp = hold.blocks.get(one);
+			temp.newReplica(slave);
+			hold.put()
+		}
+		hold.slaves.remove(slave.serviceName);
+		return "";
+	}
+
+
 }
