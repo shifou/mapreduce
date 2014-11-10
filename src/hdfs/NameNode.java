@@ -156,18 +156,8 @@ public class NameNode implements NameNodeRemoteInterface {
 		return ans;
 	}
 
-	@Override
-	public String heart(int slaveId) throws RemoteException{
-		if(cluster.containsKey("d"+slaveId)==false)
-		{
-			System.out.println("slave "+slaveId+" turn to alive");
-			return "join";
-		}
-		else
-		{
-			Master.slaveStatus.put(slaveId,Master.slaveStatus.get(slaveId)+1);
-			return "ok";
-		}
+	public static String heart(DataNodeInfo hh, boolean b){
+		
 	}
 	@Override
 	public void quit() throws RemoteException{
@@ -179,10 +169,9 @@ public class NameNode implements NameNodeRemoteInterface {
 
 		String ans = "d" + this.dataNodeAssignId;
 		DataNodeInfo one = null;
-		one = new DataNodeInfo(ip, ans);
+		one = new DataNodeInfo(ip, ans,Environment.TIME_LIMIT);
 		this.cluster.put(ans, one);
 		load.put(one);
-		Master.slaveStatus.put(dataNodeAssignId, Environment.TIME_LIMIT);
 		System.out.println("one slave join in with ip "+ip+" get id: " + dataNodeAssignId);
 		dataNodeAssignId++;
 		return ans;

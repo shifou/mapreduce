@@ -8,11 +8,13 @@ public class DataNodeInfo implements Comparable<DataNodeInfo>,Serializable {
 	public String serviceName;
 	public String ip;
 	public int blockload;
+	public int lostTime;
 
-	public DataNodeInfo(String ip2, String ans) {
+	public DataNodeInfo(String ip2, String ans, int ll) {
 		ip = ip2;
 		serviceName = ans;
 		blockload = 0;
+		lostTime=ll;
 	}
 
 	@Override

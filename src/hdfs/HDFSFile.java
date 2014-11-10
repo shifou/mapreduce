@@ -106,7 +106,7 @@ public class HDFSFile implements Serializable{
 				addBlock(data, blocksize, ct,locations);
 				System.out.println("add block "+blocksize+" of "+filename);
 				blocksize++;
-		    	temp=line;
+		    	temp=line+"\n";
 		    }
 		}
 		if(temp.equals("")==false)
@@ -127,6 +127,7 @@ public class HDFSFile implements Serializable{
 			for(byte b: buff)
 				   data[ct++] = b;
 			addBlock(data, blocksize, ct,locations);
+			System.out.println("add block "+blocksize+" of "+filename);
 			blocksize++;
 	    	temp="";
 		}
