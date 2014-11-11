@@ -164,6 +164,7 @@ public class NameNode implements NameNodeRemoteInterface {
 		{
 			return "folder duplicate already exist\n";
 		}
+		
 		String ans = fileSystem.putFolder(localFolderName, hdfsFolderPath);
 		return ans;
 		

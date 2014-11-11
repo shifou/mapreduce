@@ -1,6 +1,5 @@
-package mapreduce;
+package mapreduce.io;
 
-import java.io.Serializable;
 import java.util.PriorityQueue;
 
 public class Context<K extends Writable, V extends Writable> {

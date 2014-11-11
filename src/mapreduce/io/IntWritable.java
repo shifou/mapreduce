@@ -1,4 +1,6 @@
-package mapreduce;
+package mapreduce.io;
+
+
 
 public class IntWritable extends Writable {
 	private static final long serialVersionUID = -9120629456558794008L;
