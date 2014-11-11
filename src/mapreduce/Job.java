@@ -10,12 +10,12 @@ public class Job implements Serializable{
 		// TODO Auto-generated constructor stub
 	}
 
-	public void setOutputKeyClass(Class<Text> class1) {
+	public void setOutputKeyClass(Class class1) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	public void setOutputValueClass(Class<IntWritable> class1) {
+	public void setOutputValueClass(Class class1) {
 		// TODO Auto-generated method stub
 		
 	}
