@@ -1,15 +1,25 @@
 package test;
 
-import mapreduce.Configuration;
-import mapreduce.Job;
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.StringTokenizer;
 
+import mapreduce.Configuration;
+import mapreduce.Context;
+import mapreduce.IntWritable;
+import mapreduce.Job;
+import mapreduce.Text;
+import mapreduce.LongWritable;
+import mapreduce.IntWritable;
+import mapreduce.Mapper;
+import mapreduce.Reducer;
 public class WordCount {
-    /*
+    
 	 public static class Map extends Mapper<LongWritable, Text, Text, IntWritable> {
 	    private final static IntWritable one = new IntWritable(1);
 	    private Text word = new Text();
 	        
-	    public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
+	    public void map(LongWritable key, Text value, Context<Text,IntWritable> context) throws IOException {
 	        String line = value.toString();
 	        StringTokenizer tokenizer = new StringTokenizer(line);
 	        while (tokenizer.hasMoreTokens()) {
@@ -21,14 +31,18 @@ public class WordCount {
 	        
 	 public static class Reduce extends Reducer<Text, IntWritable, Text, IntWritable> {
 
-	    public void reduce(Text key, Iterable<IntWritable> values, Context context) 
-	      throws IOException, InterruptedException {
-	        int sum = 0;
-	        for (IntWritable val : values) {
-	            sum += val.get();
-	        }
-	        context.write(key, new IntWritable(sum));
-	    }
+		@Override
+		public void reduce(Text key, Iterator<IntWritable> values,
+				Context<Text, IntWritable> context) throws IOException {
+			 int sum = 0;
+			 while (values.hasNext()) {
+		            sum += values.next().get();
+		        }
+		        context.write(key, new IntWritable(sum));
+		}
+
+	
+
 	 }
 	        
 	 public static void main(String[] args) throws Exception {
@@ -42,13 +56,13 @@ public class WordCount {
 	    job.setMapperClass(Map.class);
 	    job.setReducerClass(Reduce.class);
 	        
-	    job.setInputFormatClass(TextInputFormat.class);
-	    job.setOutputFormatClass(TextOutputFormat.class);
+	    job.setInputFormatClass(Text.class);
+	    job.setOutputFormatClass(Text.class);
 	        
-	    FileInputFormat.addInputPath(job, new Path(args[0]));
-	    FileOutputFormat.setOutputPath(job, new Path(args[1]));
+	    job.setInputPath(job, args[0]);
+	    job.setOutputPath(job, args[1]);
 	        
 	    job.waitForCompletion(true);
 	 }
-	       */ 
+	       
 	}
