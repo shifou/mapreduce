@@ -60,23 +60,25 @@ public class NameNode implements NameNodeRemoteInterface {
 		switch(tp)
 		{
 		case DEL:
-			return delete(f1);
+			return handlerDelete(f1);
 		case DELR:
-			return deleteR(f1);
+			return handlerDeleteR(f1);
 		 case PUT:
-			return copyFromLocal(f1,f2);
+			return handlerCopyFromLocal(f1,f2);
 			case PUTR:
-			return copyFromLocalR(f1,f2);
+			return handlerCopyFromLocalR(f1,f2);
 		case GET:
-			return copyToLocal(f1,f2);
+			return handlerCopyToLocal(f1,f2);
 			case GETR:
-			return copyToLocalR(f1,f2);
+			return handlerCopyToLocalR(f1,f2);
 		case LIST:
-			return list();
+			return handlerList();
 		case REPLICA:
 			return handlerRecovery(slave);
 		case JOIN:
-			return join(f1);
+			return handlerJoin(f1);
+		case EXIT:
+			return handlerExit();
 		default:
 			return "wrong operation received!";
 		}
@@ -86,89 +88,30 @@ public class NameNode implements NameNodeRemoteInterface {
 			return "execute: "+tp+" error!";
 		}
 	}
-	@Override
-	public String delete(String filename) throws RemoteException, IOException {
-		if(fileSystem.fileList.containsKey(filename)==false)
-			return "file not exist in hdfs";
-		String ans = fileSystem.deleteFile(filename);
-		return ans;
+	private String handlerExit() {
+		// TODO Auto-generated method stub
+		return "exit ok\n";
 	}
-	public String deleteR(String foldername) throws RemoteException, IOException {
-		if(fileSystem.folderList.containsKey(foldername)==false)
-			return "file folder not found";
-		String ans = fileSystem.deleteFolder(foldername);
-		return ans;
-	}
-	public String copyFromLocalR(String localFolderName, String hdfsFolderPath) throws RemoteException{
-		if(hdfsFolderPath.indexOf("/")!=-1)
-			return "folder format error";
-		if(cluster.size()<Environment.Dfs.REPLICA_NUMS)
-		{
-			return "can not copy because replica number greater than slaves\n";
-		}
-		if(fileSystem.folderList.containsKey(localFolderName))
-		{
-			return "folder duplicate already exist\n";
-		}
-		String ans = fileSystem.putFolder(localFolderName, hdfsFolderPath);
-		return ans;
-		
-	}
-	public String copyFromLocal(String localFileName, String hdfsFileName) throws RemoteException{
-		if(hdfsFileName.indexOf("/")!=-1)
-			return "please input the new filename you want to store as instead of the folder";
-		if(cluster.size()<Environment.Dfs.REPLICA_NUMS)
-		{
-			return "can not copy because replica number greater than slaves\n";
-		}
-		if(fileSystem.fileList.containsKey(localFileName))
-		{
-			return "file duplicate already exist\n";
-		}
-		String ans = fileSystem.putFile(localFileName, hdfsFileName);
+
+	private String handlerJoin(String ip) {
+
+		String ans = "d" + this.dataNodeAssignId;
+		DataNodeInfo one = null;
+		one = new DataNodeInfo(ip, ans,Environment.TIME_LIMIT);
+		this.cluster.put(ans, one);
+		load.put(one);
+		System.out.println("one slave join in with ip "+ip+" get id: " + dataNodeAssignId);
+		dataNodeAssignId++;
 		return ans;
 	}
 
-	public String copyToLocalR(String hdfsFilePath, String localFilePath) throws RemoteException
-	{
-		if(fileSystem.folderList.containsKey(hdfsFilePath))
-			return "folder duplicate in the hdfs";
-		else
-		{
-			String ans = fileSystem.getFolder(hdfsFilePath,localFilePath);
-			return ans;
-		}
-	}
-	public String copyToLocal(String hdfsFilePath, String localFilePath) throws RemoteException
-	{
-		if(fileSystem.fileList.containsKey(hdfsFilePath)==false)
-			return "no such file in the hdfs";
-		else
-		{
-			String ans = fileSystem.getFiles(hdfsFilePath,localFilePath);
-			return ans;
-		}
-	}
-
-	public String replica(DataNodeInfo slave)
-	{
+	private String handlerRecovery(DataNodeInfo slave) {
 		if(slave.lostTime==0)
 			load.remove(slave);
 		return fileSystem.ReAllocate(slave);
 	}
-	public String handlerRecovery(DataNodeInfo slave) {
-		return handler(hdfsOP.REPLICA,null,null,slave);
-	}
-	public static String findIp(String name){
-		if(cluster.containsKey(name))
-		{
-			return cluster.get(name).ip;
-		}
-		else 
-			return "";
-	}
-	@Override
-	public String list() throws RemoteException{
+
+	private String handlerList() {
 		String ans = "";
 		int ff = 0,fd=0;
 		if (fileSystem.fileList.isEmpty()&&fileSystem.folderList.isEmpty())
@@ -190,22 +133,114 @@ public class NameNode implements NameNodeRemoteInterface {
 		return ans;
 	}
 
+	private String handlerCopyToLocalR(String hdfsFilePath, String localFilePath) {
+		if(fileSystem.folderList.containsKey(hdfsFilePath))
+			return "folder duplicate in the hdfs";
+		else
+		{
+			String ans = fileSystem.getFolder(hdfsFilePath,localFilePath);
+			return ans;
+		}
+	}
+
+	private String handlerCopyToLocal(String hdfsFilePath, String localFilePath) {
+		if(fileSystem.fileList.containsKey(hdfsFilePath)==false)
+			return "no such file in the hdfs";
+		else
+		{
+			String ans = fileSystem.getFiles(hdfsFilePath,localFilePath);
+			return ans;
+		}
+	}
+
+	private String handlerCopyFromLocalR(String localFolderName, String hdfsFolderPath) {
+		if(hdfsFolderPath.indexOf("/")!=-1)
+			return "folder format error";
+		if(cluster.size()<Environment.Dfs.REPLICA_NUMS)
+		{
+			return "can not copy because replica number greater than slaves\n";
+		}
+		if(fileSystem.folderList.containsKey(localFolderName))
+		{
+			return "folder duplicate already exist\n";
+		}
+		String ans = fileSystem.putFolder(localFolderName, hdfsFolderPath);
+		return ans;
+		
+	}
+
+	private String handlerCopyFromLocal(String localFileName, String hdfsFileName) {
+		if(hdfsFileName.indexOf("/")!=-1)
+			return "please input the new filename you want to store as instead of the folder";
+		if(cluster.size()<Environment.Dfs.REPLICA_NUMS)
+		{
+			return "can not copy because replica number greater than slaves\n";
+		}
+		if(fileSystem.fileList.containsKey(localFileName))
+		{
+			return "file duplicate already exist\n";
+		}
+		String ans = fileSystem.putFile(localFileName, hdfsFileName);
+		return ans;
+	}
+
+	private String handlerDeleteR(String foldername) {
+		if(fileSystem.folderList.containsKey(foldername)==false)
+			return "file folder not found";
+		String ans = fileSystem.deleteFolder(foldername);
+		return ans;
+	}
+
+	private String handlerDelete(String filename) {
+		if(fileSystem.fileList.containsKey(filename)==false)
+			return "file not exist in hdfs";
+		String ans = fileSystem.deleteFile(filename);
+		return ans;
+	}
 	@Override
-	public void quit() throws RemoteException{
-		//.cleanup(Environment.Dfs.NAMENODE_SERVICENAME);
+	public String list() throws RemoteException{
+		return handler(hdfsOP.LIST,null,null,null);
+	}
+	@Override
+	public String join(String ip) throws RemoteException{
+		return handler(hdfsOP.JOIN,ip,null,null);
+	}
+	@Override
+	public String quit() throws RemoteException{
+		return handler(hdfsOP.EXIT,null,null, null);
 	}
 
 	@Override
-	public String join(String ip) throws RemoteException{
-
-		String ans = "d" + this.dataNodeAssignId;
-		DataNodeInfo one = null;
-		one = new DataNodeInfo(ip, ans,Environment.TIME_LIMIT);
-		this.cluster.put(ans, one);
-		load.put(one);
-		System.out.println("one slave join in with ip "+ip+" get id: " + dataNodeAssignId);
-		dataNodeAssignId++;
-		return ans;
+	public String delete(String filename) throws RemoteException, IOException {
+		return handler(hdfsOP.DEL,filename,null,null);
+	}
+	public String deleteR(String foldername) throws RemoteException, IOException {
+		return handler(hdfsOP.DELR,foldername,null,null);
+	}
+	public String copyFromLocalR(String localFolderName, String hdfsFolderPath) throws RemoteException{
+		return handler(hdfsOP.PUTR,localFolderName,hdfsFolderPath,null);
+	}
+	public String copyFromLocal(String localFileName, String hdfsFileName) throws RemoteException{
+		return handler(hdfsOP.PUT,localFileName,hdfsFileName,null);	
+	}
+	public String copyToLocalR(String hdfsFilePath, String localFilePath) throws RemoteException
+	{
+		return handler(hdfsOP.GETR,hdfsFilePath,localFilePath,null);	
+	}
+	public String copyToLocal(String hdfsFilePath, String localFilePath) throws RemoteException
+	{
+		return handler(hdfsOP.GET,hdfsFilePath,localFilePath,null);	
+	}
+	public String Recovery(DataNodeInfo slave) {
+		return handler(hdfsOP.REPLICA,null,null,slave);
+	}
+	public static String findIp(String name){
+		if(cluster.containsKey(name))
+		{
+			return cluster.get(name).ip;
+		}
+		else 
+			return "";
 	}
 	public static Vector<DataNodeInfo> select(int nums)
 	{

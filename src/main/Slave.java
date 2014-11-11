@@ -26,9 +26,11 @@ public class Slave {
 			System.err.println("DataNode failed to start. Exiting..");
 			System.exit(1);
 		}
+		
 		TaskTracker taskTracker = new TaskTracker();
 		if (!taskTracker.start()){
 			System.err.println("TaskTracker failed to start. Exiting..");
 		}
+		
 	}
 }

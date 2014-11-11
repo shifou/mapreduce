@@ -13,5 +13,5 @@ public interface NameNodeRemoteInterface extends Remote{
 	public String copyFromLocalR(String localFilePath, String hdfsFilePath) throws RemoteException;
 	public String join(String ip) throws RemoteException;
 	public String list() throws RemoteException;
-	public void quit() throws RemoteException;
+	public String quit() throws RemoteException;
 }
