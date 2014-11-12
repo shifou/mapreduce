@@ -83,7 +83,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 	}
 
 	@Override
-	public JobInfo submitJob(Job job) throws RemoteException {
+	public synchronized JobInfo submitJob(Job job) throws RemoteException {
 		
 		return null;
 	}

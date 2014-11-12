@@ -1,5 +1,9 @@
 package mapreduce;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.Serializable;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
@@ -49,6 +53,14 @@ public class Job implements Serializable {
 			JobTrackerRemoteInterface jobTracker = (JobTrackerRemoteInterface) reg
 					.lookup(Environment.MapReduceInfo.JOBTRACKER_SERVICENAME);
 			JobInfo info = jobTracker.submitJob(this);
+			
+			File jFile = new File(this.jarPath);
+			FileInputStream in = new FileInputStream(jFile);
+			byte[] temp = new byte[Environment.Dfs.BUF_SIZE];
+			int bCount = 0;
+			while ((bCount = in.read(temp)) != -1){
+				
+			}
 
 			while (true) {
 				Thread.sleep(5000);
@@ -69,8 +81,12 @@ public class Job implements Serializable {
 				}
 			}
 
-		} catch (RemoteException | NotBoundException | InterruptedException e) {
+		} catch (RemoteException | NotBoundException | InterruptedException | FileNotFoundException e) {
 
+			e.printStackTrace();
+			
+		} catch (IOException e) {
+			
 			e.printStackTrace();
 		}
 
