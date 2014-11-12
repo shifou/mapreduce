@@ -10,5 +10,6 @@ public enum hdfsOP {
 	GETR,
 	REPLICA, 
 	JOIN, 
-	EXIT
+	EXIT,
+	PUTJAR
 }

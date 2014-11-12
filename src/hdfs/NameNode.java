@@ -77,6 +77,8 @@ public class NameNode implements NameNodeRemoteInterface {
 			return handlerRecovery(slave);
 		case JOIN:
 			return handlerJoin(f1);
+		case PUTJAR:
+			return handlerPutJar(f1,f2);
 		case EXIT:
 			return handlerExit();
 		default:
@@ -88,6 +90,11 @@ public class NameNode implements NameNodeRemoteInterface {
 			return "execute: "+tp+" error!";
 		}
 	}
+	private String handlerPutJar(String f1, String f2) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 	private String handlerExit() {
 		// TODO Auto-generated method stub
 		return "exit ok\n";
@@ -235,6 +242,11 @@ public class NameNode implements NameNodeRemoteInterface {
 	public String Recovery(DataNodeInfo slave) {
 		return handler(hdfsOP.REPLICA,null,null,slave);
 	}
+	@Override
+	public String putJar(String localfilepath,String jobid) throws RemoteException {
+		// TODO Auto-generated method stub
+		return handler(hdfsOP.PUTJAR,localfilepath,jobid,null);
+}
 	public static String findIp(String name){
 		if(cluster.containsKey(name))
 		{
@@ -282,4 +294,6 @@ public class NameNode implements NameNodeRemoteInterface {
 				load.add(temp);
 		return ans;
 	}
+
+
 }
