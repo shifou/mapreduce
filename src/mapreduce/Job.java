@@ -59,8 +59,13 @@ public class Job implements Serializable {
 			byte[] temp = new byte[Environment.Dfs.BUF_SIZE];
 			int bCount = 0;
 			while ((bCount = in.read(temp)) != -1){
-				
+				Byte[] data = new Byte[bCount];
+				for (int i = 0; i < bCount; i++){
+					data[i] = temp[i];
+				}
+				jobTracker.putJar(info.getID(), this.jarName, data, bCount);
 			}
+			in.close();
 
 			while (true) {
 				Thread.sleep(5000);
@@ -86,7 +91,6 @@ public class Job implements Serializable {
 			e.printStackTrace();
 			
 		} catch (IOException e) {
-			
 			e.printStackTrace();
 		}
 
