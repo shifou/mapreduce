@@ -11,6 +11,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.Date;
 import java.util.concurrent.ConcurrentHashMap;
 
 import main.Environment;
@@ -18,12 +19,15 @@ import main.Environment;
 
 public class JobTracker implements JobTrackerRemoteInterface {
 
-	
+	public ConcurrentHashMap<String,Job> jobs;
 	private JobTrackerRemoteInterface jobTrackerStub;
 	private int taskTrackerAssignID;
+	public int jobID;
 	public ConcurrentHashMap<String, TaskTrackerInfo> taskTrackers;
 	public ConcurrentHashMap<String,String> jobid2JarName;
 	public JobTracker(){
+		jobID=1;
+		jobs= new ConcurrentHashMap<String,Job>();
 		this.taskTrackerAssignID = 1;
 		this.taskTrackers = new ConcurrentHashMap<String, TaskTrackerInfo>();
 		jobid2JarName = new ConcurrentHashMap<String,String>();
@@ -85,8 +89,12 @@ public class JobTracker implements JobTrackerRemoteInterface {
 
 	@Override
 	public JobInfo submitJob(Job job) throws RemoteException {
+		String jobid = String.format("%d", new Date().getTime())+"_"+this.jobID;
+		jobs.put(jobid, job);
+		jobID++;
+		JobInfo ans = new JobInfo(jobid);
 		
-		return null;
+		return jobid;
 	}
 
 	@Override

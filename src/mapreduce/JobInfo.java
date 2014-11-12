@@ -12,7 +12,7 @@ public class JobInfo implements Serializable {
 	private static final long serialVersionUID = 5437349646548467135L;
 	
 	
-	private int ID;
+	private String ID;
 	private int status;
 	
 	private int num_reducers;
@@ -21,7 +21,7 @@ public class JobInfo implements Serializable {
 	private int compl_mappers;
 	
 	
-	public JobInfo(int ID){
+	public JobInfo(String ID){
 		this.ID = ID;
 	}
 	
@@ -33,7 +33,7 @@ public class JobInfo implements Serializable {
 		return this.status;
 	}
 	
-	public int getID(){
+	public String getID(){
 		return this.ID;
 	}
 	
