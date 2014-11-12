@@ -14,5 +14,4 @@ public interface NameNodeRemoteInterface extends Remote{
 	public String join(String ip) throws RemoteException;
 	public String list() throws RemoteException;
 	public String quit() throws RemoteException;
-	public String putJar(String localfilepath,String jobid) throws RemoteException;
 }

@@ -21,6 +21,7 @@ public class Environment {
 		
 		public static String JOBTRACKER_SERVICENAME = "jobtracker";
 		public static int JOBTRACKER_CHECK_PERIOD = 5000;
+		public static String JOBFOLDER= Dfs.DIRECTORY+"/jobs";
 	}
 
 	public static class Dfs {
