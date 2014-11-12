@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -48,7 +49,9 @@ public class JobTracker implements JobTrackerRemoteInterface {
 		return true;
 		
 	}
-	public synchronized String putJar(String jobid, String jarname, Byte []arr, int ct) {
+	
+	@Override
+	public synchronized String putJar(String jobid, String jarname, Byte []arr, int ct) throws RemoteException{
 		try {
 			if(Environment.createDirectory(Environment.MapReduceInfo.JOBFOLDER+"/"+jobid)==false)
 				return "can not create jobid folder for jar\n";
@@ -68,6 +71,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 		}
 		return "put jar ok";
 	}
+
 	@Override
 	public String join(String IP) throws RemoteException {
 		String serviceName = "t" + this.taskTrackerAssignID;
@@ -76,6 +80,39 @@ public class JobTracker implements JobTrackerRemoteInterface {
 		
 		this.taskTrackerAssignID++;
 		return serviceName;
+		
+	}
+
+	@Override
+	public JobInfo submitJob(Job job) throws RemoteException {
+		
+		return null;
+	}
+
+	@Override
+	public JobInfo getJobStatus(int ID) throws RemoteException {
+		
+		return null;
+	}
+
+	@Override
+	public Byte[] getJar(String jobid, long pos)throws RemoteException {
+		if(jobid2JarName.containsKey(jobid)==false)
+			return null;
+		String name = this.jobid2JarName.get(jobid);
+		try {
+			RandomAccessFile raf = new RandomAccessFile(Environment.MapReduceInfo.JOBFOLDER+"/"+jobid+"/"+name, "r");
+			raf.seek(pos);
+			Byte []ans= new Byte[(int) Math.min(Environment.Dfs.BUF_SIZE, raf.length()-pos)];
+			for(int i=0;i<ans.length;i++)
+				ans[i]=raf.readByte();
+			raf.close();
+			return ans;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
 		
 	}
 
