@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -92,6 +93,27 @@ public class JobTracker implements JobTrackerRemoteInterface {
 	public JobInfo getJobStatus(int ID) throws RemoteException {
 		
 		return null;
+	}
+
+	@Override
+	public Byte[] getJar(String jobid, long pos)throws RemoteException {
+		if(jobid2JarName.containsKey(jobid)==false)
+			return null;
+		String name = this.jobid2JarName.get(jobid);
+		try {
+			RandomAccessFile raf = new RandomAccessFile(Environment.MapReduceInfo.JOBFOLDER+"/"+jobid+"/"+name, "r");
+			raf.seek(pos);
+			Byte []ans= new Byte[(int) Math.min(Environment.Dfs.BUF_SIZE, raf.length()-pos)];
+			for(int i=0;i<ans.length;i++)
+				ans[i]=raf.readByte();
+			raf.close();
+			return ans;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
+		
 	}
 
 }
