@@ -44,6 +44,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 		
 	}
 	
+	
 	@Override
 	public String join(String IP) throws RemoteException {
 		String serviceName = "t" + this.taskTrackerAssignID;
@@ -53,6 +54,18 @@ public class JobTracker implements JobTrackerRemoteInterface {
 		this.taskTrackerAssignID++;
 		return serviceName;
 		
+	}
+
+	@Override
+	public JobInfo submitJob(Job job) throws RemoteException {
+		
+		return null;
+	}
+
+	@Override
+	public JobInfo getJobStatus(int ID) throws RemoteException {
+		
+		return null;
 	}
 
 }
