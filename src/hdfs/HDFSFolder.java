@@ -69,8 +69,13 @@ public class HDFSFolder{
 			{
 				ans.remove("#");
 				for(String tt:ans)
-					res+=tt;
-				return res;
+				{
+					if(tt.charAt(0)=='#')
+					{
+						res+=(tt+'\n');
+						return res;
+					}
+				}
 			}
 			else
 			{

@@ -61,7 +61,7 @@ public class Configuration implements Serializable {
 		this.mapperClassName = theClassName;
 	}
 	
-	public String getMapperClassName() {
+	public String getMapperClass() {
 		return this.mapperClassName;
 	}
 	

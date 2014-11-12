@@ -32,10 +32,10 @@ public class HDFSFile implements Serializable{
 
 	private void addBlock(Byte[] data, int blockID, int blocksize,
 			List<DataNodeInfo> locations) {
-
+		
 		HDFSBlock block = new HDFSBlock(this.filename, blockID, data,
 				blocksize, locations, this.folderName);
-
+		
 		this.blocks.put(blockID, block);
 
 	}
@@ -97,9 +97,21 @@ public class HDFSFile implements Serializable{
 					ans.add("#");
 					ans.add("#Abondon some line too big to fit even in a block. ");
 					return ans;
+				}	
+				for(DataNodeInfo hold:locations)
+				{
+					ans.add(hold.serviceName);
+					if(slaves2blocklist.containsKey(hold.serviceName))
+					{
+						slaves2blocklist.get(hold.serviceName).add(blocksize);
+					}
+					else
+					{
+						Vector<Integer> a= new Vector<Integer>();
+						a.add(blocksize);
+						slaves2blocklist.put(hold.serviceName,a);
+					}
 				}
-				for(DataNodeInfo one: locations)
-					ans.add(one.serviceName);
 				byte[] buff = temp.getBytes();
 				int ct=0;
 				Byte[]data = new Byte[Environment.Dfs.BUF_SIZE];
@@ -121,8 +133,20 @@ public class HDFSFile implements Serializable{
 				ans.add("#Abondon some line too big to fit even in a block. ");
 				return ans;
 			}
-			for(DataNodeInfo one: locations)
-				ans.add(one.serviceName);
+			for(DataNodeInfo hold:locations)
+			{
+				ans.add(hold.serviceName);
+				if(slaves2blocklist.containsKey(hold.serviceName))
+				{
+					slaves2blocklist.get(hold.serviceName).add(blocksize);
+				}
+				else
+				{
+					Vector<Integer> a= new Vector<Integer>();
+					a.add(blocksize);
+					slaves2blocklist.put(hold.serviceName,a);
+				}
+			}
 			byte[] buff = temp.getBytes();
 			int ct=0;
 			Byte[]data = new Byte[Environment.Dfs.BUF_SIZE];
@@ -197,6 +221,7 @@ public class HDFSFile implements Serializable{
 					res+=("#"+fk[1]);
 			}
 			ans+=("block: "+one+" "+fk[0]+"\n");
+			blocks.put(one, temp);
 		}
 		slaves2blocklist.remove(serviceName);
 		return ans+"#"+res;

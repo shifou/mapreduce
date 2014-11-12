@@ -12,7 +12,6 @@ import mapreduce.io.Context;
 import mapreduce.io.IntWritable;
 import mapreduce.io.LongWritable;
 import mapreduce.io.Text;
-import mapreduce.io.TextFormat;
 import mapreduce.io.TextInputFormat;
 import mapreduce.io.TextOutputFormat;
 public class WordCount {
@@ -51,6 +50,7 @@ public class WordCount {
 	    Configuration conf = new Configuration();
 	        
 	    Job job = new Job(conf, "wordcount");
+	    
 	    
 	    job.setOutputKeyClass(Text.class);
 	    job.setOutputValueClass(IntWritable.class);
