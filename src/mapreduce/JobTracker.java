@@ -88,14 +88,18 @@ public class JobTracker implements JobTrackerRemoteInterface {
 	}
 
 	@Override
-
 	public synchronized JobInfo submitJob(Job job) throws RemoteException {
 		String jobid = String.format("%d", new Date().getTime())+"_"+this.jobID;
 		jobs.put(jobid, job);
 		jobID++;
 		JobInfo ans = new JobInfo(jobid);
-	
+		allocateMapTask(job);
 		return ans;
+	}
+
+	public void allocateMapTask(Job job) {
+		// TODO Auto-generated method stub
+		
 	}
 
 	@Override

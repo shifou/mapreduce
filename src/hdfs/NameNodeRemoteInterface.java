@@ -3,6 +3,7 @@ import java.io.IOException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
+import mapreduce.InputSplit;
 import data.Message;
 public interface NameNodeRemoteInterface extends Remote{
 	public String delete(String path) throws RemoteException, IOException;
@@ -14,4 +15,5 @@ public interface NameNodeRemoteInterface extends Remote{
 	public String join(String ip) throws RemoteException;
 	public String list() throws RemoteException;
 	public String quit() throws RemoteException;
+	public InputSplit[] getSplit(String path) throws RemoteException;
 }
