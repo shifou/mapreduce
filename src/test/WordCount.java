@@ -63,6 +63,8 @@ public class WordCount {
 	        
 	    job.setInputPath(args[0]);
 	    job.setOutputPath(args[1]);
+	    
+	    job.setJarByPath(args[2], args[3], WordCount.class);
 	        
 	    job.waitForCompletion(true);
 	 }

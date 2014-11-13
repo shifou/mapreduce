@@ -144,7 +144,18 @@ public class HDFSBlock implements Serializable {
 		for (int i = 0; i < blockSize; i++){
 			toPut[i] = data[i];
 		}
-		this.repIDtoLoc.put(id, new DataNodeInfo(NameNode.findIp(newServiceName), newServiceName, Environment.TIME_LIMIT));
+		int j = 0;
+		
+		while (!Character.isDigit(newServiceName.charAt(j))){
+			j+=1;
+		}
+		String s = "";
+		while (j < newServiceName.length()){
+			s+= newServiceName.charAt(j);
+			j+=1;
+		}
+		int slaveNum = Integer.parseInt(s);
+		this.repIDtoLoc.put(id, new DataNodeInfo(NameNode.findIp(newServiceName), newServiceName, Environment.TIME_LIMIT, slaveNum));
 		try{
 			Registry reg = LocateRegistry.getRegistry(this.repIDtoLoc.get(id).ip,Environment.Dfs.DATA_NODE_REGISTRY_PORT);
 			DataNodeRemoteInterface dataNodeStub = (DataNodeRemoteInterface)reg.lookup(this.repIDtoLoc.get(id).serviceName);

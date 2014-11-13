@@ -21,6 +21,7 @@ public class Job implements Serializable {
 	private String jarPath;
 	private String inputPath;
 	private String outputPath;
+	private Class jarClass;
 
 	public Job(Configuration conf, String string) {
 		// TODO Auto-generated constructor stub
@@ -126,9 +127,10 @@ public class Job implements Serializable {
 
 	}
 
-	public void setJarByPath(String path, String jarName) {
+	public void setJarByPath(String path, String jarName, Class c) {
 		this.jarName = jarName;
 		this.jarPath = path;
+		this.jarClass = c;
 	}
 
 }

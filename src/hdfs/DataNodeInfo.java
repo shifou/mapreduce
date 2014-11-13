@@ -13,14 +13,16 @@ public class DataNodeInfo implements Comparable<DataNodeInfo>,Serializable {
 	public int lostTime;
 	public HashSet<String> files ;
 	public ConcurrentHashMap<String,HashSet<String>> folders ;
+	public int slaveNum;
 	
-	public DataNodeInfo(String ip2, String ans, int ll) {
+	public DataNodeInfo(String ip2, String ans, int ll, int slave) {
 		ip = ip2;
 		serviceName = ans;
 		files = new HashSet<String>();
 		folders =new ConcurrentHashMap<String,HashSet<String>>();
 		blockload = 0;
 		lostTime=ll;
+		this.slaveNum = slave;
 	}
 
 	@Override

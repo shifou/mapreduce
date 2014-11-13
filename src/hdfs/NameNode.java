@@ -128,7 +128,7 @@ public class NameNode implements NameNodeRemoteInterface {
 
 		String ans = "d" + this.dataNodeAssignId;
 		DataNodeInfo one = null;
-		one = new DataNodeInfo(ip, ans,Environment.TIME_LIMIT);
+		one = new DataNodeInfo(ip, ans,Environment.TIME_LIMIT, dataNodeAssignId);
 		this.cluster.put(ans, one);
 		load.put(one);
 		System.out.println("one slave join in with ip "+ip+" get id: " + dataNodeAssignId);

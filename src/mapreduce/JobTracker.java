@@ -33,6 +33,8 @@ public class JobTracker implements JobTrackerRemoteInterface {
 	public ConcurrentHashMap<String, TaskTrackerInfo> taskTrackers;
 	public ConcurrentHashMap<String,String> jobid2JarName;
 	private ConcurrentHashMap<String, JobInfo> JIDToJInfo;
+	private ConcurrentHashMap<String, ConcurrentHashMap<MapperTask, TaskTrackerInfo>> jobToMappers;
+	private ConcurrentHashMap<String, ConcurrentHashMap<ReduceTask, TaskTrackerInfo>> jobToReducers;
 	public JobTracker(){
 		this.jobID=1;
 		this.jobs= new ConcurrentHashMap<String,Job>();
@@ -40,6 +42,8 @@ public class JobTracker implements JobTrackerRemoteInterface {
 		this.taskTrackers = new ConcurrentHashMap<String, TaskTrackerInfo>();
 		this.jobid2JarName = new ConcurrentHashMap<String,String>();
 		this.JIDToJInfo = new ConcurrentHashMap<String, JobInfo>();
+		this.jobToMappers = new ConcurrentHashMap<String, ConcurrentHashMap<MapperTask, TaskTrackerInfo>>();
+		this.jobToReducers = new ConcurrentHashMap<String, ConcurrentHashMap<ReduceTask, TaskTrackerInfo>>();
 	}
 	
 	public ConcurrentHashMap<String, TaskTrackerInfo> getTaskTrackers(){
@@ -88,7 +92,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 	@Override
 	public String join(String IP) throws RemoteException {
 		String serviceName = "t" + this.taskTrackerAssignID;
-		TaskTrackerInfo taskInfo = new TaskTrackerInfo(IP, serviceName, Environment.TIME_LIMIT);
+		TaskTrackerInfo taskInfo = new TaskTrackerInfo(IP, serviceName, Environment.TIME_LIMIT, this.taskTrackerAssignID);
 		this.taskTrackers.put(serviceName, taskInfo);
 		
 		this.taskTrackerAssignID++;
@@ -107,7 +111,10 @@ public class JobTracker implements JobTrackerRemoteInterface {
 			Registry r = LocateRegistry.getRegistry(Environment.Dfs.NAME_NODE_REGISTRY_PORT);
 			NameNodeRemoteInterface nameNode = (NameNodeRemoteInterface)r.lookup(Environment.Dfs.NAMENODE_SERVICENAME);
 			InputSplit[] splits = nameNode.getSplit(job.getInputPath());
-			
+			MapperTask[] maps = new MapperTask[splits.length];
+			for (int i = 0; i < splits.length; i++){
+				
+			}
 			
 		} catch (NotBoundException e) {
 			
