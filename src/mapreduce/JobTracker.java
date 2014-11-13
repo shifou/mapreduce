@@ -124,5 +124,9 @@ public class JobTracker implements JobTrackerRemoteInterface {
 		}
 		
 	}
+	
+	private void assignTasks(){
+		
+	}
 
 }
