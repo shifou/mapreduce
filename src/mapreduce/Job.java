@@ -19,6 +19,8 @@ public class Job implements Serializable {
 	public Configuration conf;
 	private String jarName;
 	private String jarPath;
+	private String inputPath;
+	private String outputPath;
 
 	public Job(Configuration conf, String string) {
 		// TODO Auto-generated constructor stub
@@ -96,16 +98,24 @@ public class Job implements Serializable {
 
 	}
 
-	public void setInputPath(Job job, String string) {
-		// TODO Auto-generated method stub
+	public void setInputPath(String path) {
+		this.inputPath = path;
 
 	}
 
-	public void setOutputPath(Job job, String string) {
-		// TODO Auto-generated method stub
+	public void setOutputPath(String path) {
+		this.outputPath = path;
 
 	}
+	
+	public String getInputPath(){
+		return this.inputPath;
+	}
 
+	public String getOutputPath(){
+		return this.outputPath;
+	}
+	
 	public void setOutputFormatClass(Class class1) {
 		// TODO Auto-generated method stub
 

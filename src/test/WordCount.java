@@ -61,8 +61,8 @@ public class WordCount {
 	    job.setInputFormatClass(TextInputFormat.class);
 	    job.setOutputFormatClass(TextOutputFormat.class);
 	        
-	    job.setInputPath(job, args[0]);
-	    job.setOutputPath(job, args[1]);
+	    job.setInputPath(args[0]);
+	    job.setOutputPath(args[1]);
 	        
 	    job.waitForCompletion(true);
 	 }
