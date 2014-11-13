@@ -42,7 +42,10 @@ public class TaskTracker implements TaskTrackerRemoteInterface {
 		return true;
 		
 	}
-
+    public void report(TaskInfo info)
+    {
+    	jobTrackerStub.getReport(info);
+    }
 	@Override
 	public void healthCheck(Boolean b) throws RemoteException {
 	

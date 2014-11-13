@@ -12,4 +12,6 @@ public interface JobTrackerRemoteInterface extends Remote {
 	public String putJar(String jobid, String jarname, Byte []arr, int ct) throws RemoteException;
 	public  Byte[] getJar(String jobid,long pos) throws RemoteException;
 
+	public void getReport(TaskInfo info);
+
 }

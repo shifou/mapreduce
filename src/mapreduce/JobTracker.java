@@ -155,5 +155,11 @@ public class JobTracker implements JobTrackerRemoteInterface {
 		
 	}
 
+	@Override
+	public void getReport(TaskInfo info) {
+		// TODO Auto-generated method stub
+		
+	}
+
 
 }
