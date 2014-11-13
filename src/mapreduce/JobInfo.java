@@ -24,6 +24,11 @@ public class JobInfo implements Serializable {
 	
 	public JobInfo(String ID){
 		this.ID = ID;
+		this.num_mappers = 0;
+		this.num_reducers = 0;
+		this.compl_mappers = 0;
+		this.compl_reducers = 0;
+		this.status = JobInfo.WAITING;
 	}
 	
 	public void setStatus(int status){
@@ -44,5 +49,21 @@ public class JobInfo implements Serializable {
 	
 	public int getPrecentReduceCompleted(){
 		return (this.compl_reducers * 100)/this.num_reducers;
+	}
+	
+	public void setNumMappers(int m){
+		this.num_mappers = m;
+	}
+	
+	public void setNumReducers(int r){
+		this.num_reducers = r;
+	}
+	
+	public void incrementComplMappers(){
+		this.compl_mappers += 1;
+	}
+	
+	public void incrementComplReducers(){
+		this.compl_reducers += 1;
 	}
 }

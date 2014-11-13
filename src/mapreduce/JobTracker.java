@@ -2,11 +2,14 @@ package mapreduce;
 
 
 
-import java.io.FileInputStream;
+import hdfs.NameNodeRemoteInterface;
+
+
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -25,12 +28,14 @@ public class JobTracker implements JobTrackerRemoteInterface {
 	public int jobID;
 	public ConcurrentHashMap<String, TaskTrackerInfo> taskTrackers;
 	public ConcurrentHashMap<String,String> jobid2JarName;
+	private ConcurrentHashMap<String, JobInfo> JIDToJInfo;
 	public JobTracker(){
-		jobID=1;
-		jobs= new ConcurrentHashMap<String,Job>();
+		this.jobID=1;
+		this.jobs= new ConcurrentHashMap<String,Job>();
 		this.taskTrackerAssignID = 1;
 		this.taskTrackers = new ConcurrentHashMap<String, TaskTrackerInfo>();
-		jobid2JarName = new ConcurrentHashMap<String,String>();
+		this.jobid2JarName = new ConcurrentHashMap<String,String>();
+		this.JIDToJInfo = new ConcurrentHashMap<String, JobInfo>();
 	}
 	
 	public ConcurrentHashMap<String, TaskTrackerInfo> getTaskTrackers(){
@@ -92,13 +97,23 @@ public class JobTracker implements JobTrackerRemoteInterface {
 		String jobid = String.format("%d", new Date().getTime())+"_"+this.jobID;
 		jobs.put(jobid, job);
 		jobID++;
-		JobInfo ans = new JobInfo(jobid);
-		allocateMapTask(job);
-		return ans;
+		JobInfo info = new JobInfo(jobid);
+		
+		try {
+			Registry r = LocateRegistry.getRegistry(Environment.Dfs.NAME_NODE_REGISTRY_PORT);
+			NameNodeRemoteInterface nameNode = (NameNodeRemoteInterface)r.lookup(Environment.Dfs.NAMENODE_SERVICENAME);
+			InputSplit[] splits = nameNode.getSplit(job.getInputPath());
+			
+			
+		} catch (NotBoundException e) {
+			
+			e.printStackTrace();
+		}
+		allocateMapTasks(job);
+		return info;
 	}
-
-	public void allocateMapTask(Job job) {
-		// TODO Auto-generated method stub
+	
+	private void allocateMapTasks(Job j){
 		
 	}
 
@@ -128,9 +143,6 @@ public class JobTracker implements JobTrackerRemoteInterface {
 		}
 		
 	}
-	
-	private void assignTasks(){
-		
-	}
+
 
 }
