@@ -317,8 +317,10 @@ public class NameNode implements NameNodeRemoteInterface {
 
 	@Override
 	public InputSplit[] getSplit(String path) throws RemoteException {
-		// TODO Auto-generated method stub
-		return null;
+		lock.lock();
+		InputSplit[] ans = fileSystem.getSplit(path);
+		lock.unlock();
+		return ans;
 	}
 
 

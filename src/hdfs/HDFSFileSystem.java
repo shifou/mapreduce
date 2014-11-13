@@ -17,6 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.PriorityBlockingQueue;
 
 import main.Environment;
+import mapreduce.InputSplit;
 
 public class HDFSFileSystem {
 	public ConcurrentHashMap<String, HDFSFolder> folderList;
@@ -106,6 +107,42 @@ public class HDFSFileSystem {
 			folderList.put(name, hold);
 		}
 		return res;
+	}
+	public InputSplit[] getSplit(String path) {
+		InputSplit[] ans=null;
+		if(this.folderList.containsKey(path)==false)
+		{
+				if(this.fileList.containsKey(path)==false)
+					return null;
+				else
+				{
+					HDFSFile file = fileList.get(path);
+					ans= new InputSplit[file.blocks.size()];
+					for(int i=0;i<file.blocks.size();i++)
+						ans[i]=new InputSplit(1,file.blocks.get(i));
+				}
+		}
+		else
+		{
+			HDFSFolder hold = folderList.get(path);
+			int i=1;
+			int ct=0;
+			for(String name: hold.files.keySet())
+			{
+				HDFSFile file = hold.files.get(name);
+				ct+=file.blocks.size();
+			}
+			ans= new InputSplit[ct];
+			ct=0;
+			for(String name: hold.files.keySet())
+			{
+				HDFSFile file = hold.files.get(name);
+				for(int j=0;j<file.blocks.size();j++)
+					ans[ct++]=new InputSplit(i,file.blocks.get(j));
+				i++;
+			}
+		}
+		return ans;
 	}
 	
 	
