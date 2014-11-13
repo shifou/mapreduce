@@ -1,1 +1,9 @@
 <?xml version="1.0"?>
+<mapred>
+	<MapReduceInfo>
+		<JOBTRACKER_SERVICENAME>jobtracker</JOBTRACKER_SERVICENAME>
+		<JOBFOLDER>jobtracker/jobs</JOBFOLDER>
+		<JOBTRACKER_CHECK_PERIOD>5000</JOBTRACKER_CHECK_PERIOD>
+	</MapReduceInfo>
+
+</mapred>
