@@ -16,11 +16,15 @@ import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.PriorityBlockingQueue;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import main.Environment;
+import mapreduce.InputSplit;
 
 public class NameNode implements NameNodeRemoteInterface {
 	private int port;
+	final Lock lock = new ReentrantLock();
 	public int dataNodeAssignId;
 	public static PriorityBlockingQueue<DataNodeInfo> load;
 	private NameNodeRemoteInterface nameNodeStub;
@@ -56,35 +60,60 @@ public class NameNode implements NameNodeRemoteInterface {
 	}
 	public synchronized String handler(hdfsOP tp,String f1,String f2,DataNodeInfo slave)
 	{
+		String ans;
+		lock.lock();
 		try{
 		switch(tp)
 		{
 		case DEL:
-			return handlerDelete(f1);
+			ans= handlerDelete(f1);
+			lock.unlock();
+			return ans;
 		case DELR:
-			return handlerDeleteR(f1);
-		 case PUT:
-			return handlerCopyFromLocal(f1,f2);
-			case PUTR:
-			return handlerCopyFromLocalR(f1,f2);
+			ans= handlerDeleteR(f1);
+			lock.unlock();
+			return ans;
+		case PUT:
+			ans= handlerCopyFromLocal(f1,f2);
+			lock.unlock();
+			return ans;
+		case PUTR:
+			ans= handlerCopyFromLocalR(f1,f2);
+			lock.unlock();
+			return ans;
 		case GET:
-			return handlerCopyToLocal(f1,f2);
-			case GETR:
-			return handlerCopyToLocalR(f1,f2);
+			ans= handlerCopyToLocal(f1,f2);
+			lock.unlock();
+			return ans;
+		case GETR:
+			ans= handlerCopyToLocalR(f1,f2);
+			lock.unlock();
+			return ans;
 		case LIST:
-			return handlerList();
+			ans= handlerList();
+			lock.unlock();
+			return ans;
 		case REPLICA:
-			return handlerRecovery(slave);
+			ans= handlerRecovery(slave);
+			lock.unlock();
+			return ans;
 		case JOIN:
-			return handlerJoin(f1);
+			ans= handlerJoin(f1);
+			lock.unlock();
+			return ans;
 		case EXIT:
-			return handlerExit();
+			ans= handlerExit();
+			lock.unlock();
+			return ans;
 		default:
-			return "wrong operation received!";
+			ans= "wrong operation received!";
+			lock.unlock();
+			return ans;
 		}
 		}catch(Exception e)
 		{
 			e.printStackTrace();
+			lock.unlock();
 			return "execute: "+tp+" error!";
 		}
 	}
@@ -283,6 +312,14 @@ public class NameNode implements NameNodeRemoteInterface {
 			}
 			for(DataNodeInfo temp : tp )
 				load.add(temp);
+		return ans;
+	}
+
+	@Override
+	public InputSplit[] getSplit(String path) throws RemoteException {
+		lock.lock();
+		InputSplit[] ans = fileSystem.getSplit(path);
+		lock.unlock();
 		return ans;
 	}
 
