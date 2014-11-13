@@ -17,7 +17,7 @@ public class TaskTracker implements TaskTrackerRemoteInterface {
 	private TaskTrackerRemoteInterface taskTrackerStub;
 	
 	public TaskTracker(){
-		
+		curSlots= Environment.MapReduceInfo.SLOTS;
 	}
 	
 	public boolean start(){
