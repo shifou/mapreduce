@@ -11,7 +11,7 @@ import java.rmi.server.UnicastRemoteObject;
 import main.Environment;
 
 public class TaskTracker implements TaskTrackerRemoteInterface {
-
+	public int curSlots;
 	private String serviceName;
 	private JobTrackerRemoteInterface jobTrackerStub;
 	private TaskTrackerRemoteInterface taskTrackerStub;
