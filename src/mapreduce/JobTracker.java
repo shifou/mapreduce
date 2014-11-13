@@ -2,6 +2,8 @@ package mapreduce;
 
 
 
+import hdfs.NameNode;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
