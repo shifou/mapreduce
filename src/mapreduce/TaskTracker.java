@@ -50,6 +50,11 @@ public class TaskTracker implements TaskTrackerRemoteInterface {
     {
     	jobTrackerStub.getReport(info);
     }
+    public String runTask(Task tk) throws RemoteException
+    {
+    	
+    	return "running";
+    }
 	@Override
 	public void healthCheck(Boolean b) throws RemoteException {
 	

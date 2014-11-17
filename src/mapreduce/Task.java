@@ -1,5 +1,6 @@
 package mapreduce;
 
+
 import java.io.Serializable;
 
 public class Task implements Serializable{
@@ -40,4 +41,7 @@ public class Task implements Serializable{
 		return this.type;
 	}
 
+public class Task {
+	
+>>>>>>> 8e04c501c6425933b4e00cf7dac7d2e31e64e94e
 }
