@@ -12,13 +12,15 @@ public class Task implements Serializable{
 		Mapper, Reducer;
 	}
 	
+	private Configuration config;
 	private InputSplit split;
 	private Class<?> className;
 	private TaskType type;
 	
-	public Task(Class<?> c, TaskType type){
+	public Task(Class<?> c, TaskType type, Configuration con){
 		this.setJarClass(c);
 		this.type = type;
+		this.config = con;
 	}
 
 	public InputSplit getSplit() {

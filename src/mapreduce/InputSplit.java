@@ -26,7 +26,7 @@ public class InputSplit implements Serializable {
 		this.block = block;
 	}
 	
-	public HashSet<String> getLocations(){
+	public HashSet<Integer> getLocations(){
 		return this.block.getLocations();
 	}
 }

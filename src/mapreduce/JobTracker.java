@@ -115,7 +115,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 			InputSplit[] splits = nameNode.getSplit(job.getInputPath());
 			Task[] maps = new Task[splits.length];
 			for (int i = 0; i < splits.length; i++){
-				Task task = new Task(job.getJarClass(), Task.TaskType.Mapper);
+				Task task = new Task(job.getJarClass(), Task.TaskType.Mapper, job.conf);
 				task.setSplit(splits[i]);
 				maps[i] = task;
 			}
@@ -131,7 +131,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 	
 	private void allocateMapTasks(Job j, Task[] maps){
 		for (Task task : maps){
-			HashSet<String> locations = task.getSplit().getLocations();
+			HashSet<Integer> locations = task.getSplit().getLocations();
 		}
 	}
 

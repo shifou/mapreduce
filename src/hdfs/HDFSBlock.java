@@ -169,10 +169,10 @@ public class HDFSBlock implements Serializable {
 		
 	}
 	
-	public HashSet<String> getLocations(){
-		HashSet<String> res = new HashSet<String>();
+	public HashSet<Integer> getLocations(){
+		HashSet<Integer> res = new HashSet<Integer>();
 		for (Integer i : this.repIDtoLoc.keySet()){
-			res.add((this.repIDtoLoc.get(i).serviceName));
+			res.add((this.repIDtoLoc.get(i).slaveNum));
 		}
 		return res;
 	}
