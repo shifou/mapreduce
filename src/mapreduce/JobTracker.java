@@ -113,7 +113,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 			InputSplit[] splits = nameNode.getSplit(job.getInputPath());
 			MapperTask[] maps = new MapperTask[splits.length];
 			for (int i = 0; i < splits.length; i++){
-				
+				maps[i] = new MapperTask(splits[i], job.getJarClass());
 			}
 			
 		} catch (NotBoundException e) {
