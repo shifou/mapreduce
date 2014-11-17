@@ -9,6 +9,7 @@ import hdfs.NameNodeRemoteInterface;
 
 
 
+
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -19,6 +20,7 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
 
 import main.Environment;
@@ -33,8 +35,8 @@ public class JobTracker implements JobTrackerRemoteInterface {
 	public ConcurrentHashMap<String, TaskTrackerInfo> taskTrackers;
 	public ConcurrentHashMap<String,String> jobid2JarName;
 	private ConcurrentHashMap<String, JobInfo> JIDToJInfo;
-	private ConcurrentHashMap<String, ConcurrentHashMap<MapperTask, TaskTrackerInfo>> jobToMappers;
-	private ConcurrentHashMap<String, ConcurrentHashMap<ReduceTask, TaskTrackerInfo>> jobToReducers;
+	private ConcurrentHashMap<String, ConcurrentHashMap<Task, TaskTrackerInfo>> jobToMappers;
+	private ConcurrentHashMap<String, ConcurrentHashMap<Task, TaskTrackerInfo>> jobToReducers;
 	public JobTracker(){
 		this.jobID=1;
 		this.jobs= new ConcurrentHashMap<String,Job>();
@@ -42,8 +44,8 @@ public class JobTracker implements JobTrackerRemoteInterface {
 		this.taskTrackers = new ConcurrentHashMap<String, TaskTrackerInfo>();
 		this.jobid2JarName = new ConcurrentHashMap<String,String>();
 		this.JIDToJInfo = new ConcurrentHashMap<String, JobInfo>();
-		this.jobToMappers = new ConcurrentHashMap<String, ConcurrentHashMap<MapperTask, TaskTrackerInfo>>();
-		this.jobToReducers = new ConcurrentHashMap<String, ConcurrentHashMap<ReduceTask, TaskTrackerInfo>>();
+		this.jobToMappers = new ConcurrentHashMap<String, ConcurrentHashMap<Task, TaskTrackerInfo>>();
+		this.jobToReducers = new ConcurrentHashMap<String, ConcurrentHashMap<Task, TaskTrackerInfo>>();
 	}
 	
 	public ConcurrentHashMap<String, TaskTrackerInfo> getTaskTrackers(){
@@ -111,21 +113,26 @@ public class JobTracker implements JobTrackerRemoteInterface {
 			Registry r = LocateRegistry.getRegistry(Environment.Dfs.NAME_NODE_REGISTRY_PORT);
 			NameNodeRemoteInterface nameNode = (NameNodeRemoteInterface)r.lookup(Environment.Dfs.NAMENODE_SERVICENAME);
 			InputSplit[] splits = nameNode.getSplit(job.getInputPath());
-			MapperTask[] maps = new MapperTask[splits.length];
+			Task[] maps = new Task[splits.length];
 			for (int i = 0; i < splits.length; i++){
-				maps[i] = new MapperTask(splits[i], job.getJarClass());
+				Task task = new Task(job.getJarClass(), Task.TaskType.Mapper);
+				task.setSplit(splits[i]);
+				maps[i] = task;
 			}
+			allocateMapTasks(job, maps);
 			
 		} catch (NotBoundException e) {
 			
 			e.printStackTrace();
 		}
-		allocateMapTasks(job);
+		
 		return info;
 	}
 	
-	private void allocateMapTasks(Job j){
-		
+	private void allocateMapTasks(Job j, Task[] maps){
+		for (Task task : maps){
+			HashSet<String> locations = task.getSplit().getLocations();
+		}
 	}
 
 	@Override
