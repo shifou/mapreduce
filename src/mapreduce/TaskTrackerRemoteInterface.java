@@ -6,5 +6,5 @@ import java.rmi.RemoteException;
 public interface TaskTrackerRemoteInterface extends Remote {
 
 	public void healthCheck(Boolean b) throws RemoteException;
-	
+	public String runTask(Task tk) throws RemoteException;
 }
