@@ -12,11 +12,14 @@ public class Configuration implements Serializable {
 	private String inputPath;
 	private String outputPath;
 	
-	private String mapperClassName;
+	private Class<?> mapperClass;
+	private Class<?> reducerClass;
+	
+
 	private Class<?> mapOutputKeyClass;
 	private Class<?> mapOutputValueClass;
-	
-	private String reducerClassName;
+	public Class<?>  inputKeyClass;
+	public Class<?>  inputValClass;
 	private Class<?> outputKeyClass;
 	private Class<?> outputValueClass;
 	
@@ -56,15 +59,18 @@ public class Configuration implements Serializable {
 	public String getOutputPath() {
 		return this.outputPath;
 	}
-	
-	public void setMapperClassName(String theClassName) {
-		this.mapperClassName = theClassName;
+	public Class<?> getMapperClass() {
+		return mapperClass;
 	}
-	
-	public String getMapperClass() {
-		return this.mapperClassName;
+	public void setMapperClass(Class<?> mapperClass) {
+		this.mapperClass = mapperClass;
 	}
-	
+	public Class<?> getReducerClass() {
+		return reducerClass;
+	}
+	public void setReducerClass(Class<?> reducerClass) {
+		this.reducerClass = reducerClass;
+	}
 	public void setMapOutputKeyClass(Class<?> theClass) {
 		this.mapOutputKeyClass = theClass;
 	}
@@ -80,14 +86,6 @@ public class Configuration implements Serializable {
 	
 	public Class<?> getMapOutputValueClass() {
 		return this.mapOutputValueClass;
-	}
-	
-	public void setReducerClassName(String theClassName) {
-		this.reducerClassName = theClassName;
-	}
-	
-	public String getReducerClassName() {
-		return this.reducerClassName;
 	}
 	
 	public void setOutputKeyClass(Class<?> theClass) {

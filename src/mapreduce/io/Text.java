@@ -15,6 +15,10 @@ public class Text extends Writable {
 		value="";
 	}
 
+	public Text(int sum) {
+		value=String.valueOf(sum);
+	}
+
 	public String getText() {
 		return this.value;
 	}

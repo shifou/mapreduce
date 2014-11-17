@@ -17,12 +17,13 @@ public class Task implements Serializable{
 	private InputSplit split;
 	private Class<?> className;
 	private TaskType type;
-	
+	public String jobid;
+	public String taskid;
 	public Task(Class<?> c, TaskType type){
 		this.setJarClass(c);
 		this.type = type;
 	}
-
+	
 	public InputSplit getSplit() {
 		return split;
 	}

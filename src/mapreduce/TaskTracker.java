@@ -52,8 +52,26 @@ public class TaskTracker implements TaskTrackerRemoteInterface {
     }
     public String runTask(Task tk) throws RemoteException
     {
-    	
-    	return "running";
+    	if(tk.locality)
+    	{
+    		
+    	}
+    	else
+    	{
+    		return "running";
+    	}
+    	if(tk.getType().equals(Task.TaskType.Mapper))
+    	{
+			MapRunner mapRunner = new MapRunner(tk.blockPath,tk.jobid, tk.taskid, tk.getSplit(), tk.conf);
+			threadPool.execute(mapRunner);
+			return "running";
+    	}
+    	else
+    	{
+    		ReduceRunner reduceRunner = new ReduceRunner(tk.blockPath,tk.jobid, tk.taskid, tk.getSplit(), tk.conf);
+    		threadPool.execute(reduceRunner);
+			return "running";
+    	}
     }
 	@Override
 	public void healthCheck(Boolean b) throws RemoteException {

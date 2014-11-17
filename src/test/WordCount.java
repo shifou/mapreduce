@@ -30,16 +30,16 @@ public class WordCount {
 	    }
 	 } 
 	        
-	 public static class Reduce implements Reducer<Text, IntWritable, Text, IntWritable> {
+	 public static class Reduce implements Reducer<Text, IntWritable, Text, Text> {
 
 		@Override
 		public void reduce(Text key, Iterator<IntWritable> values,
-				Context<Text, IntWritable> context) throws IOException {
+				Context<Text, Text> context) throws IOException {
 			 int sum = 0;
 			 while (values.hasNext()) {
 		            sum += values.next().get();
 		        }
-		        context.write(key, new IntWritable(sum));
+		        context.write(key, new Text(sum));
 		}
 
 	
@@ -49,7 +49,7 @@ public class WordCount {
 	 public static void main(String[] args) throws Exception {
 	    Configuration conf = new Configuration();
 	        
-	    Job job = new Job(conf, "wordcount");
+	    Job job = new Job(conf);
 	    
 	    
 	    job.setOutputKeyClass(Text.class);

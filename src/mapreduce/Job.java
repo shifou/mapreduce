@@ -11,7 +11,13 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.Date;
 
+import javax.xml.soap.Text;
+
 import main.Environment;
+import mapreduce.io.IntWritable;
+import mapreduce.io.LongWritable;
+import mapreduce.io.TextInputFormat;
+import mapreduce.io.TextOutputFormat;
 
 public class Job implements Serializable {
 
@@ -22,29 +28,27 @@ public class Job implements Serializable {
 	private String inputPath;
 	private String outputPath;
 	private Class jarClass;
-
-	public Job(Configuration conf, String string) {
-		// TODO Auto-generated constructor stub
+	
+	public Job(Configuration conf) {
+		conf= new Configuration();
+		
 	}
 
-	public void setOutputKeyClass(Class class1) {
-		// TODO Auto-generated method stub
-
-	}
-
-	public void setOutputValueClass(Class class1) {
-		// TODO Auto-generated method stub
+	public void setOutputKeyClass(Class<?> class1) {
+		conf.setOutputKeyClass(class1);
 
 	}
 
-	public void setMapperClass(Class class1) {
-		// TODO Auto-generated method stub
+	public void setOutputValueClass(Class<?> class1) {
+		conf.setOutputValueClass(class1);
+	}
 
+	public void setMapperClass(Class<?> class1) {
+		conf.setMapperClass(class1);
 	}
 
 	public void setReducerClass(Class class1) {
-		// TODO Auto-generated method stub
-
+		conf.setReducerClass(class1);
 	}
 
 	public void waitForCompletion(boolean b) {
@@ -117,14 +121,20 @@ public class Job implements Serializable {
 		return this.outputPath;
 	}
 	
-	public void setOutputFormatClass(Class class1) {
-		// TODO Auto-generated method stub
-
+	public void setOutputFormatClass(Class<?> class1) {
+		if(class1.equals(TextOutputFormat.class))
+		{
+			conf.inputKeyClass=Text.class;
+			conf.inputValClass=Text.class;
+		}
 	}
-
-	public void setInputFormatClass(Class class1) {
-		// TODO Auto-generated method stub
-
+	
+	public void setInputFormatClass(Class<?> class1) {
+		if(class1.equals(TextInputFormat.class))
+		{
+			conf.inputKeyClass=LongWritable.class;
+			conf.inputValClass=Text.class;
+		}
 	}
 
 	public void setJarByPath(String path, String jarName, Class c) {

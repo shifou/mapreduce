@@ -11,5 +11,5 @@ import mapreduce.io.Writable;
 
 public interface Reducer<K1 extends Writable, V1 extends Writable, K2 extends Writable, V2 extends Writable> {
 	
-	public void reduce(Text key, Iterator<IntWritable> values, Context<K2, V2> context) throws IOException;
+	public void reduce(K1 key, Iterator<V1> values, Context<K2, V2> context) throws IOException;
 }
