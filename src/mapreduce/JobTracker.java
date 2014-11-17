@@ -52,7 +52,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 	
 	public boolean start(){
 		
-		if (!Environment.createDirectory(Environment.MapReduceInfo.JOBTRACKER_SERVICENAME) && !Environment.createDirectory(Environment.MapReduceInfo.JOBFOLDER)){
+		if (!Environment.createDirectory(Environment.MapReduceInfo.JOBTRACKER_SERVICENAME) ){
 			return false;
 		}
 		try {
@@ -70,9 +70,9 @@ public class JobTracker implements JobTrackerRemoteInterface {
 	@Override
 	public synchronized String putJar(String jobid, String jarname, Byte []arr, int ct) throws RemoteException{
 		try {
-			if(Environment.createDirectory(Environment.MapReduceInfo.JOBFOLDER+"/"+jobid)==false)
+			if(Environment.createDirectory(Environment.MapReduceInfo.JOBTRACKER_SERVICENAME+"/"+jobid)==false)
 				return "can not create jobid folder for jar\n";
-			FileOutputStream out = new FileOutputStream(Environment.Dfs.DIRECTORY+"/"+Environment.MapReduceInfo.JOBFOLDER+"/"+jobid+"/"+jarname,true);
+			FileOutputStream out = new FileOutputStream(Environment.Dfs.DIRECTORY+"/"+Environment.MapReduceInfo.JOBTRACKER_SERVICENAME+"/"+jobid+"/"+jarname,true);
 			byte[] buff = new byte[ct];
 			jobid2JarName.put(jobid, jarname);
 			for(int i=0;i<ct;i++)
@@ -140,7 +140,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 			return null;
 		String name = this.jobid2JarName.get(jobid);
 		try {
-			RandomAccessFile raf = new RandomAccessFile(Environment.MapReduceInfo.JOBFOLDER+"/"+jobid+"/"+name, "r");
+			RandomAccessFile raf = new RandomAccessFile(Environment.MapReduceInfo.JOBTRACKER_SERVICENAME+"/"+jobid+"/"+name, "r");
 			raf.seek(pos);
 			Byte []ans= new Byte[(int) Math.min(Environment.Dfs.BUF_SIZE, raf.length()-pos)];
 			for(int i=0;i<ans.length;i++)

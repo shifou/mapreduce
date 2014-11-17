@@ -21,7 +21,7 @@ public class Environment {
 		
 		public static String JOBTRACKER_SERVICENAME = "jobtracker";
 		public static int JOBTRACKER_CHECK_PERIOD = 5000;
-		public static String JOBFOLDER= Dfs.DIRECTORY+"/jobs";
+		//public static String JOBTRACKERFOLDER= Dfs.DIRECTORY+"/"+JOBTRACKER_SERVICENAME;
 		public static int SLOTS=10;
 	}
 
@@ -120,7 +120,7 @@ public class Environment {
 			
 			
 			System.out.println("----------check mapred conf----------\n");
-			String[] str = { "JOBTRACKER_SERVICENAME", "JOBFOLDER"};
+			String[] str = { "JOBTRACKER_SERVICENAME"};
 			String[] num = { "JOBTRACKER_CHECK_PERIOD","SLOTS" };
 			File fXmlFile = new File("conf/mapred.xml");
 			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
@@ -145,9 +145,9 @@ public class Environment {
 								case "JOBTRACKER_SERVICENAME":
 									MapReduceInfo.JOBTRACKER_SERVICENAME = hold;
 									break;
-								case "JOBFOLDER":
-									MapReduceInfo.JOBFOLDER = hold;
-									break;
+								//case "JOBFOLDER":
+								//	MapReduceInfo.JOBFOLDER = hold;
+								//	break;
 								default:
 									break;
 								}
