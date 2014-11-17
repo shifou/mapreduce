@@ -11,17 +11,24 @@ public class Task implements Serializable{
 	public enum TaskType {
 		Mapper, Reducer;
 	}
-	public Configuration conf;
+
+	
+	private Configuration config;
 	public boolean locality;
 	public String blockPath;
+
 	private InputSplit split;
 	private Class<?> className;
 	private TaskType type;
+
 	public String jobid;
 	public String taskid;
-	public Task(Class<?> c, TaskType type){
+
+	public Task(Class<?> c, TaskType type, Configuration con){
+
 		this.setJarClass(c);
 		this.type = type;
+		this.config = con;
 	}
 	
 	public InputSplit getSplit() {
