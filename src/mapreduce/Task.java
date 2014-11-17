@@ -11,8 +11,12 @@ public class Task implements Serializable{
 	public enum TaskType {
 		Mapper, Reducer;
 	}
+
 	
 	private Configuration config;
+	public boolean locality;
+	public String blockPath;
+
 	private InputSplit split;
 	private Class<?> className;
 	private TaskType type;
