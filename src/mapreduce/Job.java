@@ -132,5 +132,9 @@ public class Job implements Serializable {
 		this.jarPath = path;
 		this.jarClass = c;
 	}
+	
+	public Class getJarClass(){
+		return this.jarClass;
+	}
 
 }
