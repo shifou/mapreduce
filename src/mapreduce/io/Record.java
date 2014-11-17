@@ -9,7 +9,11 @@ public class Record<KEY extends Writable, VALUE extends Writable> implements Com
 	KEY key;
 	
 	VALUE value;
-
+	public Record()
+	{
+		key=null;
+		value=null;
+	}
 	
 	public Record (KEY k, VALUE v) {
 		

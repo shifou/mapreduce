@@ -61,7 +61,6 @@ public class Context<K extends Writable, V extends Writable> {
 			outPath = outPath+"/"+tid;
 		}
 	}
-
 	public void write(K key, V val) {
 		if(this.mapTask)
 		{

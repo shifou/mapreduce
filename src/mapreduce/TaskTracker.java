@@ -7,17 +7,21 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import main.Environment;
 
 public class TaskTracker implements TaskTrackerRemoteInterface {
 	public int curSlots;
 	private String serviceName;
+	public int partionNum;
 	private JobTrackerRemoteInterface jobTrackerStub;
 	private TaskTrackerRemoteInterface taskTrackerStub;
-	
+	public static ExecutorService threadPool;
 	public TaskTracker(){
 		curSlots= Environment.MapReduceInfo.SLOTS;
+		threadPool = Executors.newFixedThreadPool(curSlots);
 	}
 	
 	public boolean start(){
