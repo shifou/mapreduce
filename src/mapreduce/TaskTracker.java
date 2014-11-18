@@ -62,12 +62,14 @@ public class TaskTracker implements TaskTrackerRemoteInterface {
     	}
     	if(tk.getType().equals(Task.TaskType.Mapper))
     	{
+
 			MapRunner mapRunner = new MapRunner(tk.blockPath,tk.jobid, tk.taskid, tk.getSplit(), tk.config,serviceName);
 			threadPool.execute(mapRunner);
 			return "running";
     	}
     	else
     	{
+
     		ReduceRunner reduceRunner = new ReduceRunner(tk.blockPath,tk.jobid, tk.taskid, tk.getSplit(), tk.config,serviceName);
     		threadPool.execute(reduceRunner);
 			return "running";
