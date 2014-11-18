@@ -11,6 +11,7 @@ import hdfs.NameNodeRemoteInterface;
 
 
 
+
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -26,6 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import main.Environment;
+import mapreduce.Task.TaskType;
 
 
 public class JobTracker implements JobTrackerRemoteInterface {
@@ -109,10 +111,10 @@ public class JobTracker implements JobTrackerRemoteInterface {
 	@Override
 	public synchronized JobInfo submitJob(Job job) throws RemoteException {
 		String jobid = String.format("%d", new Date().getTime())+"_"+this.jobID;
-		jobs.put(jobid, job);
 		jobID++;
 		JobInfo info = new JobInfo(jobid);
 		job.info = info;
+		jobs.put(jobid, job);
 		if (this.currentJob == null){
 			jobStart(job);
 		}
@@ -131,6 +133,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 			for (int i = 0; i < splits.length; i++){
 				Task task = new Task(job.getJarClass(), Task.TaskType.Mapper, job.conf);
 				task.setSplit(splits[i]);
+				//set task ID 
 				allocateMapTask(job, task);
 			}
 			
@@ -220,7 +223,43 @@ public class JobTracker implements JobTrackerRemoteInterface {
 
 	@Override
 	public void getReport(TaskInfo info) {
-		// TODO Auto-generated method stub
+		TaskStatus status = info.st;
+		Task.TaskType type = info.type;
+		if (status == TaskStatus.FINISHED){
+			if (type == TaskType.Mapper){
+				for (Task t : this.jobToMappers.get(info.jobid).keySet()){
+					if (t.taskid.equals(info.taskid)){
+						String tracker = this.jobToMappers.get(info.jobid).get(t).serviceName;
+						this.taskTrackers.get(tracker).slotsFilled = Math.max(0, this.taskTrackers.get(tracker).slotsFilled - 1); 
+						this.jobToMappers.get(info.jobid).remove(t);
+						this.jobs.get(info.jobid).info.incrementComplMappers();
+						if (this.jobs.get(info.jobid).info.getPrecentMapCompleted() == 100){
+							startReduceForJob(this.jobs.get(info.jobid));
+						}
+					}
+				}
+			}
+			else if (type == TaskType.Reducer){
+				for (Task t : this.jobToReducers.get(info.jobid).keySet()){
+					if (t.taskid.equals(info.taskid)){
+						String tracker = this.jobToReducers.get(info.jobid).get(t).serviceName;
+						this.taskTrackers.get(tracker).slotsFilled = Math.max(0, this.taskTrackers.get(tracker).slotsFilled - 1); 
+						this.jobToReducers.get(info.jobid).remove(t);
+						this.jobs.get(info.jobid).info.incrementComplReducers();
+						if (this.jobs.get(info.jobid).info.getPrecentReduceCompleted() == 100){
+							//Job has been completed! What should I do here?
+						}
+					}
+				}
+			}
+		}
+		else if (status == TaskStatus.FAILED){
+			
+		}
+		
+	}
+	
+	private void startReduceForJob(Job job){
 		
 	}
 
