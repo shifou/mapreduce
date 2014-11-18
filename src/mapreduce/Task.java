@@ -50,5 +50,9 @@ public class Task implements Serializable{
 	public TaskType getType(){
 		return this.type;
 	}
+	
+	public Configuration getConfig(){
+		return this.config;
+	}
 
 }
