@@ -18,8 +18,10 @@ public class Configuration implements Serializable {
 
 	private Class<?> mapOutputKeyClass;
 	private Class<?> mapOutputValueClass;
+	private Class<?> inputFormatClass;
 	public Class<?>  inputKeyClass;
 	public Class<?>  inputValClass;
+	public Class<?>  outputFormatClass;
 	private Class<?> outputKeyClass;
 	private Class<?> outputValueClass;
 	
@@ -118,5 +120,22 @@ public class Configuration implements Serializable {
 	
 	public int getNumReduceTasks() {
 		return this.numReduceTasks;
+	}
+
+	public void setInputFormat(Class<?> class1) {
+		this.inputFormatClass=class1;
+		
+	}
+	public Class<?> getInputFormat()
+	{
+		return this.inputFormatClass;
+	}
+	public void setOutputFormat(Class<?> class1) {
+		// TODO Auto-generated method stub
+		this.outputFormatClass = class1;
+	}
+	public Class<?> getOutputFormat()
+	{
+		return this.outputFormatClass;
 	}
 }

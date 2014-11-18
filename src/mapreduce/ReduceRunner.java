@@ -9,13 +9,15 @@ public class ReduceRunner implements Runnable{
 	public InputSplit block;
 	public Configuration conf;
 	public String blockpath;
-	public ReduceRunner(String file,String jid, String tid, InputSplit split, Configuration cf)
+	public String taskServiceName;
+	public ReduceRunner(String file,String jid, String tid, InputSplit split, Configuration cf,String tName)
 	{
 		blockpath=file;
 		jobid=jid;
 		taskid=tid;
 		block=split;
 		conf =cf;
+		taskServiceName=tName;
 	}
 	@Override
 	public void run() {
@@ -23,7 +25,7 @@ public class ReduceRunner implements Runnable{
 		Class<Reducer> mapClass;
 		
 			//step1 : get the programmer's Mapper class and Instantiate it
-			mapClass = (Class<Reducer>) Class.forName(conf.getReducerClass());
+			mapClass = (Class<Reducer>) Class.forName(conf.getReducerClass().getName());
 			Constructor<Reducer> constructors = mapClass.getConstructor();
 			reducer = constructors.newInstance();
 			

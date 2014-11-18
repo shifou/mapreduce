@@ -13,7 +13,7 @@ public class Task implements Serializable{
 	}
 
 	
-	private Configuration config;
+	public  Configuration config;
 	public boolean locality;
 	public String blockPath;
 

@@ -14,7 +14,7 @@ import main.Environment;
 
 public class TaskTracker implements TaskTrackerRemoteInterface {
 	public int curSlots;
-	private String serviceName;
+	public String serviceName;
 	public int partionNum;
 	private JobTrackerRemoteInterface jobTrackerStub;
 	private TaskTrackerRemoteInterface taskTrackerStub;
@@ -62,13 +62,13 @@ public class TaskTracker implements TaskTrackerRemoteInterface {
     	}
     	if(tk.getType().equals(Task.TaskType.Mapper))
     	{
-			MapRunner mapRunner = new MapRunner(tk.blockPath,tk.jobid, tk.taskid, tk.getSplit(), tk.conf);
+			MapRunner mapRunner = new MapRunner(tk.blockPath,tk.jobid, tk.taskid, tk.getSplit(), tk.config,serviceName);
 			threadPool.execute(mapRunner);
 			return "running";
     	}
     	else
     	{
-    		ReduceRunner reduceRunner = new ReduceRunner(tk.blockPath,tk.jobid, tk.taskid, tk.getSplit(), tk.conf);
+    		ReduceRunner reduceRunner = new ReduceRunner(tk.blockPath,tk.jobid, tk.taskid, tk.getSplit(), tk.config,serviceName);
     		threadPool.execute(reduceRunner);
 			return "running";
     	}
