@@ -63,7 +63,7 @@ public class Context<K extends Writable, V extends Writable> {
 	public void write(K key, V val) {
 			ans.put(key, val);
 	}
-	public ConcurrentHashMap<Integer, String> writeToDisk() {
+	public ConcurrentHashMap<Integer, String> writeToDisk(int partitionNum) {
 		// TODO Auto-generated method stub
 		return null;
 	}
