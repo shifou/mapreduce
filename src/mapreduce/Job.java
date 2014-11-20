@@ -28,7 +28,6 @@ public class Job implements Serializable {
 	private String inputPath;
 	private String outputPath;
 	private Class jarClass;
-	public JobInfo info;
 	
 	public Job(Configuration conf) {
 		conf= new Configuration();
@@ -128,6 +127,7 @@ public class Job implements Serializable {
 			conf.inputKeyClass=Text.class;
 			conf.inputValClass=Text.class;
 		}
+		conf.setOutputFormat(class1);
 	}
 	
 	public void setInputFormatClass(Class<?> class1) {
@@ -136,6 +136,7 @@ public class Job implements Serializable {
 			conf.inputKeyClass=LongWritable.class;
 			conf.inputValClass=Text.class;
 		}
+		conf.setInputFormat(class1);
 	}
 
 	public void setJarByPath(String path, String jarName, Class c) {

@@ -8,11 +8,9 @@ public class ReduceRunner implements Runnable{
 	public String taskid;
 	public InputSplit block;
 	public Configuration conf;
-	public String blockpath;
 	public String taskServiceName;
-	public ReduceRunner(String file,String jid, String tid, InputSplit split, Configuration cf,String tName)
+	public ReduceRunner(String jid, String tid, InputSplit split, Configuration cf,String tName)
 	{
-		blockpath=file;
 		jobid=jid;
 		taskid=tid;
 		block=split;

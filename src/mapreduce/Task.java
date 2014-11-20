@@ -15,7 +15,6 @@ public class Task implements Serializable{
 	
 	public  Configuration config;
 	public boolean locality;
-	public String blockPath;
 
 	private InputSplit split;
 	private Class<?> className;
@@ -23,6 +22,7 @@ public class Task implements Serializable{
 
 	public String jobid;
 	public String taskid;
+	public int reduceNum;
 
 	public Task(Class<?> c, TaskType type, Configuration con){
 

@@ -11,12 +11,13 @@ public class TextInputFormat extends RecordReader<LongWritable, Text> {
 	public String[] data;
 	public int linenum;
 	public int curLine;
-	public String path;
 
-	public TextInputFormat(String path) {
+	public TextInputFormat(String input) {
 		curLine = 0;
+		data = input.split("\n");
+		linenum = data.length;
 	}
-
+	/*
 	public boolean readRecords() {
 		String input = "", line;
 		File file = new File(path);
@@ -36,7 +37,7 @@ public class TextInputFormat extends RecordReader<LongWritable, Text> {
 			return false;
 		}
 	}
-
+	*/
 	public boolean hasNext() {
 		return curLine < linenum;
 	}

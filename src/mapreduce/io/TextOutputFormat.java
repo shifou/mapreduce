@@ -5,13 +5,14 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 public class TextOutputFormat {
-	public static boolean writeTolocal(String filepath,Context<?,?> ct)
+	public static boolean writeTolocal(String filepath,Context<Writable,Writable> ct)
 	{
 		try {
 			BufferedWriter out=new BufferedWriter(new FileWriter(filepath));
-			for(Object o :ct.reduceAns.keySet())
+			for(Object o :ct.ans.keySet())
 			{
-				out.write(o.toString()+"\t"+ct.reduceAns.get(o).toString()+"\n");
+				Text a  = (Text) ct.ans.get(o);
+				out.write(((Text)o).toString()+"\t"+a.toString()+"\n");
 			}
 			out.close();
 			return true;

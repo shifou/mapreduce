@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.PriorityQueue;
 import java.util.TreeMap;
 import java.util.Vector;
+import java.util.concurrent.ConcurrentHashMap;
 
 import main.Environment;
 
@@ -14,14 +15,13 @@ public class Context<K extends Writable, V extends Writable> {
 	public String jobid;
 	public String taskid;
 	public boolean mapTask;
-	public TreeMap<K,V> reduceAns;
-	public Vector<Record<K, V>> mapAns;
+	public TreeMap<K,V> ans;
 	public String outPath;
 	// HDFS
 	// |---tasktrackerServiceName
 	//     |----jobid
 	//			|----mapper
-	//				|----taskid(1-Block_size)	
+	//				|----taskid(1-Block_size)_partition_id(1-tasktracker size)
 	//			|----reducer
 	//				|----taskid(1-Slave_size)
 	public Context(String jid, String tid, String taskName,boolean mapornot) throws IOException
@@ -36,9 +36,9 @@ public class Context<K extends Writable, V extends Writable> {
 			f.mkdir();
 		}
 		outPath=Environment.Dfs.DIRECTORY+"/"+taskTrackerServiceName+"/"+jid;
+		ans= new TreeMap<K,V>();
 		if(mapornot)
 		{
-			mapAns = new Vector<Record<K, V>>();
 			f=new File(outPath+"/mapper");
 			if(f.exists()==false)
 				f.mkdir();
@@ -50,7 +50,6 @@ public class Context<K extends Writable, V extends Writable> {
 		}
 		else
 		{
-			reduceAns= new TreeMap<K,V>();
 			f=new File(outPath+"/reducer");
 			if(f.exists()==false)
 				f.mkdir();
@@ -62,12 +61,10 @@ public class Context<K extends Writable, V extends Writable> {
 		}
 	}
 	public void write(K key, V val) {
-		if(this.mapTask)
-		{
-			Record a =new Record(key,val);
-			this.mapAns.add(a);
-		}
-		else
-			this.reduceAns.put(key, val);
+			ans.put(key, val);
+	}
+	public ConcurrentHashMap<Integer, String> writeToDisk() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

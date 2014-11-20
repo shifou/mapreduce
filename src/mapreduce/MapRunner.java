@@ -6,7 +6,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.concurrent.ConcurrentHashMap;
 
+import main.Environment;
 import mapreduce.io.Context;
 import mapreduce.io.LongWritable;
 import mapreduce.io.Record;
@@ -16,41 +18,56 @@ import mapreduce.io.TextInputFormat;
 import mapreduce.io.Writable;
 
 public class MapRunner implements Runnable{
-	public Mapper<?, ?, ?, ?> mapper;
+	public Mapper<Writable, Writable, Writable, Writable> mapper;
 	public String jobid;
 	public String taskid;
 	public InputSplit block;
 	public Configuration conf;
-	public String blockpath;
 	public String taskServiceName;
-	public MapRunner(String file,String jid, String tid, InputSplit split, Configuration cf,String tName)
+	public int partitionNum;
+	public MapRunner(String jid, String tid, InputSplit split, Configuration cf,String tName,int num)
 	{
-		blockpath=file;
 		jobid=jid;
 		taskid=tid;
 		block=split;
 		conf =cf;
 		taskServiceName = tName;
+		this.partitionNum=num;
 	}
 	@Override
 	public void run() {
 		
-		Class<Mapper> mapClass;
-		
-			
+		Class<Mapper<Writable, Writable, Writable, Writable>> mapClass;
 			try {
-				mapClass = (Class<Mapper>) Class.forName(conf.getMapperClass().getName());
-				Constructor<Mapper> constructors = mapClass.getConstructor();
+				mapClass = (Class<Mapper<Writable, Writable, Writable, Writable>>) Class.forName(conf.getMapperClass().getName());
+				Constructor<Mapper<Writable, Writable, Writable, Writable>> constructors = mapClass.getConstructor();
 				mapper = constructors.newInstance();
-				BufferedReader reader=new BufferedReader(new FileReader(new File(blockpath)));
-				TextInputFormat read= new TextInputFormat();
-				
-				
-				Context<?,?> ct;
 				if(conf.getInputFormat().equals(TextInputFormat.class))
 				{
-					 ct = new Context<LongWritable,Text>(jobid, taskid, taskServiceName,true);
+					byte[] data= new byte[Environment.Dfs.BUF_SIZE];
+					int len= block.block.get(data);
+					if(len==-1)
+					{
+						TaskInfo res = new TaskInfo(TaskStatus.FAILED,"can not get the block data",this.jobid,this.taskid,this.partitionNum,Task.TaskType.Mapper,null);
+						report(res);
+						return;
+					}
+					TextInputFormat read= new TextInputFormat(data.toString());
+					Context<Writable,Writable> ct = new Context<Writable,Writable>(jobid, taskid, taskServiceName,true);
+					while (read.hasNext()) {
+						Record<LongWritable, Text> nextLine = read.nextKeyValue();
+						mapper.map(nextLine.getKey(), nextLine.getValue(), ct);
+					}
+					
+					ConcurrentHashMap<Integer, String> loc=ct.writeToDisk(this.partitionNum);
+					if(loc.size()!=this.partitionNum){
+					
+						report(null);
+					}
+					else
+						report(null);
 				}
+				
 			}catch (IOException e) {
 					// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -77,12 +94,10 @@ public class MapRunner implements Runnable{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
-		
-			
-		
-		
-		
 	}	
+	public void report(TaskInfo feedback)
+	{
+		
+	}
 	
 }

@@ -123,7 +123,7 @@ public class DataNode implements DataNodeRemoteInterface{
 	}
 
 	@Override
-	public Byte[] getFile(HDFSBlock block) throws RemoteException{
+	public synchronized Byte[] getFile(HDFSBlock block) throws RemoteException{
 		try {
 			String fullPath;
 			String folderName = block.getFolderName();

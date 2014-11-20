@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class InputSplit implements Serializable {
 
 	private static final long serialVersionUID = -3216548064249420892L;
-	private HDFSBlock block;
+	public HDFSBlock block;
 	private int fileid;
 
 	public InputSplit(int id, HDFSBlock hold) {
