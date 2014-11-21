@@ -313,6 +313,7 @@ public class NameNode implements NameNodeRemoteInterface {
 			for(DataNodeInfo temp : tp )
 				load.add(temp);
 		return ans;
+		
 	}
 
 	@Override
