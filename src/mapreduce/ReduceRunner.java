@@ -5,11 +5,14 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.util.Enumeration;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import main.Environment;
 import mapreduce.io.Writable;
 
 public class ReduceRunner implements Runnable{
@@ -19,6 +22,7 @@ public class ReduceRunner implements Runnable{
 	public Configuration conf;
 	public String taskServiceName;
 	public String jarpath;
+	// taskService name -> <blockid, path>
 	public ConcurrentHashMap<String, ConcurrentHashMap<Integer, String> > loc;
 	public ReduceRunner(String jid, String tid,ConcurrentHashMap<String, ConcurrentHashMap<Integer, String> > lc, Configuration cf,String tName,String path)
 	{
@@ -38,7 +42,12 @@ public class ReduceRunner implements Runnable{
 			reduceClass = load(this.jarpath);
 			Constructor<Reducer<Writable,Writable,Writable,Writable>> constructors = reduceClass.getConstructor();
 			reducer = constructors.newInstance();
-			
+			for(String taskSerName : loc.keySet())
+			{
+				Registry registry = LocateRegistry.getRegistry(JobTracker.findIp(taskSerName), Environment.MapReduceInfo.TASKTRACKER_PORT);
+				TaskTrackerRemoteInterface taskTracker = (TaskTrackerRemoteInterface) registry.lookup(taskSerName);
+				
+			}
 			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block

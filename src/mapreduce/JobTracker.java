@@ -12,6 +12,7 @@ import hdfs.NameNodeRemoteInterface;
 
 
 
+
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -36,7 +37,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 	private JobTrackerRemoteInterface jobTrackerStub;
 	private int taskTrackerAssignID;
 	public int jobID;
-	public ConcurrentHashMap<String, TaskTrackerInfo> taskTrackers;
+	public static ConcurrentHashMap<String, TaskTrackerInfo> taskTrackers;
 	public ConcurrentHashMap<String,String> jobid2JarName;
 	private ConcurrentHashMap<String, ConcurrentHashMap<Task, TaskTrackerInfo>> jobToMappers; //JobID -> Map of Task -> TaskTrackerInfo 
 	private ConcurrentHashMap<String, ConcurrentHashMap<Task, TaskTrackerInfo>> jobToReducers;
@@ -268,7 +269,14 @@ public class JobTracker implements JobTrackerRemoteInterface {
 		}
 		
 	}
-	
+	public static String findIp(String name){
+		if( taskTrackers.containsKey(name))
+		{
+			return taskTrackers.get(name).IP;
+		}
+		else 
+			return "";
+	}
 	private void startReduceForJob(Job job){
 		
 	}

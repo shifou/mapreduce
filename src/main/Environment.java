@@ -20,9 +20,11 @@ public class Environment {
 	public static class MapReduceInfo {
 		
 		public static String JOBTRACKER_SERVICENAME = "jobtracker";
+		public static int JOBTRACKER_PORT = 12222;
 		public static int JOBTRACKER_CHECK_PERIOD = 5000;
 		//public static String JOBTRACKERFOLDER= Dfs.DIRECTORY+"/"+JOBTRACKER_SERVICENAME;
 		public static int SLOTS=10;
+		public static int TASKTRACKER_PORT= 23333;
 	}
 
 	public static class Dfs {
@@ -121,7 +123,7 @@ public class Environment {
 			
 			System.out.println("----------check mapred conf----------\n");
 			String[] str = { "JOBTRACKER_SERVICENAME"};
-			String[] num = { "JOBTRACKER_CHECK_PERIOD","SLOTS" };
+			String[] num = { "JOBTRACKER_CHECK_PERIOD","SLOTS","JOBTRACKER_PORT","TASKTRACKER_PORT" };
 			File fXmlFile = new File("conf/mapred.xml");
 			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder dBuilder;
@@ -169,6 +171,12 @@ public class Environment {
 									break;
 								case "SLOTS":
 									MapReduceInfo.SLOTS=hold;
+									break;
+								case "JOBTRACKER_PORT":
+									MapReduceInfo.JOBTRACKER_PORT=hold;
+									break;
+								case "TASKTRACKER_PORT":
+									MapReduceInfo.TASKTRACKER_PORT=hold;
 									break;
 								default:
 									break;

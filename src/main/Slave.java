@@ -4,8 +4,10 @@ package main;
 import mapreduce.TaskTracker;
 import hdfs.DataNode;
 
-
 public class Slave {
+	public static DataNode datanode;
+	public static TaskTracker taskTracker;
+
 	public static void main(String[] args) {
 		try {
 			if( Environment.configure()==false)
@@ -21,13 +23,13 @@ public class Slave {
 			
 			System.exit(1);
 		}
-		DataNode dataNode = new DataNode(Environment.Dfs.DATA_NODE_REGISTRY_PORT);
-		if (!dataNode.start()){
+		datanode = new DataNode(Environment.Dfs.DATA_NODE_REGISTRY_PORT);
+		if (!datanode.start()){
 			System.err.println("DataNode failed to start. Exiting..");
 			System.exit(1);
 		}
 		
-		TaskTracker taskTracker = new TaskTracker();
+		taskTracker = new TaskTracker();
 		if (!taskTracker.start()){
 			System.err.println("TaskTracker failed to start. Exiting..");
 		}
