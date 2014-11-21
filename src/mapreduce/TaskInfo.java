@@ -18,7 +18,7 @@ public class TaskInfo implements Serializable {
 		mplocations = loc;
 		who=taskName;
 	}
-	public TaskInfo()
+
 	private static final long serialVersionUID = 5025490142898429108L;
 	public String reloc;
 	public String jobid;
