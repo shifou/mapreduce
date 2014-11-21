@@ -28,6 +28,7 @@ public class Job implements Serializable {
 	private String inputPath;
 	private String outputPath;
 	private Class jarClass;
+	public JobInfo info;
 	
 	public Job(Configuration conf) {
 		conf= new Configuration();

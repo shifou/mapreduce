@@ -41,6 +41,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 	private ConcurrentHashMap<String, ConcurrentHashMap<Task, TaskTrackerInfo>> jobToMappers; //JobID -> Map of Task -> TaskTrackerInfo 
 	private ConcurrentHashMap<String, ConcurrentHashMap<Task, TaskTrackerInfo>> jobToReducers;
 	private ConcurrentLinkedQueue<Job> queuedJobs;
+	private ConcurrentLinkedQueue<Task> queuedTasks;
 	private Job currentJob;
 	public JobTracker(){
 		this.jobID=1;
@@ -51,6 +52,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 		this.jobToMappers = new ConcurrentHashMap<String, ConcurrentHashMap<Task, TaskTrackerInfo>>();
 		this.jobToReducers = new ConcurrentHashMap<String, ConcurrentHashMap<Task, TaskTrackerInfo>>();
 		this.queuedJobs = new ConcurrentLinkedQueue<Job>();
+		this.queuedTasks = new ConcurrentLinkedQueue<Task>();
 		this.currentJob = null;
 	}
 	
@@ -133,8 +135,9 @@ public class JobTracker implements JobTrackerRemoteInterface {
 			for (int i = 0; i < splits.length; i++){
 				Task task = new Task(job.getJarClass(), Task.TaskType.Mapper, job.conf);
 				task.setSplit(splits[i]);
+				task.jobid = job.info.getID();
 				//set task ID 
-				allocateMapTask(job, task);
+				allocateMapTask(task);
 			}
 			
 			
@@ -145,7 +148,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 	}
 
 	
-	private void allocateMapTask(Job j, Task t){
+	private void allocateMapTask(Task t){
 		HashSet<Integer> locations = t.getSplit().getLocations();
 		String bestNode = null;
 		int bestLoad = Environment.MapReduceInfo.SLOTS;
@@ -167,19 +170,18 @@ public class JobTracker implements JobTrackerRemoteInterface {
 				}
 			}
 		}
-		if (this.jobToMappers.get(j.info.getID()) != null){
+		if (this.jobToMappers.get(t.jobid) != null){
 				this.taskTrackers.get(bestNode).slotsFilled += 1;
-				this.jobToMappers.get(j.info.getID()).put(t, this.taskTrackers.get(bestNode));
+				this.jobToMappers.get(t.jobid).put(t, this.taskTrackers.get(bestNode));
 		}
 		else {
 			ConcurrentHashMap<Task, TaskTrackerInfo> temp = new ConcurrentHashMap<Task, TaskTrackerInfo>();
 			this.taskTrackers.get(bestNode).slotsFilled+=1;
 			temp.put(t, this.taskTrackers.get(bestNode));
-			this.jobToMappers.put(j.info.getID(), temp);
+			this.jobToMappers.put(t.jobid, temp);
 		}
 		if (bestNode == null){
-			//Not enough slots to run all maps 
-			//What should I do? 
+			this.queuedTasks.add(t);
 		}
 		else {
 			Registry r;
@@ -235,6 +237,14 @@ public class JobTracker implements JobTrackerRemoteInterface {
 						this.jobs.get(info.jobid).info.incrementComplMappers();
 						if (this.jobs.get(info.jobid).info.getPrecentMapCompleted() == 100){
 							startReduceForJob(this.jobs.get(info.jobid));
+						}
+						else {
+							if (!this.queuedTasks.isEmpty()){
+								Task task = this.queuedTasks.peek();
+								if (task.jobid.equals(info.jobid) && task.getType() == TaskType.Mapper){
+									allocateMapTask(this.queuedTasks.poll());
+								}
+							}
 						}
 					}
 				}

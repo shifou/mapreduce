@@ -7,6 +7,7 @@ import mapreduce.Task.TaskType;
 
 public class TaskInfo implements Serializable {
 
+	// for map
 	public TaskInfo(TaskStatus stt, String string, String jobid2,String taskName,
 			String taskid2, int partitionNum, TaskType tp, ConcurrentHashMap<Integer, String> loc) {
 		st=stt;
@@ -18,6 +19,7 @@ public class TaskInfo implements Serializable {
 		mplocations = loc;
 		who=taskName;
 	}
+	// for reduce
 	public TaskInfo(TaskStatus stt, String reas, String jobid2,String taskName, String taskid2, TaskType tp, String loc)
 	{
 		st=stt;
