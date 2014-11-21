@@ -52,25 +52,24 @@ public class TaskTracker implements TaskTrackerRemoteInterface {
     }
     public String runTask(Task tk) throws RemoteException
     {
-    	if(tk.locality)
+    	String jarpath="";
+    	if(tk.locality==false)
     	{
+    		// get jar
     		
-    	}
-    	else
-    	{
     		return "running";
     	}
     	if(tk.getType().equals(Task.TaskType.Mapper))
     	{
 
-			MapRunner mapRunner = new MapRunner(tk.jobid, tk.taskid, tk.getSplit(), tk.config,serviceName, tk.reduceNum);
+			MapRunner mapRunner = new MapRunner(tk.jobid, tk.taskid, tk.getSplit(), tk.config,serviceName, tk.reduceNum,jarpath);
 			threadPool.execute(mapRunner);
 			return "running";
     	}
     	else
     	{
 
-    		ReduceRunner reduceRunner = new ReduceRunner(tk.jobid, tk.taskid, tk.getSplit(), tk.config,serviceName);
+    		ReduceRunner reduceRunner = new ReduceRunner(tk.jobid, tk.taskid, tk.mploc, tk.config,serviceName,jarpath);
     		threadPool.execute(reduceRunner);
 			return "running";
     	}

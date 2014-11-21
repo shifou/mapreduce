@@ -18,7 +18,16 @@ public class TaskInfo implements Serializable {
 		mplocations = loc;
 		who=taskName;
 	}
-	public TaskInfo()
+	public TaskInfo(TaskStatus stt, String reas, String jobid2,String taskName, String taskid2, TaskType tp, String loc)
+	{
+		st=stt;
+		reason = reas;
+		jobid=jobid2;
+		taskid=taskid2;
+		type=tp;
+		who=taskName;
+		reloc= loc;
+	}
 	private static final long serialVersionUID = 5025490142898429108L;
 	public String reloc;
 	public String jobid;

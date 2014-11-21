@@ -2,6 +2,7 @@ package mapreduce;
 
 
 import java.io.Serializable;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Task implements Serializable{
 	
@@ -11,7 +12,7 @@ public class Task implements Serializable{
 	public enum TaskType {
 		Mapper, Reducer;
 	}
-
+	public ConcurrentHashMap<String, ConcurrentHashMap<Integer, String> > mploc;
 	
 	public  Configuration config;
 	public boolean locality;
@@ -24,8 +25,8 @@ public class Task implements Serializable{
 	public String taskid;
 	public int reduceNum;
 
-	public Task(Class<?> c, TaskType type, Configuration con){
-
+	public Task(Class<?> c, TaskType type, Configuration con,	ConcurrentHashMap<String, ConcurrentHashMap<Integer, String> > lc ){
+		mploc=lc;
 		this.setJarClass(c);
 		this.type = type;
 		this.config = con;
