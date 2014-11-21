@@ -35,7 +35,7 @@ public class MapRunner implements Runnable {
 
 	@Override
 	public void run() {
-
+		TaskInfo res;
 		Class<Mapper<Writable, Writable, Writable, Writable>> mapClass;
 		try {
 			mapClass = (Class<Mapper<Writable, Writable, Writable, Writable>>) Class
@@ -46,17 +46,17 @@ public class MapRunner implements Runnable {
 			byte[] data = new byte[Environment.Dfs.BUF_SIZE];
 			int len = block.block.get(data);
 			if (len == -1) {
-				TaskInfo res = new TaskInfo(TaskStatus.FAILED,
-						"can not get the block data", this.jobid, this.taskid,
+				res = new TaskInfo(TaskStatus.FAILED,
+						"can not get the block data", this.jobid, this.taskid,this.taskServiceName,
 						this.partitionNum, Task.TaskType.Mapper, null);
 				report(res);
 				return;
 			}
-			Class<RecordReader> inputFormatClass = (Class<RecordReader>) Class
+			Class<RecordReader<Writable,Writable>> inputFormatClass = (Class<RecordReader<Writable,Writable>>) Class
 					.forName(conf.getInputFormat().getName());
-			Constructor<RecordReader> constuctor = inputFormatClass
+			Constructor<RecordReader<Writable,Writable>> constuctor = inputFormatClass
 					.getConstructor(String.class);
-			RecordReader read = constuctor.newInstance(data.toString());
+			RecordReader<Writable,Writable> read = constuctor.newInstance(data.toString());
 			Context<Writable, Writable> ct = new Context<Writable, Writable>(
 					jobid, taskid, taskServiceName, true);
 			while (read.hasNext()) {
@@ -67,40 +67,28 @@ public class MapRunner implements Runnable {
 			ConcurrentHashMap<Integer, String> loc = ct
 					.writeToDisk(this.partitionNum);
 			if (loc.size() != this.partitionNum) {
-
-				report(null);
+				res = new TaskInfo(TaskStatus.FAILED,
+						"can not write the intermerdiate data to disk", this.jobid, this.taskid,this.taskServiceName,
+						this.partitionNum, Task.TaskType.Mapper, null);
+				report(res);
 			} else
-				report(null);
+				res = new TaskInfo(TaskStatus.FINISHED,
+						"can not write the intermerdiate data to disk", this.jobid, this.taskid,this.taskServiceName,
+						this.partitionNum, Task.TaskType.Mapper, loc);
+				report(res);
 
-		} catch (IOException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
+			res = new TaskInfo(TaskStatus.FAILED,
+					e.getMessage(), this.jobid, this.taskid,this.taskServiceName,
+					this.partitionNum, Task.TaskType.Mapper, null);
+			report(res);
 			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (NoSuchMethodException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SecurityException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InstantiationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		} 
 	}
 
 	public void report(TaskInfo feedback) {
-
+		
 	}
 
 }

@@ -1,7 +1,10 @@
 package mapreduce.io;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.PriorityQueue;
 import java.util.TreeMap;
@@ -43,10 +46,6 @@ public class Context<K extends Writable, V extends Writable> {
 			if(f.exists()==false)
 				f.mkdir();
 			outPath= outPath+"/mapper";
-			f=new File(outPath+"/"+tid);
-			if(f.exists()==false)
-				f.createNewFile();
-			outPath = outPath+"/"+tid;
 		}
 		else
 		{
@@ -54,17 +53,35 @@ public class Context<K extends Writable, V extends Writable> {
 			if(f.exists()==false)
 				f.mkdir();
 			outPath= outPath+"/reducer";
-			f=new File(outPath+"/"+tid);
-			if(f.exists()==false)
-				f.createNewFile();
-			outPath = outPath+"/"+tid;
 		}
 	}
 	public void write(K key, V val) {
 			ans.put(key, val);
 	}
 	public ConcurrentHashMap<Integer, String> writeToDisk(int partitionNum) {
-		// TODO Auto-generated method stub
-		return null;
+		ConcurrentHashMap<Integer,String> lc= new ConcurrentHashMap<Integer,String>();
+		String []data= new String[partitionNum];
+		for(int i=0;i<partitionNum;i++)
+			data[i]="";
+		for(Writable k : this.ans.keySet())
+		{
+			int id = Math.abs(k.getHashValue())%partitionNum;
+			data[id]+=(k+"\t"+ans.get(k)+"\n");
+		}
+		for(int i=0;i<partitionNum;i++)
+		{
+			try {
+				String temp=outPath+"/"+taskid+"_"+i;
+				FileOutputStream out = new FileOutputStream(temp);
+				out.write(data[i].getBytes("UTF-8"));
+				out.close();
+				lc.put(i,temp);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return lc;
+			}
+		}
+		return lc;
 	}
 }

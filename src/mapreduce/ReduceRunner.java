@@ -1,36 +1,46 @@
 package mapreduce;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.concurrent.ConcurrentHashMap;
+
+import mapreduce.io.Writable;
 
 public class ReduceRunner implements Runnable{
 	public Reducer<?, ?, ?, ?> reducer;
 	public String jobid;
 	public String taskid;
-	public InputSplit block;
 	public Configuration conf;
 	public String taskServiceName;
-	public ReduceRunner(String jid, String tid, InputSplit split, Configuration cf,String tName)
+	public ConcurrentHashMap<String, ConcurrentHashMap<Integer, String> > loc;
+	public ReduceRunner(String jid, String tid,ConcurrentHashMap<String, ConcurrentHashMap<Integer, String> > lc, Configuration cf,String tName)
 	{
 		jobid=jid;
 		taskid=tid;
-		block=split;
 		conf =cf;
 		taskServiceName=tName;
+		loc=lc;
 	}
 	@Override
 	public void run() {
 		
-		Class<Reducer> mapClass;
+		Class<Reducer<Writable,Writable,Writable,Writable>> reduceClass;
 		
-			//step1 : get the programmer's Mapper class and Instantiate it
-			mapClass = (Class<Reducer>) Class.forName(conf.getReducerClass().getName());
-			Constructor<Reducer> constructors = mapClass.getConstructor();
+		try {
+			reduceClass = (Class<Reducer<Writable,Writable,Writable,Writable>>) Class.forName(conf.getReducerClass().getName());
+			Constructor<Reducer<Writable,Writable,Writable,Writable>> constructors = reduceClass.getConstructor();
 			reducer = constructors.newInstance();
 			
 			
-		
-		
-		
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 	
+			
 	}	
+	public void report(TaskInfo feedback) {
+		
+	}
+
 	
 }
