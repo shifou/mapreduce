@@ -27,6 +27,7 @@ public class Context<K extends Writable, V extends Writable> {
 	//				|----taskid(1-Block_size)_partition_id(1-tasktracker size)
 	//			|----reducer
 	//				|----taskid(1-Slave_size)
+	//			xxx.jar
 	public Context(String jid, String tid, String taskName,boolean mapornot) throws IOException
 	{
 		taskTrackerServiceName = taskName;
