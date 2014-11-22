@@ -104,7 +104,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 	}
 
 	@Override
-	public String join(String IP) throws RemoteException {
+	public synchronized String join(String IP) throws RemoteException {
 		String serviceName = "t" + this.taskTrackerAssignID;
 		TaskTrackerInfo taskInfo = new TaskTrackerInfo(IP, serviceName,
 				Environment.TIME_LIMIT, this.taskTrackerAssignID);
@@ -127,6 +127,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 			jobStart(job);
 			this.currentJob = job;
 		} else {
+			job.info.setStatus(JobInfo.WAITING);
 			this.queuedJobs.offer(job);
 		}
 		return info;
@@ -148,6 +149,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 				task.taskid = "" + splits[i].getBlock().getID();
 				allocateMapTask(task);
 			}
+			job.info.setStatus(JobInfo.RUNNING);
 
 		} catch (NotBoundException | RemoteException e) {
 
@@ -208,13 +210,12 @@ public class JobTracker implements JobTrackerRemoteInterface {
 	}
 
 	@Override
-	public JobInfo getJobStatus(String ID) throws RemoteException {
-
-		return null;
+	public synchronized JobInfo getJobStatus(String ID) throws RemoteException {
+		return this.jobs.get(ID).info;
 	}
 
 	@Override
-	public Byte[] getJar(String jobid, long pos) throws RemoteException {
+	public synchronized Byte[] getJar(String jobid, long pos) throws RemoteException {
 		if (jobid2JarName.containsKey(jobid) == false)
 			return null;
 		String name = this.jobid2JarName.get(jobid);
@@ -238,7 +239,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 	}
 
 	@Override
-	public void getReport(TaskInfo info) {
+	public synchronized void getReport(TaskInfo info) {
 		TaskStatus status = info.st;
 		Task.TaskType type = info.type;
 		if (status == TaskStatus.FINISHED) {
@@ -290,13 +291,39 @@ public class JobTracker implements JobTrackerRemoteInterface {
 						this.jobs.get(info.jobid).info.incrementComplReducers();
 						if (this.jobs.get(info.jobid).info
 								.getPrecentReduceCompleted() == 100) {
-							// Job has been completed! What should I do here?
+							this.jobs.get(info.jobid).info.setStatus(JobInfo.SUCCEEDED);
+							this.jobToMappers.remove(info.jobid);
+							this.jobToReducers.remove(info.jobid);
+							this.completedMaps.remove(info.jobid);
+							this.jobToTaskTrackers.remove(info.jobid);
+							this.currentJob = null;
+							if (!this.queuedJobs.isEmpty()){
+								this.currentJob = this.queuedJobs.poll();
+								jobStart(this.currentJob);
+							}
+							
 						} 
 					}
 				}
 			}
 		} else if (status == TaskStatus.FAILED) {
-
+			ConcurrentHashMap<Task, TaskTrackerInfo> temp = this.jobToMappers.get(info.jobid);
+			HashSet<TaskTrackerInfo> trackers = new HashSet<TaskTrackerInfo>();
+			for (Task t: temp.keySet()){
+				trackers.add(temp.get(t));
+			}
+			for (TaskTrackerInfo tInfo: trackers){
+				String tracker = tInfo.serviceName;
+				Registry reg;
+				try {
+					reg = LocateRegistry.getRegistry(tInfo.IP, Environment.Dfs.DATA_NODE_REGISTRY_PORT);
+					TaskTrackerRemoteInterface taskTracker = (TaskTrackerRemoteInterface)reg.lookup(tracker);
+					taskTracker.killFaildJob(info.jobid);
+				} catch (RemoteException | NotBoundException e) {
+					e.printStackTrace();
+				}
+			}
+			this.jobs.get(info.jobid).info.setStatus(JobInfo.FAILED);
 		}
 
 	}
@@ -316,6 +343,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 			i += 1;
 			allocateReduceTask(job.info.getID(), t, tracker);
 		}
+		job.info.setNumReducers(i -1);
 	}
 
 	private void allocateReduceTask(String jobID, Task t, String taskTrackerName) {
