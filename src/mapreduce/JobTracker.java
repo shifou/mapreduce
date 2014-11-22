@@ -301,7 +301,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 
 	}
 
-	public static String findIp(String name) {
+	public String findIp(String name) {
 		if (taskTrackers.containsKey(name)) {
 			return taskTrackers.get(name).IP;
 		} else

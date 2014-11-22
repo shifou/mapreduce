@@ -9,6 +9,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.ArrayList;
@@ -73,7 +74,22 @@ public class ReduceRunner implements Runnable {
 			for (String taskSerName : loc.keySet()) {
 				if (taskSerName.equals(this.taskServiceName) == false) {
 					Registry registry = LocateRegistry.getRegistry(
-							JobTracker.findIp(taskSerName),
+							Environment.Dfs.NAME_NODE_IP,
+							Environment.MapReduceInfo.JOBTRACKER_PORT);
+					JobTrackerRemoteInterface jobstub = (JobTrackerRemoteInterface) registry
+							.lookup(Environment.MapReduceInfo.JOBTRACKER_SERVICENAME);
+						String ip = jobstub.findIp(taskSerName);
+						if(ip.equals(""))
+						{
+							TaskInfo res = new TaskInfo(TaskStatus.FAILED,
+									"retrieve partition " + taskid + " when locate map ip failed", jobid,
+									this.taskServiceName, this.taskid,
+									TaskType.Reducer, outpath);
+							report(res);
+							return;
+						}
+					 registry = LocateRegistry.getRegistry(
+							ip,
 							Environment.MapReduceInfo.TASKTRACKER_PORT);
 					TaskTrackerRemoteInterface taskTracker = (TaskTrackerRemoteInterface) registry
 							.lookup(taskSerName);
@@ -208,7 +224,12 @@ public class ReduceRunner implements Runnable {
 	}
 
 	public void report(TaskInfo feedback) {
-		TaskTracker.report(feedback);
+		try {
+			TaskTracker.report(feedback);
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 }

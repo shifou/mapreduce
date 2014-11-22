@@ -71,7 +71,7 @@ public class TaskTracker implements TaskTrackerRemoteInterface {
 		return true;
 		
 	}
-    public static void report(TaskInfo info)
+    public static void report(TaskInfo info) throws RemoteException
     {
     	jobTrackerStub.getReport(info);
     }
