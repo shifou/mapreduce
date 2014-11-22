@@ -2,6 +2,8 @@ package mapreduce;
 
 import java.io.Serializable;
 
+import javax.xml.soap.Text;
+
 public class Configuration implements Serializable {
 
 
@@ -16,27 +18,18 @@ public class Configuration implements Serializable {
 	private Class<?> reducerClass;
 	
 
-	private Class<?> mapOutputKeyClass;
-	private Class<?> mapOutputValueClass;
 	private Class<?> inputFormatClass;
 	public Class<?>  inputKeyClass;
 	public Class<?>  inputValClass;
 	public Class<?>  outputFormatClass;
-	private Class<?> outputKeyClass;
-	private Class<?> outputValueClass;
+	public Class<?> outputKeyClass;
+	public Class<?> outputValClass;
 	
 	private int numMapTasks;
 	private int numReduceTasks;
 	
-	private int priorityLevel;
 	
-	public void setPriority(int level) {
-		this.priorityLevel = level;
-	}
-	
-	public int getPriority() {
-		return this.priorityLevel;
-	}
+
 	
 	public void setJobName(String jobName) {
 		this.jobName = jobName;
@@ -73,6 +66,7 @@ public class Configuration implements Serializable {
 	public void setReducerClass(Class<?> reducerClass) {
 		this.reducerClass = reducerClass;
 	}
+	/*
 	public void setMapOutputKeyClass(Class<?> theClass) {
 		this.mapOutputKeyClass = theClass;
 	}
@@ -89,7 +83,7 @@ public class Configuration implements Serializable {
 	public Class<?> getMapOutputValueClass() {
 		return this.mapOutputValueClass;
 	}
-	
+	*/
 	public void setOutputKeyClass(Class<?> theClass) {
 		this.outputKeyClass = theClass;
 	}
@@ -99,11 +93,11 @@ public class Configuration implements Serializable {
 	}
 	
 	public void setOutputValueClass(Class<?> theClass) {
-		this.outputValueClass = theClass;
+		this.outputValClass = theClass;
 	}
 	
 	public Class<?> getOutputValueClass() {
-		return this.outputValueClass;
+		return this.outputValClass;
 	}
 	
 	public void setNumMapTasks(int num) {

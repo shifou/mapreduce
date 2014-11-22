@@ -125,8 +125,8 @@ public class Job implements Serializable {
 	public void setOutputFormatClass(Class<?> class1) {
 		if(class1.equals(TextOutputFormat.class))
 		{
-			conf.inputKeyClass=Text.class;
-			conf.inputValClass=Text.class;
+			conf.outputKeyClass=Text.class;
+			conf.outputValClass=Text.class;
 		}
 		conf.setOutputFormat(class1);
 	}

@@ -203,7 +203,7 @@ public class Command {
 
 	}
 
-	private static void putHandler(String localFilePath, String hdfsFilePath) {
+	public static void putHandler(String localFilePath, String hdfsFilePath) {
 		try {
 			Registry nameNodeRegistry = LocateRegistry.getRegistry(
 					Environment.Dfs.NAME_NODE_IP,

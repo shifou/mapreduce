@@ -1,5 +1,6 @@
 package mapreduce;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -16,9 +17,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import main.Command;
 import main.Environment;
 import mapreduce.Task.TaskType;
+import mapreduce.io.Context;
 import mapreduce.io.Record;
+import mapreduce.io.Records;
+import mapreduce.io.Text;
+import mapreduce.io.TextOutputFormat;
 import mapreduce.io.Writable;
 
 public class ReduceRunner implements Runnable{
@@ -63,13 +69,13 @@ public class ReduceRunner implements Runnable{
 				TaskTrackerRemoteInterface taskTracker = (TaskTrackerRemoteInterface) registry.lookup(taskSerName);
 				for(Integer maptaskid : loc.get(taskSerName).keySet())
 				{
-					Vector<Record<Writable,Writable>> target =taskTracker.getPartition(this.jobid,maptaskid,this.taskid);
+					Vector<Record<?,?>> target =taskTracker.getPartition(this.jobid,maptaskid,this.taskid);
 					if(target==null)
 					{
 						TaskInfo res= new TaskInfo(TaskStatus.FAILED,"retrieve partition "+taskid+" for "+maptaskid+" failed",jobid,this.taskServiceName, this.taskid, TaskType.Reducer, outpath);
 						report(res);
 					}
-					for(Record<Writable,Writable> a: target)
+					for(Record<?,?> a: target)
 					{
 						if(merge.containsKey(a.key))
 							merge.get(a.key).add(a.value);
@@ -82,8 +88,20 @@ public class ReduceRunner implements Runnable{
 					}
 				}
 			}
+			Context<Writable, Writable> ct = new Context<Writable, Writable>(
+					jobid, taskid, taskServiceName, false);
 			
-			
+			for(Writable hold : merge.keySet()) 
+			{
+				Records<Writable,Writable> a = new Records<Writable,Writable>(hold,merge.get(hold));
+				reducer.reduce(a.getKey(), a.getValues().iterator(), ct);
+			}
+			outpath=Environment.Dfs.DIRECTORY+"/"+taskServiceName+"/"+jobid+"/reducer"+this.taskid;
+			TextOutputFormat.writeTolocal(outpath, ct);
+			Command a=new Command();
+			a.putHandler(outpath,conf.getOutputPath()+"/part-"+this.taskid);
+			TaskInfo res= new TaskInfo(TaskStatus.FINISHED, "finish reduce"+taskid, jobid,this.taskServiceName, taskid, TaskType.Reducer, outpath);
+			report(res);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -121,7 +139,7 @@ public class ReduceRunner implements Runnable{
 	}
 	
 	public void report(TaskInfo feedback) {
-		
+		TaskTracker.report(feedback);
 	}
 
 	

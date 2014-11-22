@@ -19,12 +19,12 @@ public class TaskTracker implements TaskTrackerRemoteInterface {
 	public int curSlots;
 	public String serviceName;
 	public int partionNum;
-	private JobTrackerRemoteInterface jobTrackerStub;
+	private static JobTrackerRemoteInterface jobTrackerStub;
 	private TaskTrackerRemoteInterface taskTrackerStub;
 	public static ExecutorService threadPool;
 	public TaskTracker(){
 		curSlots= Environment.MapReduceInfo.SLOTS;
-		threadPool = Executors.newFixedThreadPool(curSlots);
+		threadPool = Executors.newCachedThreadPool();
 	}
 	
 	public boolean start(){
@@ -49,7 +49,7 @@ public class TaskTracker implements TaskTrackerRemoteInterface {
 		return true;
 		
 	}
-    public void report(TaskInfo info)
+    public static void report(TaskInfo info)
     {
     	jobTrackerStub.getReport(info);
     }
