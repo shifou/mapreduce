@@ -69,7 +69,7 @@ public class ReduceRunner implements Runnable {
 			Constructor<Reducer<Writable, Writable, Writable, Writable>> constructors = reduceClass
 					.getConstructor();
 			reducer = constructors.newInstance();
-			HashMap<Writable, List<Writable>> merge = new HashMap<Writable, List<Writable>>();
+			HashMap<String, List<String>> merge = new HashMap<String, List<String>>();
 			for (String taskSerName : loc.keySet()) {
 				if (taskSerName.equals(this.taskServiceName) == false) {
 					Registry registry = LocateRegistry.getRegistry(
@@ -78,8 +78,8 @@ public class ReduceRunner implements Runnable {
 					TaskTrackerRemoteInterface taskTracker = (TaskTrackerRemoteInterface) registry
 							.lookup(taskSerName);
 					for (Integer maptaskid : loc.get(taskSerName).keySet()) {
-						Vector<Record> target = taskTracker.getPartition(
-								this.jobid, maptaskid, this.taskid,this.conf);
+						Vector<Record<Text,Text>> target = taskTracker.getPartition(
+								this.jobid, maptaskid, this.taskid);
 						if (target == null) {
 							TaskInfo res = new TaskInfo(TaskStatus.FAILED,
 									"retrieve partition " + taskid + " for map"
@@ -89,13 +89,13 @@ public class ReduceRunner implements Runnable {
 							report(res);
 							return;
 						}
-						for (Record a : target) {
-							if (merge.containsKey(a.key))
-								merge.get(a.key).add(a.value);
+						for (Record<Text,Text> a : target) {
+							if (merge.containsKey(a.key.toString()))
+								merge.get(a.key.toString()).add(a.value.toString());
 							else {
-								List<Writable> hold = new ArrayList<Writable>();
-								hold.add(a.value);
-								merge.put(a.key, hold);
+								List<String> hold = new ArrayList<String>();
+								hold.add(a.value.toString());
+								merge.put(a.key.toString(), hold);
 							}
 						}
 					}
@@ -117,29 +117,19 @@ public class ReduceRunner implements Runnable {
 					}
 					try {
 						BufferedReader reader = new BufferedReader(new FileReader(file));
-						Vector<Record> target= new Vector<Record>();
+						Vector<Record<Text,Text>> target= new Vector<Record<Text,Text>>();
 							while ((line = reader.readLine()) != null) {
 								String []tt=line.split("\t");
-								Class<Writable> readkey = (Class<Writable>) Class
-										.forName(conf.outputKeyClass.getName());
-								Constructor<Writable> constuctor = readkey
-										.getConstructor(String.class);
-								Writable ww = constuctor.newInstance(readkey.toString());
-								Class<Writable> readval = (Class<Writable>) Class
-										.forName(conf.outputValClass.getName());
-								constuctor = readval
-										.getConstructor(String.class);
-								Writable wq = constuctor.newInstance(readval.toString());
-								Record inp =new Record(ww,wq);
+								Record<Text,Text> inp =new Record<Text,Text>(new Text(tt[0]),new Text(tt[1]));
 								target.add(inp);
 							}
-							for (Record  a : target) {
-								if (merge.containsKey(a.key))
-									merge.get(a.key).add(a.value);
+							for (Record<Text,Text> a : target) {
+								if (merge.containsKey(a.key.toString()))
+									merge.get(a.key.toString()).add(a.value.toString());
 								else {
-									List<Writable> hold = new ArrayList<Writable>();
-									hold.add(a.value);
-									merge.put(a.key, hold);
+									List<String> hold = new ArrayList<String>();
+									hold.add(a.value.toString());
+									merge.put(a.key.toString(), hold);
 								}
 							}
 						} catch (IOException e) {
@@ -157,12 +147,12 @@ public class ReduceRunner implements Runnable {
 				}
 			}
 			}
-			Context<Writable, Writable> ct = new Context<Writable, Writable>(
+			Context ct = new Context(
 					jobid, taskid, taskServiceName, false);
 
-			for (Writable hold : merge.keySet()) {
-				Records<Writable, Writable> a = new Records<Writable, Writable>(
-						hold, merge.get(hold));
+			for (String hold : merge.keySet()) {
+				Records a = new Records(
+						new Text(hold), merge.get(hold));
 				reducer.reduce(a.getKey(), a.getValues().iterator(), ct);
 			}
 			outpath = Environment.Dfs.DIRECTORY + "/" + taskServiceName + "/"

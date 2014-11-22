@@ -14,6 +14,7 @@ import mapreduce.io.LongWritable;
 import mapreduce.io.Text;
 import mapreduce.io.TextInputFormat;
 import mapreduce.io.TextOutputFormat;
+import mapreduce.io.Writable;
 public class WordCount {
     
 	 public static class Map implements Mapper<LongWritable, Text, Text, IntWritable> {
@@ -32,7 +33,6 @@ public class WordCount {
 	        
 	 public static class Reduce implements Reducer<Text, IntWritable, Text, Text> {
 
-		@Override
 		public void reduce(Text key, Iterator<IntWritable> values,
 				Context<Text, Text> context) throws IOException {
 			 int sum = 0;
@@ -41,6 +41,8 @@ public class WordCount {
 		        }
 		        context.write(key, new Text(sum));
 		}
+
+
 
 	
 

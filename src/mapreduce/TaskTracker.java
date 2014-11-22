@@ -17,6 +17,8 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -24,6 +26,7 @@ import java.util.concurrent.Executors;
 import main.Environment;
 import mapreduce.io.Record;
 import mapreduce.io.RecordReader;
+import mapreduce.io.Text;
 import mapreduce.io.Writable;
 
 public class TaskTracker implements TaskTrackerRemoteInterface {
@@ -155,61 +158,24 @@ public class TaskTracker implements TaskTrackerRemoteInterface {
 	//				|----taskid(1-Slave_size)
 	//			xxx.jar
 	@Override
-	public Vector<Record> getPartition(String jobid, Integer maptaskid,
-			String taskid, Configuration conf) {
+	public Vector<Record<Text,Text>> getPartition(String jobid, Integer maptaskid,
+			String taskid) {
 		String path=Environment.Dfs.DIRECTORY+"/"+this.serviceName+"/"+jobid+"/mapper/"+maptaskid+"_"+taskid;
 		System.out.println("get partition from local: "+path);
 		File a =new File(path);
 		if(a.exists()==false)
 			return null;
 		String line="";
-		Vector<Record> ans= new Vector<Record>();
+		BufferedReader reader;
+		Vector<Record<Text,Text>> ans= new Vector<Record<Text,Text>>();
 		try {
-			BufferedReader reader = new BufferedReader(new FileReader(a));
+			reader = new BufferedReader(new FileReader(a));
 			while ((line = reader.readLine()) != null) {
 				String []tt=line.split("\t");
-				Class<Writable> readkey = (Class<Writable>) Class
-						.forName(conf.outputKeyClass.getName());
-				Constructor<Writable> constuctor = readkey
-						.getConstructor(String.class);
-				Writable ww = constuctor.newInstance(readkey.toString());
-				Class<Writable> readval = (Class<Writable>) Class
-						.forName(conf.outputValClass.getName());
-				constuctor = readval
-						.getConstructor(String.class);
-				Writable wq = constuctor.newInstance(readval.toString());
-				Record input =new Record(ww,wq);
-				ans.add(input);
+				Record<Text,Text> inp =new Record<Text,Text>(new Text(tt[0]),new Text(tt[1]));
+				ans.add(inp);
 			}
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return null;
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return null;
-		} catch (NoSuchMethodException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return null;
-		} catch (SecurityException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return null;
-		} catch (InstantiationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return null;
-		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return null;
-		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return null;
-		} catch (InvocationTargetException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return null;
@@ -218,6 +184,7 @@ public class TaskTracker implements TaskTrackerRemoteInterface {
 			e.printStackTrace();
 			return null;
 		}
+		
 		return ans;
 	}
 	
