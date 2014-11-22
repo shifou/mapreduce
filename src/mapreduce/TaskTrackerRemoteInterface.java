@@ -12,6 +12,7 @@ public interface TaskTrackerRemoteInterface extends Remote {
 
 	public void healthCheck(Boolean b) throws RemoteException;
 	public String runTask(Task tk) throws RemoteException;
-	Vector<Record<Text, Text>> getPartition(String jobid, Integer maptaskid,
-			String taskid);
+	public Vector<Record<Text, Text>> getPartition(String jobid, Integer maptaskid,
+			String taskid) throws RemoteException;
+	public boolean killFaildJob(String jobid) throws RemoteException;
 }

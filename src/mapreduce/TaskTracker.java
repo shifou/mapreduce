@@ -18,6 +18,7 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.ExecutorService;
@@ -33,6 +34,8 @@ public class TaskTracker implements TaskTrackerRemoteInterface {
 	public int curSlots;
 	public String serviceName;
 	public int partionNum;
+	public HashMap<String, HashMap<String,Thread>> mapTasks;
+	public HashMap<String, HashMap<String,Thread>> reduceTasks;
 	private static JobTrackerRemoteInterface jobTrackerStub;
 	private TaskTrackerRemoteInterface taskTrackerStub;
 	public static ExecutorService threadPool;
@@ -133,6 +136,8 @@ public class TaskTracker implements TaskTrackerRemoteInterface {
     	{
 
 			MapRunner mapRunner = new MapRunner(tk.jobid, tk.taskid, tk.getSplit(), tk.config,serviceName, tk.reduceNum,jarpath,true);
+			 Thread oneThread = new Thread(mapRunner);
+			 oneThread.stop();
 			threadPool.execute(mapRunner);
 			return "running";
     	}
@@ -186,6 +191,32 @@ public class TaskTracker implements TaskTrackerRemoteInterface {
 		}
 		
 		return ans;
+	}
+	@Override
+	public boolean killFaildJob(String jobid) throws RemoteException {
+		boolean flag=false;
+		if(mapTasks.containsKey(jobid)==true)
+		{
+			for(String one: mapTasks.get(jobid).keySet())
+			{
+				Thread hold = mapTasks.get(jobid).get(one);
+				hold.stop();
+			}
+			flag=true;
+		}
+		if(reduceTasks.containsKey(jobid)==true)
+		{
+			for(String one: reduceTasks.get(jobid).keySet())
+			{
+				Thread hold = reduceTasks.get(jobid).get(one);
+				hold.stop();
+			}
+			flag=true;
+		}
+		if(flag==false)
+			return false;
+		else
+			return true;
 	}
 	
 }
