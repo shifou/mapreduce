@@ -9,7 +9,7 @@ import mapreduce.io.Text;
 import mapreduce.io.Writable;
 
 
-public interface Reducer<K1 extends Writable, V1 extends Writable , K2 extends Writable, V2 extends Writable> {
+public interface Reducer<K1 extends Writable , V1 extends Writable , K2 extends Writable, V2 extends Writable> {
 	
-	public void reduce(K1 writable,  Iterator<V1> iterator, Context<K2, V2> ct ) throws IOException;
+	public void reduce(Text key,  Iterator<V1> iterator, Context<K2, V2> ct ) throws IOException;
 }
