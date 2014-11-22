@@ -10,7 +10,7 @@ public class Configuration implements Serializable {
 	private static final long serialVersionUID = 7052047607831227454L;
 
 	private String jobName;
-	
+	private String jarName;
 	private String inputPath;
 	private String outputPath;
 	
@@ -131,5 +131,13 @@ public class Configuration implements Serializable {
 	public Class<?> getOutputFormat()
 	{
 		return this.outputFormatClass;
+	}
+
+	public String getJarName() {
+		return jarName;
+	}
+
+	public void setJarName(String jarName) {
+		this.jarName = jarName;
 	}
 }
