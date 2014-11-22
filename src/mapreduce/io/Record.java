@@ -6,9 +6,9 @@ public class Record<KEY extends Writable, VALUE extends Writable> implements Com
 
 	private static final long serialVersionUID = -6321290028562240898L;
 
-	KEY key;
+	public KEY key;
 	
-	VALUE value;
+	public VALUE value;
 	public Record()
 	{
 		key=null;

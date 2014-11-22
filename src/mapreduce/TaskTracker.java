@@ -7,10 +7,13 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.Vector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import main.Environment;
+import mapreduce.io.Record;
+import mapreduce.io.Writable;
 
 public class TaskTracker implements TaskTrackerRemoteInterface {
 	public int curSlots;
@@ -78,6 +81,13 @@ public class TaskTracker implements TaskTrackerRemoteInterface {
 	public void healthCheck(Boolean b) throws RemoteException {
 	
 		
+	}
+
+	@Override
+	public Vector<Record<Writable, Writable>> getPartition(String jobid, Integer maptaskid,
+			String taskid) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 }
