@@ -38,10 +38,8 @@ public class TaskTracker implements TaskTrackerRemoteInterface {
 	public HashMap<String, HashMap<String,Thread>> reduceTasks;
 	private static JobTrackerRemoteInterface jobTrackerStub;
 	private TaskTrackerRemoteInterface taskTrackerStub;
-	public static ExecutorService threadPool;
 	public TaskTracker(){
 		curSlots= Environment.MapReduceInfo.SLOTS;
-		threadPool = Executors.newCachedThreadPool();
 	}
 	// HDFS
 		// |---tasktrackerServiceName
@@ -136,16 +134,36 @@ public class TaskTracker implements TaskTrackerRemoteInterface {
     	{
 
 			MapRunner mapRunner = new MapRunner(tk.jobid, tk.taskid, tk.getSplit(), tk.config,serviceName, tk.reduceNum,jarpath,true);
-			 Thread oneThread = new Thread(mapRunner);
-			 oneThread.stop();
-			threadPool.execute(mapRunner);
+			 Thread temp = new Thread(mapRunner);
+			 temp.run();
+			if(mapTasks.containsKey(tk.jobid))
+			{
+				mapTasks.get(tk.jobid).put(tk.taskid, temp);
+			}
+			else
+			{
+				HashMap<String,Thread> a =new HashMap<String,Thread>();
+				a.put(tk.taskid, temp);
+				mapTasks.put(tk.jobid, a);
+			}
 			return "running";
     	}
     	else
     	{
 
     		ReduceRunner reduceRunner = new ReduceRunner(tk.jobid, tk.taskid, tk.mploc, tk.config,serviceName,jarpath);
-    		threadPool.execute(reduceRunner);
+    		 Thread temp = new Thread( reduceRunner);
+			 temp.run();
+			if(reduceTasks.containsKey(tk.jobid))
+			{
+				reduceTasks.get(tk.jobid).put(tk.taskid, temp);
+			}
+			else
+			{
+				HashMap<String,Thread> a =new HashMap<String,Thread>();
+				a.put(tk.taskid, temp);
+				reduceTasks.put(tk.jobid, a);
+			}
 			return "running";
     	}
     }

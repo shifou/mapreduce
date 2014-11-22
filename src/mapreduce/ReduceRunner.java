@@ -153,7 +153,7 @@ public class ReduceRunner implements Runnable {
 			for (String hold : merge.keySet()) {
 				Records a = new Records(
 						new Text(hold), merge.get(hold));
-				reducer.reduce(a.getKey(), a.getValues().iterator(), ct);
+				reducer.reduce((Text) a.getKey(), a.getValues().iterator(), ct);
 			}
 			outpath = Environment.Dfs.DIRECTORY + "/" + taskServiceName + "/"
 					+ jobid + "/reducer" + this.taskid;
