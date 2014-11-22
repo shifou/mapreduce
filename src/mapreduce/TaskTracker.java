@@ -3,7 +3,9 @@ package mapreduce;
 import hdfs.NameNodeRemoteInterface;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.rmi.NotBoundException;
@@ -81,8 +83,8 @@ public class TaskTracker implements TaskTrackerRemoteInterface {
 						.lookup(Environment.MapReduceInfo.JOBTRACKER_SERVICENAME);
 			
 			int pos=0;
-			File jar = new File(tt+"/"+tk.conf.jarName);
-			jarpath= tt+"/"+tk.conf.jarName;
+			File jar = new File(path+"/"+tk.config.jarName);
+			jarpath= path+"/"+tk.config.jarName;
 			if(jar.exists()==false)
 			{
 			FileOutputStream op = new  FileOutputStream(jarpath,true);
@@ -107,13 +109,22 @@ public class TaskTracker implements TaskTrackerRemoteInterface {
 		}
 		 catch (NotBoundException e) {
 				// TODO Auto-generated catch block
+			 e.printStackTrace();
 				return "error";
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return "file open error";
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return "file write error";
 		}
 		
     	if(tk.getType().equals(Task.TaskType.Mapper))
     	{
 
-			MapRunner mapRunner = new MapRunner(tk.jobid, tk.taskid, tk.getSplit(), tk.config,serviceName, tk.reduceNum,jarpath);
+			MapRunner mapRunner = new MapRunner(tk.jobid, tk.taskid, tk.getSplit(), tk.config,serviceName, tk.reduceNum,jarpath,true);
 			threadPool.execute(mapRunner);
 			return "running";
     	}
