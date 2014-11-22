@@ -1,5 +1,7 @@
 package mapreduce;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -14,6 +16,7 @@ import mapreduce.io.Context;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.net.URLClassLoader;
+
 import mapreduce.io.LongWritable;
 import mapreduce.io.Record;
 import mapreduce.io.RecordReader;
@@ -30,9 +33,10 @@ public class MapRunner implements Runnable {
 	public String taskServiceName;
 	public int partitionNum;
 	public String jarpath;
+	public boolean local;
 
 	public MapRunner(String jid, String tid, InputSplit split,
-			Configuration cf, String tName, int num,String jarpath) {
+			Configuration cf, String tName, int num,String jarpath,boolean loc) {
 		jobid = jid;
 		taskid = tid;
 		block = split;
@@ -40,6 +44,7 @@ public class MapRunner implements Runnable {
 		taskServiceName = tName;
 		this.partitionNum = num;
 		this.jarpath=jarpath;
+		local=loc;
 	}
 
 	@Override
@@ -52,6 +57,28 @@ public class MapRunner implements Runnable {
 					.getConstructor();
 			mapper = constructors.newInstance();
 			byte[] data = new byte[Environment.Dfs.BUF_SIZE];
+			if(local)
+			{
+				String folder= taskServiceName.substring(1);
+				String path;
+				if(block.block.getFolderName()==null)
+					path = Environment.Dfs.DIRECTORY+"/d"+folder+"/"+block.block.getFileName()+"."+taskid;
+				else
+					path = Environment.Dfs.DIRECTORY+"/d"+folder+"/"+block.block.getFolderName()+"/"+block.block.getFileName()+"."+taskid;
+				System.out.println("-----"+path);
+				File jFile = new File(path);
+				FileInputStream in = new FileInputStream(jFile);
+				int len = in.read(data);
+				if(len==-1)
+				{
+					res = new TaskInfo(TaskStatus.FAILED,
+							"can not get the block data from local", this.jobid, this.taskid,this.taskServiceName,
+							this.partitionNum, Task.TaskType.Mapper, null);
+					report(res);
+					return;
+				}
+			}
+			else{
 			int len = block.block.get(data);
 			if (len == -1) {
 				res = new TaskInfo(TaskStatus.FAILED,
@@ -59,6 +86,7 @@ public class MapRunner implements Runnable {
 						this.partitionNum, Task.TaskType.Mapper, null);
 				report(res);
 				return;
+			}
 			}
 			Class<RecordReader<Writable,Writable>> inputFormatClass = (Class<RecordReader<Writable,Writable>>) Class
 					.forName(conf.getInputFormat().getName());
@@ -79,11 +107,13 @@ public class MapRunner implements Runnable {
 						"can not write the intermerdiate data to disk", this.jobid, this.taskid,this.taskServiceName,
 						this.partitionNum, Task.TaskType.Mapper, null);
 				report(res);
+				return;
 			} else
 				res = new TaskInfo(TaskStatus.FINISHED,
-						"can not write the intermerdiate data to disk", this.jobid, this.taskid,this.taskServiceName,
+						"ok", this.jobid, this.taskid,this.taskServiceName,
 						this.partitionNum, Task.TaskType.Mapper, loc);
 				report(res);
+				return;
 
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -105,7 +135,6 @@ public class MapRunner implements Runnable {
 		
 		Class<Mapper<Writable, Writable, Writable, Writable>> mapperClass = null;
 		
-		/* Iterate .class files */
 		while (e.hasMoreElements()) {
             
 			JarEntry je = e.nextElement();
@@ -125,7 +154,7 @@ public class MapRunner implements Runnable {
 	}
 
 	public void report(TaskInfo feedback) {
-		
+		TaskTracker.report(feedback);
 	}
 
 }
