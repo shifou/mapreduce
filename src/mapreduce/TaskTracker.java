@@ -1,5 +1,9 @@
 package mapreduce;
 
+import hdfs.NameNodeRemoteInterface;
+
+import java.io.File;
+import java.io.FileOutputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.rmi.NotBoundException;
@@ -26,7 +30,14 @@ public class TaskTracker implements TaskTrackerRemoteInterface {
 		curSlots= Environment.MapReduceInfo.SLOTS;
 		threadPool = Executors.newCachedThreadPool();
 	}
-	
+	// HDFS
+		// |---tasktrackerServiceName
+		//     |----jobid
+		//			|----mapper
+		//				|----taskid(1-Block_size)_partition_id(1-tasktracker size)
+		//			|----reducer
+		//				|----taskid(1-Slave_size)
+		//			xxx.jar
 	public boolean start(){
 		
 		
@@ -56,12 +67,49 @@ public class TaskTracker implements TaskTrackerRemoteInterface {
     public String runTask(Task tk) throws RemoteException
     {
     	String jarpath="";
-    	if(tk.locality==false)
-    	{
-    		// get jar
-    		
-    		return "running";
-    	}
+    	String path=Environment.Dfs.DIRECTORY+"/"+this.serviceName+"/"+tk.jobid;
+    	File tt= new File(path);
+    	if(tt.exists()==false)
+    		tt.mkdir();
+		try {
+    		Registry jobRegistry = LocateRegistry.getRegistry(
+					Environment.Dfs.NAME_NODE_IP,
+					Environment.MapReduceInfo.JOBTRACKER_PORT);
+    		JobTrackerRemoteInterface jobStub;
+
+			jobStub = (JobTrackerRemoteInterface) jobRegistry
+						.lookup(Environment.MapReduceInfo.JOBTRACKER_SERVICENAME);
+			
+			int pos=0;
+			File jar = new File(tt+"/"+tk.conf.jarName);
+			jarpath= tt+"/"+tk.conf.jarName;
+			if(jar.exists()==false)
+			{
+			FileOutputStream op = new  FileOutputStream(jarpath,true);
+			while(true)
+			{
+				Byte[] ans = jobStub.getJar(tk.jobid, pos);
+				if(ans==null)
+					return "jar not exist";
+				else if(ans.length==0)
+					break;
+				else
+				{
+					byte[]data= new byte[ans.length];
+					for(int i=0;i<ans.length;i++)
+						data[i]=ans[i].byteValue();
+					op.write(data);
+					op.flush();
+					op.close();
+				}
+			}
+			}
+		}
+		 catch (NotBoundException e) {
+				// TODO Auto-generated catch block
+				return "error";
+		}
+		
     	if(tk.getType().equals(Task.TaskType.Mapper))
     	{
 
@@ -84,10 +132,11 @@ public class TaskTracker implements TaskTrackerRemoteInterface {
 	}
 
 	@Override
-	public Vector<Record<Writable, Writable>> getPartition(String jobid, Integer maptaskid,
+	public Vector<Record<?, ?>> getPartition(String jobid, Integer maptaskid,
 			String taskid) {
-		// TODO Auto-generated method stub
-		return null;
+		Vector<Record<?, ?>> ans= new Vector<Record<?,?>>();
+		
+		return ans;
 	}
 	
 }
