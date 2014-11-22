@@ -107,11 +107,13 @@ public class MapRunner implements Runnable {
 						"can not write the intermerdiate data to disk", this.jobid, this.taskid,this.taskServiceName,
 						this.partitionNum, Task.TaskType.Mapper, null);
 				report(res);
+				return;
 			} else
 				res = new TaskInfo(TaskStatus.FINISHED,
 						"ok", this.jobid, this.taskid,this.taskServiceName,
 						this.partitionNum, Task.TaskType.Mapper, loc);
 				report(res);
+				return;
 
 		} catch (Exception e) {
 			// TODO Auto-generated catch block

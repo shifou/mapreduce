@@ -2,10 +2,14 @@ package mapreduce;
 
 import hdfs.NameNodeRemoteInterface;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.rmi.NotBoundException;
@@ -19,6 +23,7 @@ import java.util.concurrent.Executors;
 
 import main.Environment;
 import mapreduce.io.Record;
+import mapreduce.io.RecordReader;
 import mapreduce.io.Writable;
 
 public class TaskTracker implements TaskTrackerRemoteInterface {
@@ -141,12 +146,78 @@ public class TaskTracker implements TaskTrackerRemoteInterface {
 	
 		
 	}
-
+	// HDFS
+	// |---tasktrackerServiceName
+	//     |----jobid
+	//			|----mapper
+	//				|----taskid(1-Block_size)_partition_id(1-tasktracker size)
+	//			|----reducer
+	//				|----taskid(1-Slave_size)
+	//			xxx.jar
 	@Override
-	public Vector<Record<?, ?>> getPartition(String jobid, Integer maptaskid,
-			String taskid) {
-		Vector<Record<?, ?>> ans= new Vector<Record<?,?>>();
-		
+	public Vector<Record> getPartition(String jobid, Integer maptaskid,
+			String taskid, Configuration conf) {
+		String path=Environment.Dfs.DIRECTORY+"/"+this.serviceName+"/"+jobid+"/mapper/"+maptaskid+"_"+taskid;
+		System.out.println("get partition from local: "+path);
+		File a =new File(path);
+		if(a.exists()==false)
+			return null;
+		String line="";
+		Vector<Record> ans= new Vector<Record>();
+		try {
+			BufferedReader reader = new BufferedReader(new FileReader(a));
+			while ((line = reader.readLine()) != null) {
+				String []tt=line.split("\t");
+				Class<Writable> readkey = (Class<Writable>) Class
+						.forName(conf.outputKeyClass.getName());
+				Constructor<Writable> constuctor = readkey
+						.getConstructor(String.class);
+				Writable ww = constuctor.newInstance(readkey.toString());
+				Class<Writable> readval = (Class<Writable>) Class
+						.forName(conf.outputValClass.getName());
+				constuctor = readval
+						.getConstructor(String.class);
+				Writable wq = constuctor.newInstance(readval.toString());
+				Record input =new Record(ww,wq);
+				ans.add(input);
+			}
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		} catch (NoSuchMethodException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		} catch (SecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		} catch (InstantiationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		} catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		} catch (InvocationTargetException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
 		return ans;
 	}
 	
