@@ -24,6 +24,7 @@ import java.util.Vector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import main.Command;
 import main.Environment;
 import mapreduce.io.Record;
 import mapreduce.io.RecordReader;
@@ -210,6 +211,13 @@ public class TaskTracker implements TaskTrackerRemoteInterface {
 		
 		return ans;
 	}
+	/*
+	public boolean uplodaToHDFS(String jobid, String taskid) throws RemoteException
+	{
+		Command a = new Command();
+		a.putHandler(outpath, conf.getOutputPath() + "/part-" + taskid);
+	}
+	*/
 	@Override
 	public boolean killFaildJob(String jobid) throws RemoteException {
 		boolean flag=false;
