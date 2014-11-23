@@ -10,9 +10,11 @@ public class WordCount {
 	 public static void main(String[] args)  {
 	    Configuration conf = new Configuration();
 	        
+
 	   
 	    conf.setMapperClass("WordCountMap");
 	    conf.setReducerClass("WordCountReducer");
+
 	        
 	    conf.setInputFormat("TextInputFormat");
 	    conf.setOutputFormat("TextOutputFormat");
