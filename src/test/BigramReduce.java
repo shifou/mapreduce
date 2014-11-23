@@ -5,9 +5,13 @@ import java.util.ArrayList;
 import mapreduce.io.Context;
 
 public class BigramReduce {
-	public void reduce(String key, ArrayList value,
+	public void reduce(String key, ArrayList<String> value,
 			Context context) {
-		context.write(key, String.valueOf(value.size()));
+		int sum = 0;
+		for (String val : value) {
+			sum += Integer.parseInt(val);
+		}
+		context.write(key, String.valueOf(sum));
 	}
 
 }

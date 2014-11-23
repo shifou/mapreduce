@@ -7,14 +7,15 @@ import mapreduce.io.Context;
 
 public class BigramMap {
 	 public  void map(String key, String value, Context context) throws IOException {
-	        //System.out.println
-	        StringTokenizer tokenizer = new StringTokenizer(value);
-	        System.out.println(value);
-	        while (tokenizer.hasMoreTokens()) {
-	        	String hold = tokenizer.nextToken();
-	            context.write(hold, "1");
-	           // System.out.println(word.toString()+"\t1");
+		 	String line = value.trim().toLowerCase();
+			line = line.replaceAll("[^a-z ]", " ");
+			line = line.trim().replaceAll(" +", " ");
+			String[] split = line.split(" ");
+	        for(int i=0;i<split.length-1;i++)
+	        {
+	        		context.write(split[i]+" "+split[i+1], "1");
 	        }
+	       
 	    }
 
 }
