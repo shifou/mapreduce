@@ -291,7 +291,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 
 	
 	@Override
-	public void getReport(TaskInfo info) throws RemoteException {
+	public synchronized void getReport(TaskInfo info) throws RemoteException {
 		System.out.println("REPORT RECVD!");
 		TaskStatus status = info.st;
 		Task.TaskType type = info.type;
