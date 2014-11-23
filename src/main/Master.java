@@ -11,8 +11,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import mapreduce.JobTracker;
 import mapreduce.TaskTrackerInfo;
 import mapreduce.TaskTrackerRemoteInterface;
-import data.Message;
-import data.msgType;
 import hdfs.DataNodeInfo;
 import hdfs.DataNodeRemoteInterface;
 import hdfs.NameNode;

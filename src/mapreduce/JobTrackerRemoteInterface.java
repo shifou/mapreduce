@@ -16,4 +16,8 @@ public interface JobTrackerRemoteInterface extends Remote {
 
 	public String findIp(String taskSerName) throws RemoteException;
 
+	public String listjob() throws RemoteException;
+
+	public String killJob(String jobid) throws RemoteException;
+
 }

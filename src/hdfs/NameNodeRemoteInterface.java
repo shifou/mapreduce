@@ -4,7 +4,7 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 import mapreduce.InputSplit;
-import data.Message;
+
 public interface NameNodeRemoteInterface extends Remote{
 	public String delete(String path) throws RemoteException, IOException;
 	public String deleteR(String path) throws RemoteException, IOException;
