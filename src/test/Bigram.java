@@ -11,7 +11,7 @@ public class Bigram {
 
 	    conf.setJobName("bigram");
 	    conf.setMapperClass("test.BigramMap");
-	    conf.setReducerClass("test.BigramReducer");
+	    conf.setReducerClass("test.BigramReduce");
 
 	        
 	    conf.setInputFormat("mapreduce.io.TextInputFormat");
