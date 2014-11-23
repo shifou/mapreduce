@@ -218,7 +218,7 @@ public class HDFSFile implements Serializable{
 				if(res.equals(""))
 				res=fk[1];
 				else
-					res+=("#"+fk[1]);
+					res+=(" "+fk[1]);
 			}
 			ans+=("block: "+one+" "+fk[0]+"\n");
 			blocks.put(one, temp);

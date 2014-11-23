@@ -92,6 +92,15 @@ public class HDFSFolder{
 					else
 					{
 						folderInSlave.add(tt);
+						ConcurrentHashMap<String,HashSet<String>> fk=NameNode.cluster.get(tt).folders;
+						if(fk==null)
+						{
+							System.out.println("add "+tt+"\t"+foldername+"\t"+file.filename);
+							NameNode.cluster.get(tt).folders=new ConcurrentHashMap<String,HashSet<String>>();
+							NameNode.cluster.get(tt).folders.put(foldername, new HashSet<String>());
+							NameNode.cluster.get(tt).folders.get(foldername).add(file.filename);
+						}
+						
 						if(slave2file.containsKey(tt)==false)
 						{
 							HashSet<String> a=new HashSet<String>();

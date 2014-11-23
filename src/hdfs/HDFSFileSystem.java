@@ -74,6 +74,12 @@ public class HDFSFileSystem {
 			{
 				if(each.charAt(0)=='?'||each.charAt(0)=='#')
 				res+=each;
+				else
+				{
+					System.out.println(each+ " add file: "+hdfsFileName);
+					NameNode.cluster.get(each).files.add(hdfsFileName);
+			
+				}
 			}
 			return res;
 	}
@@ -87,19 +93,25 @@ public class HDFSFileSystem {
 			folderList.put(hdfsFolderPath,folder);
 			return ans;
 	}
-	public void deleteSlave(DataNodeInfo slave) {
-		// TODO Auto-generated method stub
-		
-	}
 	public String ReAllocate(DataNodeInfo slave) {
 		String res="";
 		for(String name: slave.files)
 		{
+			if(fileList.containsKey(name)==false)
+				continue;
+			System.out.println("files with: "+name);
 			HDFSFile hold = fileList.get(name);
 			String ans = hold.Replica(slave.serviceName);
 			String[] fk = ans.split("#");
 			res+=(fk[0]+"\n");
 			fileList.put(name, hold);
+			System.out.println("reallocate to "+fk[1]+" slaves");
+
+			String []temp = fk[1].split(" ");
+			for(int i=0;i<temp.length;i++)
+			{
+				NameNode.cluster.get(temp[i]).files.add(name);
+			}
 		}
 		for(String name: slave.folders.keySet())
 		{

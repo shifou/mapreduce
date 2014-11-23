@@ -94,6 +94,7 @@ public class NameNode implements NameNodeRemoteInterface {
 			lock.unlock();
 			return ans;
 		case REPLICA:
+			System.out.println("recovery node: "+slave.ip);
 			ans= handlerRecovery(slave);
 			lock.unlock();
 			return ans;
@@ -137,6 +138,7 @@ public class NameNode implements NameNodeRemoteInterface {
 	}
 
 	private String handlerRecovery(DataNodeInfo slave) {
+		System.out.println("lost: "+slave.lostTime);
 		if(slave.lostTime==0)
 			load.remove(slave);
 		return fileSystem.ReAllocate(slave);
