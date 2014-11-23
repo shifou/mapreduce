@@ -1,5 +1,6 @@
 package mapreduce;
 
+import hdfs.DataNodeInfo;
 import hdfs.NameNodeRemoteInterface;
 
 import java.io.BufferedReader;
@@ -145,8 +146,16 @@ public class TaskTracker implements TaskTrackerRemoteInterface {
     	if(tk.getType().equals(Task.TaskType.Mapper))
     	{
     		boolean flag=false;
-    		if(tk.getSplit().block.getServiceName().equals(this.serviceName))
-    			flag=true;
+    		for(Integer hold : tk.getSplit().block.repIDtoLoc.keySet())
+    		{
+    			DataNodeInfo temp = tk.getSplit().block.repIDtoLoc.get(hold);
+    			System.out.println(temp.ip+"\t"+temp.serviceName);
+    			if(temp.serviceName.substring(1).equals(this.serviceName.substring(1)))
+    			{
+    				flag=true;
+    				break;
+    			}
+    		}
 			MapRunner mapRunner = new MapRunner(tk.jobid, tk.taskid, tk.getSplit(), tk.config,serviceName, tk.reduceNum,jarpath,flag);
 			 Thread temp = new Thread(mapRunner);
 			 temp.run();

@@ -15,7 +15,8 @@ public class WordCountMap implements Mapper{
 	        StringTokenizer tokenizer = new StringTokenizer(value);
 	        System.out.println(value);
 	        while (tokenizer.hasMoreTokens()) {
-	            context.write(tokenizer.nextToken(), one.toString());
+	        	String hold = tokenizer.nextToken();
+	            context.write(hold, one.toString());
 	           // System.out.println(word.toString()+"\t1");
 	        }
 	    }

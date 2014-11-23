@@ -47,7 +47,7 @@ public class MapRunner implements Runnable {
 	public void run() {
 		TaskInfo res;
 		Class<Mapper> mapClass;
-		System.out.println("begin running map thread: "+this.jobid+"\t"+this.taskid+"\t"+this.partitionNum+"\n"+this.taskServiceName+"\n"+this.jarpath);
+		System.out.println("begin running map thread: "+this.jobid+"\t"+this.taskid+"\t"+this.partitionNum+"\t"+this.taskServiceName+"\t"+this.jarpath);
 		try {
 			mapClass = load(jarpath);
 			Constructor<Mapper> constructors = mapClass
@@ -62,6 +62,7 @@ public class MapRunner implements Runnable {
 				return;
 			}
 			byte[] data = new byte[Environment.Dfs.BUF_SIZE];
+			byte[] input ;
 			if(local)
 			{
 				String folder= taskServiceName.substring(1);
@@ -82,6 +83,7 @@ public class MapRunner implements Runnable {
 					report(res);
 					return;
 				}
+				input =new byte[len];
 			}
 			else{
 			int len = block.block.get(data);
@@ -92,14 +94,16 @@ public class MapRunner implements Runnable {
 				report(res);
 				return;
 			}
+			input =new byte[len];
 			}
-
+			for(int i=0;i<input.length;i++)
+				input[i]=data[i];
 			System.out.println("finished get data------");
 			Class<RecordReader> inputFormatClass = (Class<RecordReader>) Class
 					.forName(conf.getInputFormat());
 			Constructor<RecordReader> constuctor = inputFormatClass
 					.getConstructor(String.class);
-			RecordReader  read = constuctor.newInstance(data.toString());
+			RecordReader  read = constuctor.newInstance(input.toString());
 			Context  ct = new Context (
 					jobid, taskid, taskServiceName, true);
 			while (read.hasNext()) {
