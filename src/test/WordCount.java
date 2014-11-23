@@ -11,7 +11,7 @@ public class WordCount {
 	    Configuration conf = new Configuration();
 	        
 
-	   
+	    conf.setJobName("wordcount");
 	    conf.setMapperClass("WordCountMap");
 	    conf.setReducerClass("WordCountReducer");
 

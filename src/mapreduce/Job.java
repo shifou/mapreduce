@@ -39,6 +39,7 @@ public class Job implements Serializable {
 			JobInfo info = jobTracker.submitJob(this);
 			
 			File jFile = new File(conf.jarPath);
+			System.out.println(conf.jarPath);
 			FileInputStream in = new FileInputStream(jFile);
 			byte[] temp = new byte[Environment.Dfs.BUF_SIZE];
 			int bCount = 0;
