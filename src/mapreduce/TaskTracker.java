@@ -109,6 +109,7 @@ public class TaskTracker implements TaskTrackerRemoteInterface {
 			while(true)
 			{
 				Byte[] ans = jobStub.getJar(tk.jobid, pos);
+				pos+=ans.length;
 				if(ans==null)
 					return "jar not exist";
 				else if(ans.length==0)
@@ -122,7 +123,7 @@ public class TaskTracker implements TaskTrackerRemoteInterface {
 					op.flush();
 					
 				}
-				System.out.println("-----");
+				
 			}
 			op.close();
 			}

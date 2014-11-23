@@ -105,6 +105,37 @@ public class JobTracker implements JobTrackerRemoteInterface {
 		}
 		return "put jar ok";
 	}
+	@Override
+	public synchronized Byte[] getJar(String jobid, long pos) throws RemoteException {
+		if (jobid2JarName.containsKey(jobid) == false)
+		{
+			System.out.println("??????????");
+			return null;
+		
+		}
+		String name = this.jobid2JarName.get(jobid);
+		try {
+			RandomAccessFile raf = new RandomAccessFile(
+					Environment.Dfs.DIRECTORY + "/"
+							+ Environment.MapReduceInfo.JOBTRACKER_SERVICENAME + "/"
+							+ jobid + "/" + name, "r");
+			System.out.println("#jobtracker open# "+Environment.MapReduceInfo.JOBTRACKER_SERVICENAME + "/"
+					+ jobid + "/" + name);
+			raf.seek(pos);
+			Byte[] ans = new Byte[(int) Math.min(Environment.Dfs.BUF_SIZE,
+					raf.length() - pos)];
+			for (int i = 0; i < ans.length; i++)
+				ans[i] = raf.readByte();
+			raf.close();
+			return ans;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			System.out.println("get jar error!");
+			return null;
+		}
+
+	}
 
 	@Override
 	public synchronized String join(String IP) throws RemoteException {
@@ -117,11 +148,8 @@ public class JobTracker implements JobTrackerRemoteInterface {
 		return serviceName;
 
 	}
-
-	@Override
-	public JobInfo submitJob(Job job) throws RemoteException {
-		System.out.println("In submitJob!");
-		
+	
+	public String getJobID(Job job) throws RemoteException {
 		String jobid = String.format("%d", new Date().getTime()) + "_"
 				+ this.globalJobID;
 		jobid2JarName.put(jobid, job.conf.jarName);
@@ -130,7 +158,12 @@ public class JobTracker implements JobTrackerRemoteInterface {
 		JobInfo info = new JobInfo(jobid);
 		job.info = info;
 		jobs.put(jobid, job);
-		
+		return jobid;
+	}
+
+	public JobInfo submitJob(String id) throws RemoteException {
+		Job job = this.jobs.get(id);
+		System.out.println("In submitJob!");
 		boolean startJob = false;
 		System.out.println("start job?");
 		for(String taskTracker: taskTrackers.keySet()){
@@ -150,7 +183,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 			this.queuedJobs.offer(job);
 		}
 		
-		return info;
+		return job.info;
 	}
 
 	private void jobStart(Job job) {
@@ -253,38 +286,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 		return this.jobs.get(ID).info;
 	}
 
-	@Override
-	public synchronized Byte[] getJar(String jobid, long pos) throws RemoteException {
-		if (jobid2JarName.containsKey(jobid) == false)
-		{
-			System.out.println("??????????");
-			return null;
-		
-		}
-		String name = this.jobid2JarName.get(jobid);
-		try {
-			RandomAccessFile raf = new RandomAccessFile(
-					Environment.Dfs.DIRECTORY + "/"
-							+ Environment.MapReduceInfo.JOBTRACKER_SERVICENAME + "/"
-							+ jobid + "/" + name, "r");
-			System.out.println("#jobtracker open# "+Environment.MapReduceInfo.JOBTRACKER_SERVICENAME + "/"
-					+ jobid + "/" + name);
-			raf.seek(pos);
-			Byte[] ans = new Byte[(int) Math.min(Environment.Dfs.BUF_SIZE,
-					raf.length() - pos)];
-			for (int i = 0; i < ans.length; i++)
-				ans[i] = raf.readByte();
-			raf.close();
-			return ans;
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			System.out.println("get jar error!");
-			return null;
-		}
-
-	}
-
+	
 	@Override
 	public synchronized void getReport(TaskInfo info) {
 		TaskStatus status = info.st;

@@ -7,7 +7,7 @@ public interface JobTrackerRemoteInterface extends Remote {
 
 	public String join(String IP) throws RemoteException;
 
-	public JobInfo submitJob(Job job) throws RemoteException;
+	public JobInfo submitJob(String id) throws RemoteException;
 	public JobInfo getJobStatus(String string) throws RemoteException;
 	public String putJar(String jobid, String jarname, Byte []arr, int ct) throws RemoteException;
 	public  Byte[] getJar(String jobid,long pos) throws RemoteException;
@@ -20,5 +20,6 @@ public interface JobTrackerRemoteInterface extends Remote {
 
 	public String killJob(String jobid) throws RemoteException;
 
+	public String getJobID(Job job) throws RemoteException;
 
 }

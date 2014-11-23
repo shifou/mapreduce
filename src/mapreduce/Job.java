@@ -36,7 +36,7 @@ public class Job implements Serializable {
 					Environment.MapReduceInfo.JOBTRACKER_PORT);
 			JobTrackerRemoteInterface jobTracker = (JobTrackerRemoteInterface) reg
 					.lookup(Environment.MapReduceInfo.JOBTRACKER_SERVICENAME);
-			String id =jobTracker.getJobId(this);
+			String id =jobTracker.getJobID(this);
 			File jFile = new File(conf.jarPath);
 			//System.out.println(conf.jarPath);
 			FileInputStream in = new FileInputStream(jFile);
@@ -51,7 +51,7 @@ public class Job implements Serializable {
 			}
 			in.close();
 			System.out.println("put jar done!");
-			JobInfo info = jobTracker.submitJob(this);
+			JobInfo info = jobTracker.submitJob(id);
 			
 			while (true) {
 				Thread.sleep(5000);
