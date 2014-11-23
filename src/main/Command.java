@@ -211,6 +211,7 @@ public class Command  {
 	            
 	            String className = je.getName().substring(0, je.getName().length() - 6);
 	            className = className.replace('/', '.');
+	            System.out.println(className);
 	            if (className.equals(mainClassName)) {
 	            	mainClass =  cl.loadClass(className);
 	            }

@@ -21,9 +21,8 @@ public class WordCount {
 	    Configuration conf = new Configuration();
 	        
 	    Job job = new Job(conf);
-	    
-	    job.setMapperClass(test.WordCountMap.class);
-	    job.setReducerClass(test.WordCountReducer.class);
+	    job.setMapperClass(WordCountMap.class);
+	    job.setReducerClass(WordCountReducer.class);
 	        
 	    job.setInputFormatClass(TextInputFormat.class);
 	    job.setOutputFormatClass(TextOutputFormat.class);
