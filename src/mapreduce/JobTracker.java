@@ -550,6 +550,12 @@ public class JobTracker implements JobTrackerRemoteInterface {
 		
 		
 	}
+
+	@Override
+	public void commit(String jobid) throws RemoteException {
+		// TODO Auto-generated method stub
+		
+	}
 	
 	
 }

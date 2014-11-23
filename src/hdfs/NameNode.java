@@ -191,11 +191,11 @@ public class NameNode implements NameNodeRemoteInterface {
 		{
 			return "can not copy because replica number greater than slaves\n";
 		}
-		if(fileSystem.folderList.containsKey(localFolderName))
+		/*if(fileSystem.folderList.containsKey(localFolderName))
 		{
 			return "folder duplicate already exist\n";
 		}
-		
+		*/
 		String ans = fileSystem.putFolder(localFolderName, hdfsFolderPath);
 		return ans;
 		
@@ -208,7 +208,7 @@ public class NameNode implements NameNodeRemoteInterface {
 		{
 			return "can not copy because replica number greater than slaves\n";
 		}
-		if(fileSystem.fileList.containsKey(localFileName))
+		if(fileSystem.fileList.containsKey(hdfsFileName))
 		{
 			return "file duplicate already exist\n";
 		}

@@ -43,7 +43,7 @@ public class Command  {
 		}
 		if (args[0].equals("dfs")) {
 			if (args[1].equals("put")) {
-				if (args.length != 4) {
+				if (args.length <3) {
 					printPutUsage();
 					return;
 				}

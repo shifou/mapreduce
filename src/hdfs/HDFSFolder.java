@@ -62,6 +62,12 @@ public class HDFSFolder{
 		{
 			if(each.isDirectory() || each.isHidden())
 				continue;
+			
+			if(files.containsKey(each.getName()))
+			{
+				res+=(each.getName()+" already put ignored\n");
+				continue;
+			}
 			HDFSFile file =new HDFSFile(each.getName(),foldername);
 			System.out.println("find "+localFolderName+"/"+each.getName());
 			HashSet<String> ans=file.createFrom(localFolderName+"/"+file.filename);
