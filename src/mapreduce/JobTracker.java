@@ -30,11 +30,14 @@ public class JobTracker implements JobTrackerRemoteInterface {
 	private ConcurrentHashMap<String, ConcurrentHashMap<Task, TaskTrackerInfo>> jobToMappers; // JobID  -> Map of Task -> TaskTrackerInfo
 	private ConcurrentHashMap<String, ConcurrentHashMap<Task, TaskTrackerInfo>> jobToReducers;
 	private ConcurrentLinkedQueue<Job> queuedJobs;
-	private ConcurrentLinkedQueue<Task> queuedTasks;
+	private ConcurrentHashMap<String, ConcurrentLinkedQueue<Task>> queuedMapTasks;
+	private ConcurrentHashMap<String, ConcurrentLinkedQueue<Task>> queuedReduceTasks;
+	
 	private ConcurrentHashMap<String, HashSet<TaskInfo>> completedMaps;
 	private ConcurrentHashMap<String, HashSet<String>> jobToTaskTrackers;
 	private ConcurrentHashMap<String, HashSet<Task>> taskTrackerToTasks;
-	private Job currentJob;
+	private int MapSlots;
+	private int ReduceSlots;
 
 	public JobTracker() {
 		this.jobID = 1;
@@ -45,11 +48,13 @@ public class JobTracker implements JobTrackerRemoteInterface {
 		this.jobToMappers = new ConcurrentHashMap<String, ConcurrentHashMap<Task, TaskTrackerInfo>>();
 		this.jobToReducers = new ConcurrentHashMap<String, ConcurrentHashMap<Task, TaskTrackerInfo>>();
 		this.queuedJobs = new ConcurrentLinkedQueue<Job>();
-		this.queuedTasks = new ConcurrentLinkedQueue<Task>();
-		this.currentJob = null;
+		this.queuedMapTasks = new ConcurrentHashMap<String, ConcurrentLinkedQueue<Task>>();
+		this.queuedReduceTasks = new ConcurrentHashMap<String, ConcurrentLinkedQueue<Task>>();
 		this.completedMaps = new ConcurrentHashMap<String, HashSet<TaskInfo>>();
 		this.jobToTaskTrackers = new ConcurrentHashMap<String, HashSet<String>>();
 		this.taskTrackerToTasks = new ConcurrentHashMap<String, HashSet<Task>>();
+		this.ReduceSlots = Environment.MapReduceInfo.SLOTS/2;
+		this.MapSlots = Environment.MapReduceInfo.SLOTS - this.ReduceSlots;
 	}
 
 	public ConcurrentHashMap<String, TaskTrackerInfo> getTaskTrackers() {
@@ -125,17 +130,26 @@ public class JobTracker implements JobTrackerRemoteInterface {
 		JobInfo info = new JobInfo(jobid);
 		job.info = info;
 		jobs.put(jobid, job);
-		if (this.currentJob == null) {
+		boolean startJob = false;
+		for(String taskTracker: taskTrackers.keySet()){
+			TaskTrackerInfo tInfo = taskTrackers.get(taskTracker);
+			if (tInfo.mapSlotsFilled < this.MapSlots){
+				startJob = true;
+				break;
+			}
+		}
+		if (startJob){
 			jobStart(job);
-			this.currentJob = job;
-		} else {
+		}
+		else {
 			job.info.setStatus(JobInfo.WAITING);
 			this.queuedJobs.offer(job);
 		}
+		
 		return info;
 	}
 
-	private void jobStart(Job job) {
+	private synchronized void jobStart(Job job) {
 		System.out.println("Starting job: " + job.info.getID()+"...");
 		try {
 			Registry r = LocateRegistry
@@ -164,39 +178,42 @@ public class JobTracker implements JobTrackerRemoteInterface {
 		System.out.println("Allocating mapTask: taskId" + t.taskid+" JobID: " + t.jobid);
 		HashSet<Integer> locations = t.getSplit().getLocations();
 		String bestNode = null;
-		int bestLoad = Environment.MapReduceInfo.SLOTS;
+		int bestLoad = this.MapSlots;
 		t.locality = true;
 		for (int i : locations) {
 			String taskTrackerName = "t" + i;
-			if ((JobTracker.taskTrackers.get(taskTrackerName).slotsFilled < Environment.MapReduceInfo.SLOTS)
-					&& (JobTracker.taskTrackers.get(taskTrackerName).slotsFilled < bestLoad)) {
+			if ((JobTracker.taskTrackers.get(taskTrackerName).mapSlotsFilled < this.MapSlots)
+					&& (JobTracker.taskTrackers.get(taskTrackerName).mapSlotsFilled < bestLoad)) {
 				bestNode = taskTrackerName;
-				bestLoad = JobTracker.taskTrackers.get(taskTrackerName).slotsFilled;
+				bestLoad = JobTracker.taskTrackers.get(taskTrackerName).mapSlotsFilled;
 			}
 		}
 		if (bestNode == null) {
 			for (String s : JobTracker.taskTrackers.keySet()) {
 				TaskTrackerInfo i = JobTracker.taskTrackers.get(s);
-				if ((i.slotsFilled < bestLoad)
+				if ((i.mapSlotsFilled < bestLoad)
 						&& (!locations.contains(i.slaveNum))) {
-					bestLoad = i.slotsFilled;
+					bestLoad = i.mapSlotsFilled;
 					bestNode = s;
 					t.locality = false;
 				}
 			}
 		}
 		if (this.jobToMappers.get(t.jobid) != null) {
-			JobTracker.taskTrackers.get(bestNode).slotsFilled += 1;
+			JobTracker.taskTrackers.get(bestNode).mapSlotsFilled += 1;
 			this.jobToMappers.get(t.jobid).put(t,
 					JobTracker.taskTrackers.get(bestNode));
 		} else {
 			ConcurrentHashMap<Task, TaskTrackerInfo> temp = new ConcurrentHashMap<Task, TaskTrackerInfo>();
-			JobTracker.taskTrackers.get(bestNode).slotsFilled += 1;
+			JobTracker.taskTrackers.get(bestNode).mapSlotsFilled += 1;
 			temp.put(t, JobTracker.taskTrackers.get(bestNode));
 			this.jobToMappers.put(t.jobid, temp);
 		}
 		if (bestNode == null) {
-			this.queuedTasks.add(t);
+			if (this.queuedMapTasks.get(t.jobid) == null){
+				this.queuedMapTasks.put(t.jobid, new ConcurrentLinkedQueue<Task>());
+			}
+			this.queuedMapTasks.get(t.jobid).add(t);
 		} else {
 			Registry r;
 			try {
@@ -257,9 +274,9 @@ public class JobTracker implements JobTrackerRemoteInterface {
 						System.out.println("MapTask completed: TaskID: "+ info.taskid + " JobID: " + info.jobid);
 						String tracker = this.jobToMappers.get(info.jobid).get(
 								t).serviceName;
-						JobTracker.taskTrackers.get(tracker).slotsFilled = Math
+						JobTracker.taskTrackers.get(tracker).mapSlotsFilled = Math
 								.max(0,
-										JobTracker.taskTrackers.get(tracker).slotsFilled - 1);
+										JobTracker.taskTrackers.get(tracker).mapSlotsFilled - 1);
 						this.jobToMappers.get(info.jobid).remove(t);
 						if (this.jobToTaskTrackers.get(info.jobid) == null) {
 							this.jobToTaskTrackers.put(info.jobid,
@@ -280,11 +297,11 @@ public class JobTracker implements JobTrackerRemoteInterface {
 							System.out.println("All maps completed: " + info.jobid);
 							startReduceForJob(this.jobs.get(info.jobid));
 						} else {
-							if (!this.queuedTasks.isEmpty()) {
-								Task task = this.queuedTasks.peek();
-								if (task.jobid.equals(info.jobid)
-										&& task.getType() == TaskType.Mapper) {
-									allocateMapTask(this.queuedTasks.poll());
+							ConcurrentLinkedQueue<Task> queuedMaps = this.queuedMapTasks.get(info.jobid);
+							if (queuedMaps != null){
+								allocateMapTask(queuedMaps.poll());
+								if (queuedMaps.isEmpty()){
+									this.queuedMapTasks.remove(info.jobid);
 								}
 							}
 						}
@@ -296,9 +313,9 @@ public class JobTracker implements JobTrackerRemoteInterface {
 					if (t.taskid.equals(info.taskid)) {
 						String tracker = this.jobToReducers.get(info.jobid)
 								.get(t).serviceName;
-						JobTracker.taskTrackers.get(tracker).slotsFilled = Math
+						JobTracker.taskTrackers.get(tracker).reduceSlotsFilled = Math
 								.max(0,
-										JobTracker.taskTrackers.get(tracker).slotsFilled - 1);
+										JobTracker.taskTrackers.get(tracker).reduceSlotsFilled - 1);
 						this.jobToReducers.get(info.jobid).remove(t);
 						this.jobs.get(info.jobid).info.incrementComplReducers();
 						this.taskTrackerToTasks.get(tracker).remove(t);
@@ -309,13 +326,19 @@ public class JobTracker implements JobTrackerRemoteInterface {
 							this.jobToReducers.remove(info.jobid);
 							this.completedMaps.remove(info.jobid);
 							this.jobToTaskTrackers.remove(info.jobid);
-							this.currentJob = null;
 							if (!this.queuedJobs.isEmpty()){
-								this.currentJob = this.queuedJobs.poll();
-								jobStart(this.currentJob);
+								jobStart(this.queuedJobs.poll());
 							}
-							
-						} 
+						}
+						else {
+							ConcurrentLinkedQueue<Task> queuedReduces = this.queuedReduceTasks.get(info.jobid);
+							if (queuedReduces != null){
+								allocateReduceTask(info.jobid, queuedReduces.poll(), info.who);
+								if (queuedReduces.isEmpty()){
+									this.queuedReduceTasks.remove(info.jobid);
+								}
+							}
+						}
 					}
 				}
 			}
@@ -339,18 +362,20 @@ public class JobTracker implements JobTrackerRemoteInterface {
 				}
 				for (Task t: this.jobToMappers.get(info.jobid).keySet()){
 					if (t.jobid.equals(info.jobid)){
-						taskTrackers.get(this.jobToMappers.get(info.jobid).get(t)).slotsFilled = Math.max(0, taskTrackers.get(this.jobToMappers.get(info.jobid).get(t)).slotsFilled-1);
+						taskTrackers.get(this.jobToMappers.get(info.jobid).get(t)).mapSlotsFilled = Math.max(0, taskTrackers.get(this.jobToMappers.get(info.jobid).get(t)).mapSlotsFilled-1);
 						this.taskTrackerToTasks.get(this.jobToMappers.get(info.jobid).get(t).serviceName).remove(t);
 					}
 				}
 				this.jobToMappers.remove(info.jobid);
 				for (Task t: this.jobToReducers.get(info.jobid).keySet()){
 					if (t.jobid.equals(info.jobid)){
-						taskTrackers.get(this.jobToReducers.get(info.jobid).get(t)).slotsFilled = Math.max(0, taskTrackers.get(this.jobToReducers.get(info.jobid).get(t)).slotsFilled-1);
+						taskTrackers.get(this.jobToReducers.get(info.jobid).get(t)).reduceSlotsFilled = Math.max(0, taskTrackers.get(this.jobToReducers.get(info.jobid).get(t)).reduceSlotsFilled-1);
 						this.taskTrackerToTasks.get(this.jobToReducers.get(info.jobid).get(t).serviceName).remove(t);
 					}
 				}
 				this.jobToReducers.remove(info.jobid);
+				this.queuedMapTasks.remove(info.jobid);
+				this.queuedReduceTasks.remove(info.jobid);
 				this.jobs.get(info.jobid).info.setStatus(JobInfo.FAILED);
 			}
 			
@@ -376,16 +401,16 @@ public class JobTracker implements JobTrackerRemoteInterface {
 		job.info.setNumReducers(i);
 	}
 
-	private void allocateReduceTask(String jobID, Task t, String taskTrackerName) {
+	private synchronized void allocateReduceTask(String jobID, Task t, String taskTrackerName) {
 		System.out.println("Allocating reduceTask: taskId" + t.taskid+" JobID: " + t.jobid);
-		if (JobTracker.taskTrackers.get(taskTrackerName).slotsFilled < Environment.MapReduceInfo.SLOTS){
+		if (JobTracker.taskTrackers.get(taskTrackerName).reduceSlotsFilled < this.ReduceSlots){
 			if (this.jobToReducers.get(jobID) != null) {
-				JobTracker.taskTrackers.get(taskTrackerName).slotsFilled += 1;
+				JobTracker.taskTrackers.get(taskTrackerName).reduceSlotsFilled += 1;
 				this.jobToReducers.get(jobID).put(t,
 						JobTracker.taskTrackers.get(taskTrackerName));
 			} else {
 				ConcurrentHashMap<Task, TaskTrackerInfo> temp = new ConcurrentHashMap<Task, TaskTrackerInfo>();
-				JobTracker.taskTrackers.get(taskTrackerName).slotsFilled += 1;
+				JobTracker.taskTrackers.get(taskTrackerName).reduceSlotsFilled += 1;
 				temp.put(t, JobTracker.taskTrackers.get(taskTrackerName));
 				this.jobToMappers.put(jobID, temp);
 			}
@@ -401,8 +426,12 @@ public class JobTracker implements JobTrackerRemoteInterface {
 			} catch (RemoteException | NotBoundException e) {
 				e.printStackTrace();
 			}
-			
-			
+		}
+		else {
+			if (this.queuedReduceTasks.get(jobID) == null){
+				this.queuedReduceTasks.put(jobID, new ConcurrentLinkedQueue<Task>());
+			}
+			this.queuedReduceTasks.get(jobID).add(t);
 		}
 		
 	}
@@ -435,10 +464,10 @@ public class JobTracker implements JobTrackerRemoteInterface {
 				}
 				else if (t.getType() == TaskType.Reducer){
 					String bestNode = null;
-					int bestLoad = Environment.MapReduceInfo.SLOTS;
+					int bestLoad = this.ReduceSlots;
 					for (String tracker : this.jobToTaskTrackers.get(t.jobid)){
-						if (taskTrackers.get(tracker).slotsFilled < bestLoad){
-							bestLoad = taskTrackers.get(tracker).slotsFilled;
+						if (taskTrackers.get(tracker).reduceSlotsFilled < bestLoad){
+							bestLoad = taskTrackers.get(tracker).reduceSlotsFilled;
 							bestNode = tracker;
 						}
 					}
@@ -446,7 +475,10 @@ public class JobTracker implements JobTrackerRemoteInterface {
 						allocateReduceTask(t.jobid, t, bestNode);
 					}
 					else {
-						System.out.println("Shouldn't be here!");
+						if (this.queuedReduceTasks.get(t.jobid) == null){
+							this.queuedReduceTasks.put(t.jobid, new ConcurrentLinkedQueue<Task>());
+						}
+						this.queuedReduceTasks.get(jobID).add(t);
 					}
 				}
 			}
