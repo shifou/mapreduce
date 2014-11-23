@@ -91,7 +91,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 							+ Environment.MapReduceInfo.JOBTRACKER_SERVICENAME
 							+ "/" + jobid + "/" + jarname, true);
 			byte[] buff = new byte[ct];
-			jobid2JarName.put(jobid, jarname);
+				//System.out.println("put jar: "+jarname+" for job "+jobid);
 			for (int i = 0; i < ct; i++)
 				buff[i] = arr[i].byteValue();
 			out.write(buff, 0, ct);
@@ -121,13 +121,16 @@ public class JobTracker implements JobTrackerRemoteInterface {
 	@Override
 	public JobInfo submitJob(Job job) throws RemoteException {
 		System.out.println("In submitJob!");
+		
 		String jobid = String.format("%d", new Date().getTime()) + "_"
 				+ this.globalJobID;
+		jobid2JarName.put(jobid, job.conf.jarName);
 		Environment.createDirectory(Environment.MapReduceInfo.JOBTRACKER_SERVICENAME+ "/" + jobid);
 		globalJobID++;
 		JobInfo info = new JobInfo(jobid);
 		job.info = info;
 		jobs.put(jobid, job);
+		
 		boolean startJob = false;
 		System.out.println("start job?");
 		for(String taskTracker: taskTrackers.keySet()){
@@ -253,12 +256,19 @@ public class JobTracker implements JobTrackerRemoteInterface {
 	@Override
 	public synchronized Byte[] getJar(String jobid, long pos) throws RemoteException {
 		if (jobid2JarName.containsKey(jobid) == false)
+		{
+			System.out.println("??????????");
 			return null;
+		
+		}
 		String name = this.jobid2JarName.get(jobid);
 		try {
 			RandomAccessFile raf = new RandomAccessFile(
-					Environment.MapReduceInfo.JOBTRACKER_SERVICENAME + "/"
+					Environment.Dfs.DIRECTORY + "/"
+							+ Environment.MapReduceInfo.JOBTRACKER_SERVICENAME + "/"
 							+ jobid + "/" + name, "r");
+			System.out.println("#jobtracker open# "+Environment.MapReduceInfo.JOBTRACKER_SERVICENAME + "/"
+					+ jobid + "/" + name);
 			raf.seek(pos);
 			Byte[] ans = new Byte[(int) Math.min(Environment.Dfs.BUF_SIZE,
 					raf.length() - pos)];
@@ -269,6 +279,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			System.out.println("get jar error!");
 			return null;
 		}
 

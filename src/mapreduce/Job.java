@@ -36,10 +36,9 @@ public class Job implements Serializable {
 					Environment.MapReduceInfo.JOBTRACKER_PORT);
 			JobTrackerRemoteInterface jobTracker = (JobTrackerRemoteInterface) reg
 					.lookup(Environment.MapReduceInfo.JOBTRACKER_SERVICENAME);
-			JobInfo info = jobTracker.submitJob(this);
-			
+			String id =jobTracker.getJobId(this);
 			File jFile = new File(conf.jarPath);
-			System.out.println(conf.jarPath);
+			//System.out.println(conf.jarPath);
 			FileInputStream in = new FileInputStream(jFile);
 			byte[] temp = new byte[Environment.Dfs.BUF_SIZE];
 			int bCount = 0;
@@ -48,10 +47,12 @@ public class Job implements Serializable {
 				for (int i = 0; i < bCount; i++){
 					data[i] = temp[i];
 				}
-				jobTracker.putJar(info.getID(), conf.jarName, data, bCount);
+				jobTracker.putJar(id, conf.jarName, data, bCount);
 			}
 			in.close();
 			System.out.println("put jar done!");
+			JobInfo info = jobTracker.submitJob(this);
+			
 			while (true) {
 				Thread.sleep(5000);
 				info = jobTracker.getJobStatus(info.getID());

@@ -83,6 +83,7 @@ public class TaskTracker implements TaskTrackerRemoteInterface {
     }
     public String runTask(Task tk) throws RemoteException
     {
+    	System.out.println("get job: "+tk.jobid);
     	String jarpath="";
     	String path=Environment.Dfs.DIRECTORY+"/"+this.serviceName+"/"+tk.jobid;
     	File tt= new File(path);
@@ -100,8 +101,10 @@ public class TaskTracker implements TaskTrackerRemoteInterface {
 			int pos=0;
 			File jar = new File(path+"/"+tk.config.jarName);
 			jarpath= path+"/"+tk.config.jarName;
+			System.out.println("#tasktr# "+jarpath);
 			if(jar.exists()==false)
 			{
+				System.out.println("jar not exist try to get jar");
 			FileOutputStream op = new  FileOutputStream(jarpath,true);
 			while(true)
 			{
@@ -117,9 +120,11 @@ public class TaskTracker implements TaskTrackerRemoteInterface {
 						data[i]=ans[i].byteValue();
 					op.write(data);
 					op.flush();
-					op.close();
+					
 				}
+				System.out.println("-----");
 			}
+			op.close();
 			}
 		}
 		 catch (NotBoundException e) {
@@ -135,10 +140,10 @@ public class TaskTracker implements TaskTrackerRemoteInterface {
 			e.printStackTrace();
 			return "file write error";
 		}
-		
+		System.out.println("begin running task thread");
     	if(tk.getType().equals(Task.TaskType.Mapper))
     	{
-
+    		
 			MapRunner mapRunner = new MapRunner(tk.jobid, tk.taskid, tk.getSplit(), tk.config,serviceName, tk.reduceNum,jarpath,true);
 			 Thread temp = new Thread(mapRunner);
 			 temp.run();
@@ -152,7 +157,7 @@ public class TaskTracker implements TaskTrackerRemoteInterface {
 				a.put(tk.taskid, temp);
 				mapTasks.put(tk.jobid, a);
 			}
-			return "running";
+			return "running map "+tk.taskid+" of "+tk.jobid;
     	}
     	else
     	{
@@ -170,7 +175,7 @@ public class TaskTracker implements TaskTrackerRemoteInterface {
 				a.put(tk.taskid, temp);
 				reduceTasks.put(tk.jobid, a);
 			}
-			return "running";
+			return "running reduce "+tk.taskid+" of "+tk.jobid;
     	}
     }
 	@Override
