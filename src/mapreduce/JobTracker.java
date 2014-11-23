@@ -427,29 +427,35 @@ public class JobTracker implements JobTrackerRemoteInterface {
 	public void handleNodeFailure(String taskTrackerName){
 		System.out.println("TaskTracker failure: "+taskTrackerName + "... Rescheduling lost tasks...");
 		taskTrackers.remove(taskTrackerName);
-		for (Task t: this.taskTrackerToTasks.get(taskTrackerName)){
-			this.jobToTaskTrackers.get(t.jobid).remove(taskTrackerName);
-			if (t.getType() == TaskType.Mapper){
-				allocateMapTask(t);
-			}
-			else if (t.getType() == TaskType.Reducer){
-				String bestNode = null;
-				int bestLoad = Environment.MapReduceInfo.SLOTS;
-				for (String tracker : this.jobToTaskTrackers.get(t.jobid)){
-					if (taskTrackers.get(tracker).slotsFilled < bestLoad){
-						bestLoad = taskTrackers.get(tracker).slotsFilled;
-						bestNode = tracker;
+		if (this.taskTrackerToTasks.get(taskTrackerName) != null){
+			for (Task t: this.taskTrackerToTasks.get(taskTrackerName)){
+				this.jobToTaskTrackers.get(t.jobid).remove(taskTrackerName);
+				if (t.getType() == TaskType.Mapper){
+					allocateMapTask(t);
+				}
+				else if (t.getType() == TaskType.Reducer){
+					String bestNode = null;
+					int bestLoad = Environment.MapReduceInfo.SLOTS;
+					for (String tracker : this.jobToTaskTrackers.get(t.jobid)){
+						if (taskTrackers.get(tracker).slotsFilled < bestLoad){
+							bestLoad = taskTrackers.get(tracker).slotsFilled;
+							bestNode = tracker;
+						}
+					}
+					if (bestNode != null){
+						allocateReduceTask(t.jobid, t, bestNode);
+					}
+					else {
+						System.out.println("Shouldn't be here!");
 					}
 				}
-				if (bestNode != null){
-					allocateReduceTask(t.jobid, t, bestNode);
-				}
-				else {
-					System.out.println("Shouldn't be here!");
-				}
 			}
+			this.taskTrackerToTasks.remove(taskTrackerName);
 		}
-		this.taskTrackerToTasks.remove(taskTrackerName);
+		else {
+			System.out.println("But nothing to reschedule!");
+		}
+		
 	}
 	
 	
