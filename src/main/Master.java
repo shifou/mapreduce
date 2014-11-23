@@ -53,7 +53,7 @@ public class Master {
 			TaskTrackerInfo taskInfo = jobTracker.getTaskTrackers().get(taskTrackerName);
 			
 				try {
-					Registry reg = LocateRegistry.getRegistry(taskInfo.IP, Environment.Dfs.DATA_NODE_REGISTRY_PORT);
+					Registry reg = LocateRegistry.getRegistry(taskInfo.IP, Environment.MapReduceInfo.TASKTRACKER_PORT);
 					TaskTrackerRemoteInterface taskTrackerStub = (TaskTrackerRemoteInterface) reg.lookup(taskTrackerName);	
 					Boolean b = taskInfo.health > 0;
 					taskTrackerStub.healthCheck(b);
