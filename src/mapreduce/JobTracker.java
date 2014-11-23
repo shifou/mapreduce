@@ -279,9 +279,9 @@ public class JobTracker implements JobTrackerRemoteInterface {
 				
 			} catch (RemoteException | NotBoundException e) {
 				e.printStackTrace();
-			}
-
+			}	
 		}
+		System.out.println("Allocated map!");
 	}
 
 	@Override
@@ -335,6 +335,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 						}
 					}
 				}
+				System.out.println("Done with map Report!");
 			} else if (type == TaskType.Reducer) {
 				System.out.println("ReduceTask completed: TaskID: "+ info.taskid + " JobID: " + info.jobid);
 				for (Task t : this.jobToReducers.get(info.jobid).keySet()) {
@@ -369,6 +370,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 						}
 					}
 				}
+				System.out.println("Done with reduce Report!");
 			}
 		} else if (status == TaskStatus.FAILED) {
 			if (this.jobs.containsKey(info.jobid) && (this.jobs.get(info.jobid).info.getStatus() != JobInfo.FAILED)){
@@ -415,6 +417,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 				this.queuedReduceTasks.remove(info.jobid);
 				this.jobs.get(info.jobid).info.setStatus(JobInfo.FAILED);
 			}
+			System.out.println("Done with Failure!");
 			
 		}
 
@@ -428,6 +431,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 	}
 
 	private void startReduceForJob(Job job) {
+		System.out.println("Starting Reduce Jobs!");
 		HashSet<String> trackers = this.jobToTaskTrackers.get(job.info.getID());
 		int i = 0;
 		job.info.setNumReducers(trackers.size());
@@ -437,6 +441,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 			i += 1;
 			allocateReduceTask(job.info.getID(), t, tracker);
 		}
+		System.out.println("Done starting reduce jobs!");
 		
 	}
 
@@ -473,10 +478,12 @@ public class JobTracker implements JobTrackerRemoteInterface {
 			}
 			this.queuedReduceTasks.get(jobID).add(t);
 		}
+		System.out.println("Done Allocating Reduce!");
 		
 	}
 
 	private Task createReduceTask(int partitionNum, Job job){
+		System.out.println("Creating reduce task");
 		HashSet<TaskInfo> tInfos = this.completedMaps.get(job.info.getID());
 		ConcurrentHashMap<String, ConcurrentHashMap<Integer, String>> reduceMap = new ConcurrentHashMap<String, ConcurrentHashMap<Integer, String>>();
 		for (TaskInfo tInfo : tInfos){
@@ -488,6 +495,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 		Task t = new Task(TaskType.Reducer, job.conf, reduceMap);
 		t.jobid = job.info.getID();
 		t.taskid = "" + partitionNum;
+		System.out.println("Done Creating reduce task");
 		return t;
 		
 	}
@@ -601,6 +609,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 
 
 	public void commit(String jobid)  {
+		System.out.println("Committing");
 		ConcurrentHashMap<Task, TaskTrackerInfo> tToTinfo = this.jobToReducers.get(jobid);
 		for (Task t: tToTinfo.keySet()){
 			TaskTrackerInfo info = tToTinfo.get(t);
@@ -614,6 +623,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 				e.printStackTrace();
 			}
 		}
+		System.out.println("Done committing");
 
 	}
 	
