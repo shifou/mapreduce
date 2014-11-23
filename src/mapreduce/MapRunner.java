@@ -97,11 +97,11 @@ public class MapRunner implements Runnable {
 				return;
 			}
 			}
-			Class<RecordReader<Writable,Writable>> inputFormatClass = (Class<RecordReader<Writable,Writable>>) Class
+			Class<RecordReader> inputFormatClass = (Class<RecordReader>) Class
 					.forName(conf.getInputFormat().getName());
-			Constructor<RecordReader<Writable,Writable>> constuctor = inputFormatClass
+			Constructor<RecordReader> constuctor = inputFormatClass
 					.getConstructor(String.class);
-			RecordReader<Writable,Writable> read = constuctor.newInstance(data.toString());
+			RecordReader  read = constuctor.newInstance(data.toString());
 			Context  ct = new Context (
 					jobid, taskid, taskServiceName, true);
 			while (read.hasNext()) {

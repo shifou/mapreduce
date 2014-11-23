@@ -3,7 +3,7 @@ package mapreduce.io;
 import java.io.IOException;
 import java.io.Serializable;
 
-public abstract class RecordReader<K extends Writable,V extends Writable> implements Serializable {
+public abstract class RecordReader implements Serializable {
 	
 
 	private static final long serialVersionUID = -7591521790480016188L;

@@ -40,7 +40,7 @@ public class Record implements Comparable<Record>, Serializable{
 	}
 	public String toString()
 	{
-		return key.toString()+"\t"+value.toString()+"\n";
+		return key.toString()+"\t"+value.toString();
 	}
 	public int compareTo(Record o) {
 		return this.key.toString().compareTo(o.key.toString());

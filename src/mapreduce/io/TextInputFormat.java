@@ -16,8 +16,7 @@ public class TextInputFormat extends RecordReader {
 		curLine = 0;
 		data = input.split("\n");
 		linenum = data.length;
-		System.out.println("ffffff-----"+input);
-	}
+		}
 	/*
 	public boolean readRecords() {
 		String input = "", line;
@@ -45,7 +44,7 @@ public class TextInputFormat extends RecordReader {
 
 	public Record nextKeyValue() {
 		Record  ans = new Record();
-		ans.key = new LongWritable(curLine).toString();
+		ans.key = String.valueOf(curLine);;
 		ans.value = data[curLine++];
 		return ans;
 	}

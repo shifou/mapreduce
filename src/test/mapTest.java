@@ -25,10 +25,17 @@ public class mapTest implements Runnable {
 	public String inpath;
 	public String jarpath;
 	public Mapper mapper;
-
-	public mapTest(String path, String jpath) {
+	public String jobid;
+	public String taskid;
+	public int pNum;
+	public String taskSerName;
+	public mapTest(String path, String jpath, String jid, String tid,String taskName,int num) {
 		jarpath = jpath;
 		inpath = path;
+		jobid=jid;
+		taskid=tid;
+		taskSerName=taskName;
+		pNum=num;
 	}
 
 	public void run() { 
@@ -46,21 +53,21 @@ public class mapTest implements Runnable {
 				data += (line + "\n");
 			}
 			Class<?> a = TextInputFormat.class;
-			Class<RecordReader<Writable, Writable>> inputFormatClass = (Class<RecordReader<Writable, Writable>>) Class
+			Class<RecordReader> inputFormatClass = (Class<RecordReader>) Class
 					.forName(a.getName());
-			Constructor<RecordReader<Writable, Writable>> constuctor = inputFormatClass
+			Constructor<RecordReader> constuctor = inputFormatClass
 					.getConstructor(String.class);
-			RecordReader<Writable, Writable> read = constuctor
+			RecordReader read = constuctor
 					.newInstance(data);
 			Context ct = new Context (
-					"2014-11-22-123", "1", "tt", true);
+				jobid	, taskid, taskSerName, true);
 			while (read.hasNext()) 
 			{
 				Record nextLine = read.nextKeyValue();
 				mapper.map(nextLine.getKey().toString(), nextLine.getValue().toString(), ct);
 			}
 			
-			ConcurrentHashMap<Integer, String> loc = ct.writeToDisk(3);
+			ConcurrentHashMap<Integer, String> loc = ct.writeToDisk(pNum);
 
 			System.out.printf("+++++++++");
 		} catch (Exception e) {

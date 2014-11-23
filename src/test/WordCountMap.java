@@ -14,7 +14,7 @@ public class WordCountMap implements Mapper{
 	 private final static IntWritable one = new IntWritable(1);
 	       
 	    public  void map(String key, String value, Context context) throws IOException {
-	        System.out.println("]]]]]");
+	        //System.out.println("]]]]]");
 	    	String line = value.toString();
 	        StringTokenizer tokenizer = new StringTokenizer(line);
 	        while (tokenizer.hasMoreTokens()) {

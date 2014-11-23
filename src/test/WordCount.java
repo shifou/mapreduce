@@ -22,10 +22,6 @@ public class WordCount {
 	        
 	    Job job = new Job(conf);
 	    
-	    
-	    job.setOutputKeyClass(Text.class);
-	    job.setOutputValueClass(IntWritable.class);
-	        
 	    job.setMapperClass(test.WordCountMap.class);
 	    job.setReducerClass(test.WordCountReducer.class);
 	        
