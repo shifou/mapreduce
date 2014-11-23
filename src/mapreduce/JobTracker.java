@@ -86,10 +86,6 @@ public class JobTracker implements JobTrackerRemoteInterface {
 	public synchronized String putJar(String jobid, String jarname, Byte[] arr,
 			int ct) throws RemoteException {
 		try {
-			if (Environment
-					.createDirectory(Environment.MapReduceInfo.JOBTRACKER_SERVICENAME
-							+ "/" + jobid) == false)
-				return "can not create jobid folder for jar\n";
 			FileOutputStream out = new FileOutputStream(
 					Environment.Dfs.DIRECTORY + "/"
 							+ Environment.MapReduceInfo.JOBTRACKER_SERVICENAME
@@ -123,14 +119,17 @@ public class JobTracker implements JobTrackerRemoteInterface {
 	}
 
 	@Override
-	public synchronized JobInfo submitJob(Job job) throws RemoteException {
+	public JobInfo submitJob(Job job) throws RemoteException {
+		System.out.println("In submitJob!");
 		String jobid = String.format("%d", new Date().getTime()) + "_"
 				+ this.globalJobID;
+		Environment.createDirectory(Environment.MapReduceInfo.JOBTRACKER_SERVICENAME+ "/" + jobid);
 		globalJobID++;
 		JobInfo info = new JobInfo(jobid);
 		job.info = info;
 		jobs.put(jobid, job);
 		boolean startJob = false;
+		System.out.println("start job?");
 		for(String taskTracker: taskTrackers.keySet()){
 			TaskTrackerInfo tInfo = taskTrackers.get(taskTracker);
 			if (tInfo.mapSlotsFilled < this.MapSlots){
@@ -139,9 +138,11 @@ public class JobTracker implements JobTrackerRemoteInterface {
 			}
 		}
 		if (startJob){
+			System.out.println("start job: yes");
 			jobStart(job);
 		}
 		else {
+			System.out.println("queue job!");
 			job.info.setStatus(JobInfo.WAITING);
 			this.queuedJobs.offer(job);
 		}
@@ -149,7 +150,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 		return info;
 	}
 
-	private synchronized void jobStart(Job job) {
+	private void jobStart(Job job) {
 		System.out.println("Starting job: " + job.info.getID()+"...");
 		try {
 			Registry r = LocateRegistry
@@ -157,8 +158,9 @@ public class JobTracker implements JobTrackerRemoteInterface {
 			NameNodeRemoteInterface nameNode = (NameNodeRemoteInterface) r
 					.lookup(Environment.Dfs.NAMENODE_SERVICENAME);
 			InputSplit[] splits = nameNode.getSplit(job.conf.getInputPath());
-			job.info.setNumMappers(splits.length);
-			for (int i = 0; i < splits.length; i++) {
+			int len = splits.length;
+			job.info.setNumMappers(len);
+			for (int i = 0; i < len; i++) {
 				Task task = new Task( Task.TaskType.Mapper,
 						job.conf, null);
 				task.setSplit(splits[i]);
@@ -180,6 +182,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 		String bestNode = null;
 		int bestLoad = this.MapSlots;
 		t.locality = true;
+		System.out.println("1");
 		for (int i : locations) {
 			String taskTrackerName = "t" + i;
 			if ((JobTracker.taskTrackers.get(taskTrackerName).mapSlotsFilled < this.MapSlots)
@@ -188,6 +191,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 				bestLoad = JobTracker.taskTrackers.get(taskTrackerName).mapSlotsFilled;
 			}
 		}
+		System.out.println("2");
 		if (bestNode == null) {
 			for (String s : JobTracker.taskTrackers.keySet()) {
 				TaskTrackerInfo i = JobTracker.taskTrackers.get(s);
@@ -199,6 +203,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 				}
 			}
 		}
+		System.out.println("3");
 		if (this.jobToMappers.get(t.jobid) != null) {
 			JobTracker.taskTrackers.get(bestNode).mapSlotsFilled += 1;
 			this.jobToMappers.get(t.jobid).put(t,
@@ -209,20 +214,25 @@ public class JobTracker implements JobTrackerRemoteInterface {
 			temp.put(t, JobTracker.taskTrackers.get(bestNode));
 			this.jobToMappers.put(t.jobid, temp);
 		}
+		System.out.println("4");
 		if (bestNode == null) {
 			if (this.queuedMapTasks.get(t.jobid) == null){
 				this.queuedMapTasks.put(t.jobid, new ConcurrentLinkedQueue<Task>());
 			}
 			this.queuedMapTasks.get(t.jobid).add(t);
+			System.out.println("4.1");
 		} else {
 			Registry r;
 			try {
 				r = LocateRegistry.getRegistry(
 						JobTracker.taskTrackers.get(bestNode).IP,
 						Environment.MapReduceInfo.TASKTRACKER_PORT);
+				System.out.println("4.2");
 				TaskTrackerRemoteInterface taskTracker = (TaskTrackerRemoteInterface) r
 						.lookup(bestNode);
+				System.out.println("4.3");
 				taskTracker.runTask(t);
+				System.out.println("4.4");
 				if (this.taskTrackerToTasks.get(bestNode) == null){
 					this.taskTrackerToTasks.put(bestNode, new HashSet<Task>());
 				}
@@ -232,6 +242,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 			}
 
 		}
+		System.out.println("5");
 	}
 
 	@Override

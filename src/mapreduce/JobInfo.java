@@ -45,10 +45,16 @@ public class JobInfo implements Serializable {
 	}
 	
 	public int getPrecentMapCompleted(){
+		if (this.num_mappers == 0){
+			return 0;
+		}
 		return (this.compl_mappers * 100)/this.num_mappers;
 	}
 	
 	public int getPrecentReduceCompleted(){
+		if (this.num_reducers == 0){
+			return 0;
+		}
 		return (this.compl_reducers * 100)/this.num_reducers;
 	}
 	
