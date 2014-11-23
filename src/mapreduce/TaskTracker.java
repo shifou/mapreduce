@@ -142,9 +142,10 @@ public class TaskTracker implements TaskTrackerRemoteInterface {
 			e.printStackTrace();
 			return "file write error";
 		}
-		System.out.println("begin running task thread");
+		
     	if(tk.getType().equals(Task.TaskType.Mapper))
     	{
+    		System.out.println("begin running map task thread");
     		boolean flag=false;
     		for(Integer hold : tk.getSplit().block.repIDtoLoc.keySet())
     		{
@@ -173,7 +174,7 @@ public class TaskTracker implements TaskTrackerRemoteInterface {
     	}
     	else
     	{
-
+    		System.out.println("begin running reduce task thread");
     		ReduceRunner reduceRunner = new ReduceRunner(tk.jobid, tk.taskid, tk.mploc, tk.config,serviceName,jarpath);
     		 Thread temp = new Thread( reduceRunner);
 			 temp.run();
