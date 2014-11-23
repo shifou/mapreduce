@@ -33,6 +33,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 	private ConcurrentLinkedQueue<Task> queuedTasks;
 	private ConcurrentHashMap<String, HashSet<TaskInfo>> completedMaps;
 	private ConcurrentHashMap<String, HashSet<String>> jobToTaskTrackers;
+	private ConcurrentHashMap<String, HashSet<Task>> taskTrackerToTasks;
 	private Job currentJob;
 
 	public JobTracker() {
@@ -48,6 +49,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 		this.currentJob = null;
 		this.completedMaps = new ConcurrentHashMap<String, HashSet<TaskInfo>>();
 		this.jobToTaskTrackers = new ConcurrentHashMap<String, HashSet<String>>();
+		this.taskTrackerToTasks = new ConcurrentHashMap<String, HashSet<Task>>();
 	}
 
 	public ConcurrentHashMap<String, TaskTrackerInfo> getTaskTrackers() {
@@ -202,6 +204,10 @@ public class JobTracker implements JobTrackerRemoteInterface {
 				TaskTrackerRemoteInterface taskTracker = (TaskTrackerRemoteInterface) r
 						.lookup(bestNode);
 				taskTracker.runTask(t);
+				if (this.taskTrackerToTasks.get(bestNode) == null){
+					this.taskTrackerToTasks.put(bestNode, new HashSet<Task>());
+				}
+				this.taskTrackerToTasks.get(bestNode).add(t);
 			} catch (RemoteException | NotBoundException e) {
 				e.printStackTrace();
 			}
@@ -264,6 +270,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 							completed = new HashSet<TaskInfo>();
 						}
 						completed.add(info);
+						this.taskTrackerToTasks.get(tracker).remove(t);
 						this.completedMaps.put(info.jobid, completed);
 						if (this.jobs.get(info.jobid).info
 								.getPrecentMapCompleted() == 100) {
@@ -289,6 +296,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 										JobTracker.taskTrackers.get(tracker).slotsFilled - 1);
 						this.jobToReducers.get(info.jobid).remove(t);
 						this.jobs.get(info.jobid).info.incrementComplReducers();
+						this.taskTrackerToTasks.get(tracker).remove(t);
 						if (this.jobs.get(info.jobid).info
 								.getPrecentReduceCompleted() == 100) {
 							this.jobs.get(info.jobid).info.setStatus(JobInfo.SUCCEEDED);
@@ -307,23 +315,40 @@ public class JobTracker implements JobTrackerRemoteInterface {
 				}
 			}
 		} else if (status == TaskStatus.FAILED) {
-			ConcurrentHashMap<Task, TaskTrackerInfo> temp = this.jobToMappers.get(info.jobid);
-			HashSet<TaskTrackerInfo> trackers = new HashSet<TaskTrackerInfo>();
-			for (Task t: temp.keySet()){
-				trackers.add(temp.get(t));
-			}
-			for (TaskTrackerInfo tInfo: trackers){
-				String tracker = tInfo.serviceName;
-				Registry reg;
-				try {
-					reg = LocateRegistry.getRegistry(tInfo.IP, Environment.Dfs.DATA_NODE_REGISTRY_PORT);
-					TaskTrackerRemoteInterface taskTracker = (TaskTrackerRemoteInterface)reg.lookup(tracker);
-					taskTracker.killFaildJob(info.jobid);
-				} catch (RemoteException | NotBoundException e) {
-					e.printStackTrace();
+			if (this.jobs.containsKey(info.jobid) && (this.jobs.get(info.jobid).info.getStatus() != JobInfo.FAILED)){
+				ConcurrentHashMap<Task, TaskTrackerInfo> temp = this.jobToMappers.get(info.jobid);
+				HashSet<TaskTrackerInfo> trackers = new HashSet<TaskTrackerInfo>();
+				for (Task t: temp.keySet()){
+					trackers.add(temp.get(t));
 				}
+				for (TaskTrackerInfo tInfo: trackers){
+					String tracker = tInfo.serviceName;
+					Registry reg;
+					try {
+						reg = LocateRegistry.getRegistry(tInfo.IP, Environment.Dfs.DATA_NODE_REGISTRY_PORT);
+						TaskTrackerRemoteInterface taskTracker = (TaskTrackerRemoteInterface)reg.lookup(tracker);
+						taskTracker.killFaildJob(info.jobid);
+					} catch (RemoteException | NotBoundException e) {
+						e.printStackTrace();
+					}
+				}
+				for (Task t: this.jobToMappers.get(info.jobid).keySet()){
+					if (t.jobid.equals(info.jobid)){
+						taskTrackers.get(this.jobToMappers.get(info.jobid).get(t)).slotsFilled = Math.max(0, taskTrackers.get(this.jobToMappers.get(info.jobid).get(t)).slotsFilled-1);
+						this.taskTrackerToTasks.get(this.jobToMappers.get(info.jobid).get(t).serviceName).remove(t);
+					}
+				}
+				this.jobToMappers.remove(info.jobid);
+				for (Task t: this.jobToReducers.get(info.jobid).keySet()){
+					if (t.jobid.equals(info.jobid)){
+						taskTrackers.get(this.jobToReducers.get(info.jobid).get(t)).slotsFilled = Math.max(0, taskTrackers.get(this.jobToReducers.get(info.jobid).get(t)).slotsFilled-1);
+						this.taskTrackerToTasks.get(this.jobToReducers.get(info.jobid).get(t).serviceName).remove(t);
+					}
+				}
+				this.jobToReducers.remove(info.jobid);
+				this.jobs.get(info.jobid).info.setStatus(JobInfo.FAILED);
 			}
-			this.jobs.get(info.jobid).info.setStatus(JobInfo.FAILED);
+			
 		}
 
 	}
@@ -366,6 +391,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 				TaskTrackerRemoteInterface taskTracker = (TaskTrackerRemoteInterface) r
 						.lookup(taskTrackerName);
 				taskTracker.runTask(t);
+				this.taskTrackerToTasks.get(taskTrackerName).add(t);
 			} catch (RemoteException | NotBoundException e) {
 				e.printStackTrace();
 			}
@@ -385,7 +411,39 @@ public class JobTracker implements JobTrackerRemoteInterface {
 			reduceMap.get(tInfo.who).put(Integer.parseInt(tInfo.taskid), tInfo.mplocations.get(partitionNum));
 		}
 		Task t = new Task(job.getJarClass(), TaskType.Reducer, job.conf, reduceMap);
+		t.reduceNum = partitionNum;
+		t.jobid = job.info.getID();
+		t.taskid = "" + partitionNum;
 		return t;
 		
 	}
+	
+	public void handleNodeFailure(String taskTrackerName){
+		taskTrackers.remove(taskTrackerName);
+		for (Task t: this.taskTrackerToTasks.get(taskTrackerName)){
+			this.jobToTaskTrackers.get(t.jobid).remove(taskTrackerName);
+			if (t.getType() == TaskType.Mapper){
+				allocateMapTask(t);
+			}
+			else if (t.getType() == TaskType.Reducer){
+				String bestNode = null;
+				int bestLoad = Environment.MapReduceInfo.SLOTS;
+				for (String tracker : this.jobToTaskTrackers.get(t.jobid)){
+					if (taskTrackers.get(tracker).slotsFilled < bestLoad){
+						bestLoad = taskTrackers.get(tracker).slotsFilled;
+						bestNode = tracker;
+					}
+				}
+				if (bestNode != null){
+					allocateReduceTask(t.jobid, t, bestNode);
+				}
+				else {
+					System.out.println("Shouldn't be here!");
+				}
+			}
+		}
+		this.taskTrackerToTasks.remove(taskTrackerName);
+	}
+	
+	
 }

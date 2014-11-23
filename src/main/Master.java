@@ -68,7 +68,7 @@ public class Master {
 				}
 				
 				if (taskInfo.health == 0){
-					jobTracker.getTaskTrackers().remove(taskTrackerName);
+					jobTracker.handleNodeFailure(taskTrackerName);
 				}
 						
 			

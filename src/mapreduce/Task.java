@@ -24,7 +24,7 @@ public class Task implements Serializable{
 	public String jobid;
 	public String taskid;
 	public int reduceNum;
-	public String jarName;
+
 	public Task(Class<?> c, TaskType type, Configuration con,	ConcurrentHashMap<String, ConcurrentHashMap<Integer, String> > lc ){
 		mploc=lc;
 		this.setJarClass(c);
