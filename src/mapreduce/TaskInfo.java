@@ -8,8 +8,8 @@ import mapreduce.Task.TaskType;
 public class TaskInfo implements Serializable {
 
 	// for map
-	public TaskInfo(TaskStatus stt, String string, String jobid2,String taskName,
-			String taskid2, int partitionNum, TaskType tp, ConcurrentHashMap<Integer, String> loc) {
+	public TaskInfo(TaskStatus stt, String string, String jobid2,String taskid2,
+			String taskName, int partitionNum, TaskType tp, ConcurrentHashMap<Integer, String> loc) {
 		st=stt;
 		reason = string;
 		jobid=jobid2;
@@ -20,7 +20,7 @@ public class TaskInfo implements Serializable {
 		who=taskName;
 	}
 	// for reduce
-	public TaskInfo(TaskStatus stt, String reas, String jobid2,String taskName, String taskid2, TaskType tp, String loc)
+	public TaskInfo(TaskStatus stt, String reas, String jobid2,String taskid2, String taskName, TaskType tp, String loc)
 	{
 		st=stt;
 		reason = reas;
