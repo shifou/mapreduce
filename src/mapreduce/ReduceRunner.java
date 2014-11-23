@@ -2,11 +2,9 @@ package mapreduce;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.rmi.RemoteException;
@@ -21,15 +19,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import main.Command;
 import main.Environment;
 import mapreduce.Task.TaskType;
 import mapreduce.io.Context;
 import mapreduce.io.Record;
 import mapreduce.io.Records;
-import mapreduce.io.Text;
 import mapreduce.io.TextOutputFormat;
-import mapreduce.io.Writable;
 
 public class ReduceRunner implements Runnable {
 	public Reducer  reducer;
@@ -229,7 +224,7 @@ public class ReduceRunner implements Runnable {
 			String className = je.getName().substring(0,
 					je.getName().length() - 6);
 			className = className.replace('/', '.');
-			if (className.equals(conf.getReducerClass().getName())) {
+			if (className.equals(conf.getReducerClass())) {
 				reducerClass = (Class<Reducer>) cl
 						.loadClass(className);
 			}

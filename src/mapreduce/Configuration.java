@@ -2,7 +2,6 @@ package mapreduce;
 
 import java.io.Serializable;
 
-import javax.xml.soap.Text;
 
 public class Configuration implements Serializable {
 
@@ -11,19 +10,17 @@ public class Configuration implements Serializable {
 
 	private String jobName;
 	public String jarName;
+	public String jarPath;
 	private String inputPath;
 	private String outputPath;
 	
-	private Class<?> mapperClass;
-	private Class<?> reducerClass;
+	private String mapperClass;
+	private String reducerClass;
 	
 
-	private Class<?> inputFormatClass;
-	public Class<?>  inputKeyClass;
-	public Class<?>  inputValClass;
-	public Class<?>  outputFormatClass;
-	public Class<?> outputKeyClass;
-	public Class<?> outputValClass;
+	private String inputFormatClass;
+	public String  outputFormatClass;
+
 	
 	private int numMapTasks;
 	private int numReduceTasks;
@@ -54,50 +51,17 @@ public class Configuration implements Serializable {
 	public String getOutputPath() {
 		return this.outputPath;
 	}
-	public Class<?> getMapperClass() {
+	public String getMapperClass() {
 		return mapperClass;
 	}
-	public void setMapperClass(Class<?> mapperClass) {
-		this.mapperClass = mapperClass;
+	public void setMapperClass(String string) {
+		this.mapperClass = string;
 	}
-	public Class<?> getReducerClass() {
+	public String getReducerClass() {
 		return reducerClass;
 	}
-	public void setReducerClass(Class<?> reducerClass) {
-		this.reducerClass = reducerClass;
-	}
-	/*
-	public void setMapOutputKeyClass(Class<?> theClass) {
-		this.mapOutputKeyClass = theClass;
-	}
-	
-	
-	public Class<?> getMapOutputKeyClass() {
-		return this.mapOutputKeyClass;
-	}
-	
-	public void setMapOutputValueClass(Class<?> theClass) {
-		this.mapOutputValueClass = theClass;
-	}
-	
-	public Class<?> getMapOutputValueClass() {
-		return this.mapOutputValueClass;
-	}
-	*/
-	public void setOutputKeyClass(Class<?> theClass) {
-		this.outputKeyClass = theClass;
-	}
-	
-	public Class<?> getOutputKeyClass() {
-		return this.outputKeyClass;
-	}
-	
-	public void setOutputValueClass(Class<?> theClass) {
-		this.outputValClass = theClass;
-	}
-	
-	public Class<?> getOutputValueClass() {
-		return this.outputValClass;
+	public void setReducerClass(String string) {
+		this.reducerClass = string;
 	}
 	
 	public void setNumMapTasks(int num) {
@@ -108,27 +72,21 @@ public class Configuration implements Serializable {
 		return this.numMapTasks;
 	}
 	
-	public void setNumReduceTasks(int num) {
-		this.numReduceTasks = num;
-	}
 	
-	public int getNumReduceTasks() {
-		return this.numReduceTasks;
-	}
 
-	public void setInputFormat(Class<?> class1) {
-		this.inputFormatClass=class1;
+	public void setInputFormat(String string) {
+		this.inputFormatClass=string;
 		
 	}
-	public Class<?> getInputFormat()
+	public String getInputFormat()
 	{
 		return this.inputFormatClass;
 	}
-	public void setOutputFormat(Class<?> class1) {
+	public void setOutputFormat(String string) {
 		// TODO Auto-generated method stub
-		this.outputFormatClass = class1;
+		this.outputFormatClass = string;
 	}
-	public Class<?> getOutputFormat()
+	public String getOutputFormat()
 	{
 		return this.outputFormatClass;
 	}
@@ -139,5 +97,11 @@ public class Configuration implements Serializable {
 
 	public void setJarName(String jarName) {
 		this.jarName = jarName;
+	}
+
+	public void setJarByPath(String jpath, String string2) {
+		
+		jarPath=jpath;
+		jarName=string2;
 	}
 }

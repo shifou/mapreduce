@@ -156,10 +156,10 @@ public class JobTracker implements JobTrackerRemoteInterface {
 					.getRegistry(Environment.Dfs.NAME_NODE_REGISTRY_PORT);
 			NameNodeRemoteInterface nameNode = (NameNodeRemoteInterface) r
 					.lookup(Environment.Dfs.NAMENODE_SERVICENAME);
-			InputSplit[] splits = nameNode.getSplit(job.getInputPath());
+			InputSplit[] splits = nameNode.getSplit(job.conf.getInputPath());
 			job.info.setNumMappers(splits.length);
 			for (int i = 0; i < splits.length; i++) {
-				Task task = new Task(job.getJarClass(), Task.TaskType.Mapper,
+				Task task = new Task( Task.TaskType.Mapper,
 						job.conf, null);
 				task.setSplit(splits[i]);
 				task.jobid = job.info.getID();
@@ -445,7 +445,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 			}
 			reduceMap.get(tInfo.who).put(Integer.parseInt(tInfo.taskid), tInfo.mplocations.get(partitionNum));
 		}
-		Task t = new Task(job.getJarClass(), TaskType.Reducer, job.conf, reduceMap);
+		Task t = new Task(TaskType.Reducer, job.conf, reduceMap);
 		t.reduceNum = partitionNum;
 		t.jobid = job.info.getID();
 		t.taskid = "" + partitionNum;
@@ -495,8 +495,8 @@ public class JobTracker implements JobTrackerRemoteInterface {
 		String ret = "";
 		for (String jobID : this.jobs.keySet()){
 			Job job = this.jobs.get(jobID);
-			String mapName = job.conf.getMapperClass().getName();
-			String reduceName = job.conf.getReducerClass().getName();
+			String mapName = job.conf.getMapperClass();
+			String reduceName = job.conf.getReducerClass();
 			String inputPath = job.conf.getInputPath();
 			String outputPath = job.conf.getOutputPath();
 			String jarName = job.conf.getJarName();

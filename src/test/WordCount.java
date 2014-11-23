@@ -1,37 +1,27 @@
 package test;
 
-import java.io.IOException;
-import java.util.Iterator;
-import java.util.StringTokenizer;
-
 import mapreduce.Configuration;
 import mapreduce.Job;
-import mapreduce.Mapper;
-import mapreduce.Reducer;
-import mapreduce.io.Context;
-import mapreduce.io.IntWritable;
-import mapreduce.io.LongWritable;
-import mapreduce.io.Text;
 import mapreduce.io.TextInputFormat;
 import mapreduce.io.TextOutputFormat;
 public class WordCount {
   
 
-	 public static void main(String[] args) throws Exception {
+	 public static void main(String[] args)  {
 	    Configuration conf = new Configuration();
 	        
-	    Job job = new Job(conf);
-	    job.setMapperClass(WordCountMap.class);
-	    job.setReducerClass(WordCountReducer.class);
+	   
+	    conf.setMapperClass("WordCountMap");
+	    conf.setReducerClass("WordCountReducer");
 	        
-	    job.setInputFormatClass(TextInputFormat.class);
-	    job.setOutputFormatClass(TextOutputFormat.class);
+	    conf.setInputFormat("TextInputFormat");
+	    conf.setOutputFormat("TextOutputFormat");
 	        
-	    job.setInputPath(args[0]);
-	    job.setOutputPath(args[1]);
+	    conf.setInputPath(args[0]);
+	    conf.setOutputPath(args[1]);
 	    
-	    job.setJarByPath(args[2], args[3], WordCount.class);
-	        
+	    conf.setJarByPath(args[2], args[3]);
+	    Job job = new Job(conf);
 	    job.waitForCompletion(true);
 	 }
 	       

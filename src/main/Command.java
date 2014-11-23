@@ -429,7 +429,7 @@ public class Command  {
 	}
 	
 	private static void printPutrUsage() {
-		System.out.println("Usage: hadoop putr <local folder> <hdfs path>");
+		System.out.println("Usage: java XX.jar main.Command dfs putr <local folder> <hdfs path>");
 
 	}
 
@@ -457,7 +457,7 @@ public class Command  {
 
 	private static void printUsage() {
 		System.out
-				.format("Usage1: java XX.jar main.Command  dfs put|get|rm|ls <files>\nUsage2: java XX.jar main.Command  hadoop lsJob|submit|kill\n");
+				.format("Usage1: java XX.jar main.Command  dfs put|get|rm|ls <files>\nUsage2: java XX.jar main.Command  mapred lsJob|submit|kill\n");
 
 	}
 

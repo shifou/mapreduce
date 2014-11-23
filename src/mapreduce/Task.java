@@ -18,16 +18,14 @@ public class Task implements Serializable{
 	public boolean locality;
 
 	private InputSplit split;
-	private Class<?> className;
 	private TaskType type;
 
 	public String jobid;
 	public String taskid;
 	public int reduceNum;
 
-	public Task(Class<?> c, TaskType type, Configuration con,	ConcurrentHashMap<String, ConcurrentHashMap<Integer, String> > lc ){
+	public Task(TaskType type, Configuration con,	ConcurrentHashMap<String, ConcurrentHashMap<Integer, String> > lc ){
 		mploc=lc;
-		this.setJarClass(c);
 		this.type = type;
 		this.config = con;
 	}
@@ -40,13 +38,7 @@ public class Task implements Serializable{
 		this.split = split;
 	}
 
-	public Class<?> getJarClass() {
-		return className;
-	}
 
-	public void setJarClass(Class<?> className) {
-		this.className = className;
-	}
 	
 	public TaskType getType(){
 		return this.type;

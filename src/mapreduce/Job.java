@@ -11,13 +11,7 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.Date;
 
-import javax.xml.soap.Text;
-
 import main.Environment;
-import mapreduce.io.IntWritable;
-import mapreduce.io.LongWritable;
-import mapreduce.io.TextInputFormat;
-import mapreduce.io.TextOutputFormat;
 
 public class Job implements Serializable {
 
@@ -25,33 +19,13 @@ public class Job implements Serializable {
 	public Configuration conf;
 	private String jarName;
 	private String jarPath;
-	private String inputPath;
-	private String outputPath;
-	private Class jarClass;
+	private Class<?> jarClass;
 	public JobInfo info;
 	
 	public Job(Configuration conf) {
-		conf= new Configuration();
+		this.conf= conf;
 		
 	}
-
-	public void setOutputKeyClass(Class<?> class1) {
-		conf.setOutputKeyClass(class1);
-
-	}
-
-	public void setOutputValueClass(Class<?> class1) {
-		conf.setOutputValueClass(class1);
-	}
-
-	public void setMapperClass(Class<?> class1) {
-		conf.setMapperClass(class1);
-	}
-
-	public void setReducerClass(Class class1) {
-		conf.setReducerClass(class1);
-	}
-
 	public void waitForCompletion(boolean b) {
 
 		try {
@@ -104,50 +78,5 @@ public class Job implements Serializable {
 
 	}
 
-	public void setInputPath(String path) {
-		this.inputPath = path;
-
-	}
-
-	public void setOutputPath(String path) {
-		this.outputPath = path;
-
-	}
-	
-	public String getInputPath(){
-		return this.inputPath;
-	}
-
-	public String getOutputPath(){
-		return this.outputPath;
-	}
-	
-	public void setOutputFormatClass(Class<?> class1) {
-		if(class1.equals(TextOutputFormat.class))
-		{
-			conf.outputKeyClass=Text.class;
-			conf.outputValClass=Text.class;
-		}
-		conf.setOutputFormat(class1);
-	}
-	
-	public void setInputFormatClass(Class<?> class1) {
-		if(class1.equals(TextInputFormat.class))
-		{
-			conf.inputKeyClass=LongWritable.class;
-			conf.inputValClass=Text.class;
-		}
-		conf.setInputFormat(class1);
-	}
-
-	public void setJarByPath(String path, String jarName, Class c) {
-		this.jarName = jarName;
-		this.jarPath = path;
-		this.jarClass = c;
-	}
-	
-	public Class getJarClass(){
-		return this.jarClass;
-	}
 
 }
