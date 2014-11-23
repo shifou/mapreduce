@@ -227,10 +227,13 @@ public class JobTracker implements JobTrackerRemoteInterface {
 		t.locality = true;
 		for (int i : locations) {
 			String taskTrackerName = "t" + i;
-			if ((JobTracker.taskTrackers.get(taskTrackerName).mapSlotsFilled < bestLoad)) {
-				bestNode = taskTrackerName;
-				bestLoad = JobTracker.taskTrackers.get(taskTrackerName).mapSlotsFilled;
+			if (JobTracker.taskTrackers.containsKey(taskTrackerName)){
+				if ((JobTracker.taskTrackers.get(taskTrackerName).mapSlotsFilled < bestLoad)) {
+					bestNode = taskTrackerName;
+					bestLoad = JobTracker.taskTrackers.get(taskTrackerName).mapSlotsFilled;
+				}
 			}
+			
 		}
 		if (bestNode == null) {
 			for (String s : JobTracker.taskTrackers.keySet()) {

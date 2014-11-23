@@ -1,5 +1,7 @@
 package mapreduce.io;
 
+//Record class - Abstraction for Key Value Pair
+
 import java.io.Serializable;
 
 public class Record implements Comparable<Record>, Serializable{
