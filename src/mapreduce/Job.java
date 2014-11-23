@@ -20,13 +20,6 @@ public class Job implements Serializable {
 
 	private static final long serialVersionUID = -2872789904155820699L;
 	public Configuration conf;
-<<<<<<< HEAD
-=======
-	private String jarName;
-	private String jarPath;
-
-
->>>>>>> 20ce6bcc137284e8e2c2962c9f131ddc3c56fc7a
 	public JobInfo info;
 	
 	public Job(Configuration conf) {
