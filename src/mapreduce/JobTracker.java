@@ -202,7 +202,12 @@ public class JobTracker implements JobTrackerRemoteInterface {
 				task.setSplit(splits[i]);
 				task.jobid = job.info.getID();
 				task.taskid = "" + splits[i].getBlock().getID();
-				task.reduceNum = taskTrackers.size();
+				if (len < taskTrackers.size()){
+					task.reduceNum = len;
+				}
+				else {
+					task.reduceNum = taskTrackers.size();
+				}
 				allocateMapTask(task);
 			}
 			job.info.setStatus(JobInfo.RUNNING);
@@ -318,7 +323,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 						this.taskTrackerToTasks.get(tracker).remove(t);
 						this.completedMaps.put(info.jobid, completed);
 						if (this.jobs.get(info.jobid).info
-								.getPrecentMapCompleted() == 100) {
+								.getPercentMapCompleted() == 100) {
 							System.out.println("All maps completed: " + info.jobid);
 							startReduceForJob(this.jobs.get(info.jobid));
 						} else {
@@ -344,11 +349,9 @@ public class JobTracker implements JobTrackerRemoteInterface {
 						this.jobs.get(info.jobid).info.incrementComplReducers();
 						this.taskTrackerToTasks.get(tracker).remove(t);
 						if (this.jobs.get(info.jobid).info
-								.getPrecentReduceCompleted() == 100) {
-							//commit(info.jobid);
-							System.out.println("Hello!");
+								.getPercentReduceCompleted() == 100) {
+							commit(info.jobid);
 							this.jobs.get(info.jobid).info.setStatus(JobInfo.SUCCEEDED);
-							System.out.println("Bye!");
 							this.jobToMappers.remove(info.jobid);
 							this.jobToReducers.remove(info.jobid);
 							this.completedMaps.remove(info.jobid);
