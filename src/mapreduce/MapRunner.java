@@ -52,7 +52,7 @@ public class MapRunner implements Runnable {
 		System.out.println("begin running map thread: "+this.jobid+"\t"+this.taskid+"\t"+this.partitionNum+"\t"+this.taskServiceName+"\t"+this.jarpath);
 		try {
 			mapClass = load(jarpath);
-			if(mapper==null)
+			if(mapClass==null)
 			{
 				res = new TaskInfo(TaskStatus.FAILED,
 						"load map class from jar failed", this.jobid, this.taskid,this.taskServiceName,

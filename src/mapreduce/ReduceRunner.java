@@ -62,7 +62,7 @@ public class ReduceRunner implements Runnable {
 		String outpath = "";
 		try {
 			reduceClass = load(this.jarpath);
-			if(reducer==null)
+			if(reduceClass==null)
 			{
 
 				TaskInfo res = new TaskInfo(TaskStatus.FAILED,
