@@ -117,10 +117,9 @@ public class JobTracker implements JobTrackerRemoteInterface {
 		return serviceName;
 
 	}
-
+	
 	@Override
-	public JobInfo submitJob(Job job) throws RemoteException {
-		System.out.println("In submitJob!");
+	public String getJobID(Job job){
 		String jobid = String.format("%d", new Date().getTime()) + "_"
 				+ this.globalJobID;
 		Environment.createDirectory(Environment.MapReduceInfo.JOBTRACKER_SERVICENAME+ "/" + jobid);
@@ -128,6 +127,12 @@ public class JobTracker implements JobTrackerRemoteInterface {
 		JobInfo info = new JobInfo(jobid);
 		job.info = info;
 		jobs.put(jobid, job);
+		return jobid;
+	}
+
+	@Override
+	public JobInfo submitJob(Job job) throws RemoteException {
+		System.out.println("In submitJob!");
 		boolean startJob = false;
 		System.out.println("start job?");
 		for(String taskTracker: taskTrackers.keySet()){
@@ -147,7 +152,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 			this.queuedJobs.offer(job);
 		}
 		
-		return info;
+		return job.info;
 	}
 
 	private void jobStart(Job job) {
