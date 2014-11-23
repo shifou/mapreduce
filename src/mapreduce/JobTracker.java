@@ -161,7 +161,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 		return jobid;
 	}
 
-	public JobInfo submitJob(String id) throws RemoteException {
+	public synchronized JobInfo submitJob(String id) throws RemoteException {
 		Job job = this.jobs.get(id);
 		System.out.println("In submitJob!");
 		boolean startJob = false;

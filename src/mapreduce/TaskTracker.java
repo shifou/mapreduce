@@ -159,7 +159,7 @@ public class TaskTracker implements TaskTrackerRemoteInterface {
     		}
 			MapRunner mapRunner = new MapRunner(tk.jobid, tk.taskid, tk.getSplit(), tk.config,serviceName, tk.reduceNum,jarpath,flag);
 			 Thread temp = new Thread(mapRunner);
-			 temp.run();
+			 temp.start();
 			if(mapTasks.containsKey(tk.jobid))
 			{
 				mapTasks.get(tk.jobid).put(tk.taskid, temp);
@@ -177,7 +177,7 @@ public class TaskTracker implements TaskTrackerRemoteInterface {
     		System.out.println("begin running reduce task thread");
     		ReduceRunner reduceRunner = new ReduceRunner(tk.jobid, tk.taskid, tk.mploc, tk.config,serviceName,jarpath);
     		 Thread temp = new Thread( reduceRunner);
-			 temp.run();
+			 temp.start();
 			if(reduceTasks.containsKey(tk.jobid))
 			{
 				reduceTasks.get(tk.jobid).put(tk.taskid, temp);
