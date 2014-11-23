@@ -202,6 +202,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 				task.setSplit(splits[i]);
 				task.jobid = job.info.getID();
 				task.taskid = "" + splits[i].getBlock().getID();
+				task.reduceNum = taskTrackers.size();
 				allocateMapTask(task);
 			}
 			job.info.setStatus(JobInfo.RUNNING);
@@ -384,20 +385,29 @@ public class JobTracker implements JobTrackerRemoteInterface {
 						e.printStackTrace();
 					}
 				}
-				for (Task t: this.jobToMappers.get(info.jobid).keySet()){
-					if (t.jobid.equals(info.jobid)){
-						taskTrackers.get(this.jobToMappers.get(info.jobid).get(t)).mapSlotsFilled = Math.max(0, taskTrackers.get(this.jobToMappers.get(info.jobid).get(t)).mapSlotsFilled-1);
-						this.taskTrackerToTasks.get(this.jobToMappers.get(info.jobid).get(t).serviceName).remove(t);
+				if (this.jobToMappers.get(info.jobid) != null){
+					for (Task t: this.jobToMappers.get(info.jobid).keySet()){
+						if (t.jobid.equals(info.jobid)){
+							taskTrackers.get(this.jobToMappers.get(info.jobid).get(t).serviceName).mapSlotsFilled = Math.max(0, taskTrackers.get(this.jobToMappers.get(info.jobid).get(t).serviceName).mapSlotsFilled-1);
+							if (this.taskTrackerToTasks.containsKey(this.jobToMappers.get(info.jobid).get(t).serviceName)){
+								this.taskTrackerToTasks.get(this.jobToMappers.get(info.jobid).get(t).serviceName).remove(t);
+							}
+						}
 					}
+					this.jobToMappers.remove(info.jobid);
 				}
-				this.jobToMappers.remove(info.jobid);
-				for (Task t: this.jobToReducers.get(info.jobid).keySet()){
-					if (t.jobid.equals(info.jobid)){
-						taskTrackers.get(this.jobToReducers.get(info.jobid).get(t)).reduceSlotsFilled = Math.max(0, taskTrackers.get(this.jobToReducers.get(info.jobid).get(t)).reduceSlotsFilled-1);
-						this.taskTrackerToTasks.get(this.jobToReducers.get(info.jobid).get(t).serviceName).remove(t);
+				
+				if (this.jobToReducers.get(info.jobid) != null){
+					for (Task t: this.jobToReducers.get(info.jobid).keySet()){
+						if (t.jobid.equals(info.jobid)){
+							taskTrackers.get(this.jobToReducers.get(info.jobid).get(t).serviceName).reduceSlotsFilled = Math.max(0, taskTrackers.get(this.jobToReducers.get(info.jobid).get(t).serviceName).reduceSlotsFilled-1);
+							if (this.taskTrackerToTasks.containsKey(this.jobToReducers.get(info.jobid).get(t).serviceName)){
+								this.taskTrackerToTasks.get(this.jobToReducers.get(info.jobid).get(t).serviceName).remove(t);
+							}
+						}
 					}
+					this.jobToReducers.remove(info.jobid);
 				}
-				this.jobToReducers.remove(info.jobid);
 				this.queuedMapTasks.remove(info.jobid);
 				this.queuedReduceTasks.remove(info.jobid);
 				this.jobs.get(info.jobid).info.setStatus(JobInfo.FAILED);
@@ -470,7 +480,6 @@ public class JobTracker implements JobTrackerRemoteInterface {
 			reduceMap.get(tInfo.who).put(Integer.parseInt(tInfo.taskid), tInfo.mplocations.get(partitionNum));
 		}
 		Task t = new Task(TaskType.Reducer, job.conf, reduceMap);
-		t.reduceNum = partitionNum;
 		t.jobid = job.info.getID();
 		t.taskid = "" + partitionNum;
 		return t;
@@ -549,20 +558,28 @@ public class JobTracker implements JobTrackerRemoteInterface {
 					e.printStackTrace();
 				}
 			}
-			for (Task t: this.jobToMappers.get(jobid).keySet()){
-				if (t.jobid.equals(jobid)){
-					taskTrackers.get(this.jobToMappers.get(jobid).get(t)).mapSlotsFilled = Math.max(0, taskTrackers.get(this.jobToMappers.get(jobid).get(t)).mapSlotsFilled-1);
-					this.taskTrackerToTasks.get(this.jobToMappers.get(jobid).get(t).serviceName).remove(t);
+			if (this.jobToMappers.get(jobid)!=null){
+				for (Task t: this.jobToMappers.get(jobid).keySet()){
+					if (t.jobid.equals(jobid)){
+						taskTrackers.get(this.jobToMappers.get(jobid).get(t).serviceName).mapSlotsFilled = Math.max(0, taskTrackers.get(this.jobToMappers.get(jobid).get(t).serviceName).mapSlotsFilled-1);
+						if (this.taskTrackerToTasks.containsKey(this.jobToMappers.get(jobid).get(t).serviceName)){
+							this.taskTrackerToTasks.get(this.jobToMappers.get(jobid).get(t).serviceName).remove(t);
+						}
+					}
 				}
+				this.jobToMappers.remove(jobid);
 			}
-			this.jobToMappers.remove(jobid);
-			for (Task t: this.jobToReducers.get(jobid).keySet()){
-				if (t.jobid.equals(jobid)){
-					taskTrackers.get(this.jobToReducers.get(jobid).get(t)).reduceSlotsFilled = Math.max(0, taskTrackers.get(this.jobToReducers.get(jobid).get(t)).reduceSlotsFilled-1);
-					this.taskTrackerToTasks.get(this.jobToReducers.get(jobid).get(t).serviceName).remove(t);
+			if (this.jobToReducers.get(jobid) != null){
+				for (Task t: this.jobToReducers.get(jobid).keySet()){
+					if (t.jobid.equals(jobid)){
+						taskTrackers.get(this.jobToReducers.get(jobid).get(t).serviceName).reduceSlotsFilled = Math.max(0, taskTrackers.get(this.jobToReducers.get(jobid).get(t).serviceName).reduceSlotsFilled-1);
+						if (this.taskTrackerToTasks.containsKey(this.jobToReducers.get(jobid).get(t).serviceName)){
+							this.taskTrackerToTasks.get(this.jobToReducers.get(jobid).get(t).serviceName).remove(t);
+						}
+					}
 				}
+				this.jobToReducers.remove(jobid);
 			}
-			this.jobToReducers.remove(jobid);
 			this.queuedMapTasks.remove(jobid);
 			this.queuedReduceTasks.remove(jobid);
 			this.jobs.get(jobid).info.setStatus(JobInfo.KILLED);

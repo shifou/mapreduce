@@ -4,6 +4,10 @@ import java.io.Serializable;
 
 public class TaskTrackerInfo implements Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -11753950736554393L;
 	public String IP;
 	public String serviceName;
 	public int health;
