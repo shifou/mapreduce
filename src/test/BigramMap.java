@@ -3,9 +3,10 @@ package test;
 import java.io.IOException;
 import java.util.StringTokenizer;
 
+import mapreduce.Mapper;
 import mapreduce.io.Context;
 
-public class BigramMap {
+public class BigramMap implements Mapper{
 	 public  void map(String key, String value, Context context) throws IOException {
 		 	String line = value.trim().toLowerCase();
 			line = line.replaceAll("[^a-z ]", " ");

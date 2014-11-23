@@ -17,6 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.PriorityBlockingQueue;
 
 import main.Environment;
+import main.Master;
 import mapreduce.InputSplit;
 
 public class HDFSFileSystem {
@@ -77,7 +78,7 @@ public class HDFSFileSystem {
 				else
 				{
 					System.out.println(each+ " add file: "+hdfsFileName);
-					NameNode.cluster.get(each).files.add(hdfsFileName);
+					Master.nameNode.cluster.get(each).files.add(hdfsFileName);
 			
 				}
 			}
@@ -105,12 +106,15 @@ public class HDFSFileSystem {
 			String[] fk = ans.split("#");
 			res+=(fk[0]+"\n");
 			fileList.put(name, hold);
-			System.out.println("reallocate to "+fk[1]+" slaves");
-
-			String []temp = fk[1].split(" ");
-			for(int i=0;i<temp.length;i++)
+			if(fk.length>=2)
 			{
-				NameNode.cluster.get(temp[i]).files.add(name);
+				System.out.println("reallocate to "+fk[1]+" slaves");
+
+				String []temp = fk[1].split(" ");
+				for(int i=0;i<temp.length;i++)
+				{
+					Master.nameNode.cluster.get(temp[i]).files.add(name);
+				}
 			}
 		}
 		for(String name: slave.folders.keySet())

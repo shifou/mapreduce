@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
 
 import main.Environment;
+import main.Master;
 
 public class HDFSFolder{
 	public int fileSize;
@@ -92,15 +93,13 @@ public class HDFSFolder{
 					else
 					{
 						folderInSlave.add(tt);
-						ConcurrentHashMap<String,HashSet<String>> fk=NameNode.cluster.get(tt).folders;
-						if(fk==null)
+						System.out.println("add "+tt+"\twith "+foldername+"\tof "+file.filename);
+						if(Master.nameNode.cluster.get(tt).folders.containsKey(this.foldername)==false)
 						{
-							System.out.println("add "+tt+"\t"+foldername+"\t"+file.filename);
-							NameNode.cluster.get(tt).folders=new ConcurrentHashMap<String,HashSet<String>>();
+							
 							NameNode.cluster.get(tt).folders.put(foldername, new HashSet<String>());
-							NameNode.cluster.get(tt).folders.get(foldername).add(file.filename);
 						}
-						
+						NameNode.cluster.get(tt).folders.get(foldername).add(file.filename);
 						if(slave2file.containsKey(tt)==false)
 						{
 							HashSet<String> a=new HashSet<String>();
@@ -135,11 +134,16 @@ public class HDFSFolder{
 			res+=(fk[0]+"\n");
 			for(int i=1;i<fk.length;i++)
 			{
+				System.out.println("reallocate "+name+" of folder "+this.foldername+" to "+fk[i]);
+				if(Master.nameNode.cluster.get(fk[i]).folders.containsKey(this.foldername)==false)
+					Master.nameNode.cluster.get(fk[i]).folders.put(foldername,new HashSet<String>());
+				Master.nameNode.cluster.get(fk[i]).folders.get(foldername).add(name);
+		
 			if(slave2file.containsKey(fk[i])==false)
 			{
 				HashSet<String> a=new HashSet<String>();
 				a.add(name);
-				slave2file.put(fk[i], a);
+					slave2file.put(fk[i], a);
 			}
 			else
 				slave2file.get(fk[i]).add(name);

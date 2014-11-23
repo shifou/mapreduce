@@ -125,6 +125,10 @@ public class HDFSBlock implements Serializable {
 			return "Can't be replicated, not enough nodes in the system!";
 		}
 		String newServiceName = NameNode.replica_select(existing);
+		if(newServiceName.equals(""))
+		{
+			return "can not maintain replica any more!";	
+		}
 		byte[] data = new byte[Environment.Dfs.BUF_SIZE];
 		int blockSize = this.get(data);
 		Byte[] toPut = new Byte[Environment.Dfs.BUF_SIZE];
