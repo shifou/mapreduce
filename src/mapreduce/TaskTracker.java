@@ -196,7 +196,7 @@ public class TaskTracker implements TaskTrackerRemoteInterface {
 			reader = new BufferedReader(new FileReader(a));
 			while ((line = reader.readLine()) != null) {
 				String []tt=line.split("\t");
-				Record inp =new Record(new Text(tt[0]),new Text(tt[1]));
+				Record inp =new Record(tt[0],tt[1]);
 				ans.add(inp);
 			}
 		} catch (FileNotFoundException e) {

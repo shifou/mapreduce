@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import main.Environment;
 
-public class Context<K extends Writable, V extends Writable> {
+public class Context {
 	public String taskTrackerServiceName;
 	public String jobid;
 	public String taskid;
@@ -56,10 +56,10 @@ public class Context<K extends Writable, V extends Writable> {
 			outPath= outPath+"/reducer";
 		}
 	}
-	public void write(Object key, Object val) {
+	public void write(String key, String val) {
 			Record hold =new Record(key,val);
 			ans.add(hold);
-			System.out.println("????"+key.toString()+" "+val.toString());
+			//System.out.println("????"+key.toString()+" "+val.toString()+" "+ans.size());
 			
 		}
 	public ConcurrentHashMap<Integer, String> writeToDisk(int partitionNum) {
@@ -71,6 +71,7 @@ public class Context<K extends Writable, V extends Writable> {
 		for(int i=0;i<ans.size();i++)
 		{
 			Record k = ans.get(i);
+			//System.out.println(k.toString());
 			int id = Math.abs((k.getKey().toString().hashCode()) % partitionNum);
 			data[id]+=(k.key.toString()+"\t"+k.value.toString()+"\n");
 		}

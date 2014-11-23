@@ -45,8 +45,8 @@ public class TextInputFormat extends RecordReader {
 
 	public Record nextKeyValue() {
 		Record  ans = new Record();
-		ans.key = new LongWritable(curLine);
-		ans.value = new Text(data[curLine++]);
+		ans.key = new LongWritable(curLine).toString();
+		ans.value = data[curLine++];
 		return ans;
 	}
 

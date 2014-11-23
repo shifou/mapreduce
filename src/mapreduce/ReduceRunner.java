@@ -32,7 +32,7 @@ import mapreduce.io.TextOutputFormat;
 import mapreduce.io.Writable;
 
 public class ReduceRunner implements Runnable {
-	public Reducer<?, ?, ?, ?> reducer;
+	public Reducer  reducer;
 	public String jobid;
 	public String taskid;
 	public Configuration conf;
@@ -63,11 +63,11 @@ public class ReduceRunner implements Runnable {
 	@Override
 	public void run() {
 
-		Class<Reducer<Writable, Writable, Writable, Writable>> reduceClass;
+		Class<Reducer> reduceClass;
 		String outpath = "";
 		try {
 			reduceClass = load(this.jarpath);
-			Constructor<Reducer<Writable, Writable, Writable, Writable>> constructors = reduceClass
+			Constructor<Reducer> constructors = reduceClass
 					.getConstructor();
 			reducer = constructors.newInstance();
 			if(reducer==null)
@@ -115,13 +115,13 @@ public class ReduceRunner implements Runnable {
 							report(res);
 							return;
 						}
-						for (Record  a : target) {
-							if (merge.containsKey(a.key.toString()))
-								merge.get(a.key.toString()).add(a.value.toString());
+						for (Record a : target) {
+							if (merge.containsKey(a.key))
+								merge.get(a.key).add((String) a.value);
 							else {
 								List<String> hold = new ArrayList<String>();
-								hold.add(a.value.toString());
-								merge.put(a.key.toString(), hold);
+								hold.add((String) a.value);
+								merge.put((String) a.key, hold);
 							}
 						}
 					}
@@ -146,16 +146,16 @@ public class ReduceRunner implements Runnable {
 						Vector<Record> target= new Vector<Record>();
 							while ((line = reader.readLine()) != null) {
 								String []tt=line.split("\t");
-								Record inp =new Record(new Text(tt[0]),new Text(tt[1]));
+								Record inp =new Record(tt[0],tt[1]);
 								target.add(inp);
 							}
 							for (Record a : target) {
-								if (merge.containsKey(a.key.toString()))
-									merge.get(a.key.toString()).add(a.value.toString());
+								if (merge.containsKey(a.key))
+									merge.get(a.key).add((String) a.value);
 								else {
 									List<String> hold = new ArrayList<String>();
-									hold.add(a.value.toString());
-									merge.put(a.key.toString(), hold);
+									hold.add((String) a.value);
+									merge.put((String) a.key, hold);
 								}
 							}
 						} catch (IOException e) {
@@ -178,8 +178,8 @@ public class ReduceRunner implements Runnable {
 
 			for (String hold : merge.keySet()) {
 				Records a = new Records(
-						new Text(hold), merge.get(hold));
-				reducer.reduce((Text) a.getKey(), a.getValues().iterator(), ct);
+						hold, merge.get(hold));
+				reducer.reduce(a.getKey(), (ArrayList<String>)a.getValues(), ct);
 			}
 			outpath = Environment.Dfs.DIRECTORY + "/" + taskServiceName + "/"
 					+ jobid + "/reducer/" + this.taskid;
@@ -208,7 +208,7 @@ public class ReduceRunner implements Runnable {
 
 	}
 
-	public Class<Reducer<Writable, Writable, Writable, Writable>> load(
+	public Class<Reducer> load(
 			String jarFilePath) throws IOException, ClassNotFoundException {
 
 		JarFile jarFile = new JarFile(jarFilePath);
@@ -217,7 +217,7 @@ public class ReduceRunner implements Runnable {
 		URL[] urls = { new URL("jar:file:" + jarFilePath + "!/") };
 		ClassLoader cl = URLClassLoader.newInstance(urls);
 
-		Class<Reducer<Writable, Writable, Writable, Writable>> reducerClass = null;
+		Class<Reducer> reducerClass = null;
 
 		while (e.hasMoreElements()) {
 
@@ -231,7 +231,7 @@ public class ReduceRunner implements Runnable {
 					je.getName().length() - 6);
 			className = className.replace('/', '.');
 			if (className.equals(conf.getReducerClass().getName())) {
-				reducerClass = (Class<Reducer<Writable, Writable, Writable, Writable>>) cl
+				reducerClass = (Class<Reducer>) cl
 						.loadClass(className);
 			}
 		}

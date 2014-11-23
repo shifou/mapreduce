@@ -4,11 +4,12 @@ import java.io.Serializable;
 
 public class Record implements Comparable<Record>, Serializable{
 
-	private static final long serialVersionUID = -6321290028562240898L;
 
-	public Object key;
+	private static final long serialVersionUID = 7753244687717705109L;
+
+	public String key;
 	
-	public Object value;
+	public String value;
 	public Record()
 	{
 		key=null;
@@ -21,27 +22,27 @@ public class Record implements Comparable<Record>, Serializable{
 	}
 	
 	public int hashCode () {
-		return key.toString().hashCode();
+		return (key.toString() + value.toString()).hashCode();
 	}
-	public Record (Object k, Object v) {
+	public Record (String k, String v) {
 		
 		this.key = k;
 		
 		this.value = v;
 	}
 	
-	public Object getKey() {
+	public String getKey() {
 		return this.key;
 	}
 	
-	public Object getValue() {
+	public String getValue() {
 		return this.value;
 	}
 	public String toString()
 	{
 		return key.toString()+"\t"+value.toString()+"\n";
 	}
-	public int compareTo(Record  o) {
-		return this.key.hashCode()-o.key.hashCode();
+	public int compareTo(Record o) {
+		return this.key.toString().compareTo(o.key.toString());
 	}
 }

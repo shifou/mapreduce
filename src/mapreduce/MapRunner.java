@@ -26,7 +26,7 @@ import mapreduce.io.TextInputFormat;
 import mapreduce.io.Writable;
 
 public class MapRunner implements Runnable {
-	public Mapper<Writable, Writable, Writable, Writable> mapper;
+	public Mapper mapper;
 	public String jobid;
 	public String taskid;
 	public InputSplit block;
@@ -51,10 +51,10 @@ public class MapRunner implements Runnable {
 	@Override
 	public void run() {
 		TaskInfo res;
-		Class<Mapper<Writable, Writable, Writable, Writable>> mapClass;
+		Class<Mapper> mapClass;
 		try {
 			mapClass = load(jarpath);
-			Constructor<Mapper<Writable, Writable, Writable, Writable>> constructors = mapClass
+			Constructor<Mapper> constructors = mapClass
 					.getConstructor();
 			mapper = constructors.newInstance();
 			if(mapper==null)
@@ -102,7 +102,7 @@ public class MapRunner implements Runnable {
 			Constructor<RecordReader<Writable,Writable>> constuctor = inputFormatClass
 					.getConstructor(String.class);
 			RecordReader<Writable,Writable> read = constuctor.newInstance(data.toString());
-			Context<Writable, Writable> ct = new Context<Writable, Writable>(
+			Context  ct = new Context (
 					jobid, taskid, taskServiceName, true);
 			while (read.hasNext()) {
 				Record nextLine = read.nextKeyValue();
@@ -133,7 +133,7 @@ public class MapRunner implements Runnable {
 			e.printStackTrace();
 		} 
 	}
-	public Class<Mapper<Writable, Writable, Writable, Writable>> load (String jarFilePath)
+	public Class<Mapper> load (String jarFilePath)
 			throws IOException, ClassNotFoundException {
 		
 		JarFile jarFile = new JarFile(jarFilePath);
@@ -142,7 +142,7 @@ public class MapRunner implements Runnable {
 		URL[] urls = { new URL("jar:file:" + jarFilePath +"!/") };
 		ClassLoader cl = URLClassLoader.newInstance(urls);
 		
-		Class<Mapper<Writable, Writable, Writable, Writable>> mapperClass = null;
+		Class<Mapper> mapperClass = null;
 		
 		while (e.hasMoreElements()) {
             
@@ -155,7 +155,7 @@ public class MapRunner implements Runnable {
             String className = je.getName().substring(0, je.getName().length() - 6);
             className = className.replace('/', '.');
             if (className.equals(this.conf.getMapperClass().getName())) {
-            	mapperClass = (Class<Mapper<Writable, Writable, Writable, Writable>>) cl.loadClass(className);
+            	mapperClass = (Class<Mapper>) cl.loadClass(className);
             }
         }
 		

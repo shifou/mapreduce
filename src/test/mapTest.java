@@ -24,7 +24,7 @@ import mapreduce.io.Writable;
 public class mapTest implements Runnable {
 	public String inpath;
 	public String jarpath;
-	public Mapper<Writable, Writable, Writable, Writable> mapper;
+	public Mapper mapper;
 
 	public mapTest(String path, String jpath) {
 		jarpath = jpath;
@@ -36,11 +36,11 @@ public class mapTest implements Runnable {
 		File file = new File(inpath);
 		String line, data = "";
 		BufferedReader reader;
-		Class<Mapper<Writable, Writable, Writable, Writable>> mapClass;
+		Class<Mapper> mapClass;
 		try {
 			reader = new BufferedReader(new FileReader(file));
 			mapClass = load(jarpath);
-			mapper = (Mapper<Writable, Writable, Writable, Writable>)mapClass.getConstructors()[0].newInstance();
+			mapper = (Mapper)mapClass.getConstructors()[0].newInstance();
 
 			while ((line = reader.readLine()) != null) {
 				data += (line + "\n");
@@ -52,15 +52,14 @@ public class mapTest implements Runnable {
 					.getConstructor(String.class);
 			RecordReader<Writable, Writable> read = constuctor
 					.newInstance(data);
-			Context<Writable, Writable> ct = new Context<Writable, Writable>(
+			Context ct = new Context (
 					"2014-11-22-123", "1", "tt", true);
 			while (read.hasNext()) 
 			{
 				Record nextLine = read.nextKeyValue();
-				mapper.map(nextLine.getKey(), nextLine.getValue(), ct);
+				mapper.map(nextLine.getKey().toString(), nextLine.getValue().toString(), ct);
 			}
-			//for(Record hold: ct.ans)
-			//	System.out.println(hold.toString());
+			
 			ConcurrentHashMap<Integer, String> loc = ct.writeToDisk(3);
 
 			System.out.printf("+++++++++");
@@ -69,7 +68,7 @@ public class mapTest implements Runnable {
 		}
 	}
 
-	public Class<Mapper<Writable, Writable, Writable, Writable>> load(
+	public Class<Mapper> load(
 			String jarFilePath) throws IOException, ClassNotFoundException {
 
 		JarFile jarFile = new JarFile(jarFilePath);
@@ -78,7 +77,7 @@ public class mapTest implements Runnable {
 		URL[] urls = { new URL("jar:file:" + jarFilePath + "!/") };
 		ClassLoader cl = URLClassLoader.newInstance(urls);
 
-		Class<Mapper<Writable, Writable, Writable, Writable>> mapperClass = null;
+		Class<Mapper> mapperClass = null;
 
 		while (e.hasMoreElements()) {
 
@@ -94,7 +93,7 @@ public class mapTest implements Runnable {
 			//System.out.println("classname "+className);
 			Class<?> a= test.WordCountMap.class;
 			if (className.equals(a.getName())) {
-				mapperClass = (Class<Mapper<Writable, Writable, Writable, Writable>>) cl
+				mapperClass = (Class<Mapper>) cl
 						.loadClass(className);
 			}
 		}

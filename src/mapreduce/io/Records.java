@@ -5,20 +5,20 @@ import java.util.List;
 
 import mapreduce.Configuration;
 
-public class Records<K1 extends Writable, V1 extends Writable> {
-	private K1 key;
-	private List<V1> valueList;
+public class Records {
+	private String key;
+	private List<String> valueList;
 	
-	public Records(K1 hold, List<V1> valueList) {
+	public Records(String hold, List<String> valueList) {
 		this.key = hold;
 		this.valueList = valueList;
 	}
 
-	public K1 getKey() {
+	public String getKey() {
 		return this.key;
 	}
 	
-	public List<V1> getValues() {
+	public List<String> getValues() {
 		return this.valueList;
 	}
 	

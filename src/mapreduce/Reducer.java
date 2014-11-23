@@ -1,6 +1,7 @@
 package mapreduce;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import mapreduce.io.Context;
@@ -9,7 +10,7 @@ import mapreduce.io.Text;
 import mapreduce.io.Writable;
 
 
-public interface Reducer<K1 extends Writable , V1 extends Writable , K2 extends Writable, V2 extends Writable> {
+public interface Reducer {
 	
-	public void reduce(Text key,  Iterator<V1> iterator, Context<K2, V2> ct ) throws IOException;
+	public void reduce(String string,  ArrayList<String> values, Context ct ) throws IOException;
 }
