@@ -1,5 +1,7 @@
 package mapreduce.io;
 
+//Records class
+
 import java.lang.reflect.Constructor;
 import java.util.List;
 
