@@ -14,7 +14,6 @@ import java.util.Date;
 import javax.xml.soap.Text;
 
 import main.Environment;
-import mapreduce.io.IntWritable;
 import mapreduce.io.LongWritable;
 import mapreduce.io.TextInputFormat;
 import mapreduce.io.TextOutputFormat;
@@ -27,7 +26,7 @@ public class Job implements Serializable {
 	private String jarPath;
 	private String inputPath;
 	private String outputPath;
-	private Class jarClass;
+	private Class<?> jarClass;
 	public JobInfo info;
 	
 	public Job(Configuration conf) {
@@ -48,7 +47,7 @@ public class Job implements Serializable {
 		conf.setMapperClass(class1);
 	}
 
-	public void setReducerClass(Class class1) {
+	public void setReducerClass(Class<?> class1) {
 		conf.setReducerClass(class1);
 	}
 
@@ -140,13 +139,13 @@ public class Job implements Serializable {
 		conf.setInputFormat(class1);
 	}
 
-	public void setJarByPath(String path, String jarName, Class c) {
+	public void setJarByPath(String path, String jarName, Class<?> c) {
 		this.jarName = jarName;
 		this.jarPath = path;
 		this.jarClass = c;
 	}
 	
-	public Class getJarClass(){
+	public Class<?> getJarClass(){
 		return this.jarClass;
 	}
 

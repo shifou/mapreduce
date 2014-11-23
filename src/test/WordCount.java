@@ -22,6 +22,10 @@ public class WordCount {
 	        
 	    Job job = new Job(conf);
 	    
+	    if (test.WordCountMap.class == null){
+	    	System.out.println("WTF");
+	    }
+	    
 	    job.setMapperClass(test.WordCountMap.class);
 	    job.setReducerClass(test.WordCountReducer.class);
 	        
