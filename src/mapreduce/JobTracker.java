@@ -552,6 +552,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 	}
 
 
+
 	public void commit(String jobid)  {
 		ConcurrentHashMap<Task, TaskTrackerInfo> tToTinfo = this.jobToReducers.get(jobid);
 		for (Task t: tToTinfo.keySet()){
@@ -566,7 +567,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 				e.printStackTrace();
 			}
 		}
-		
+
 	}
 	
 	
