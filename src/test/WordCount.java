@@ -28,6 +28,7 @@ public class WordCount {
 	    
 	    job.setMapperClass(test.WordCountMap.class);
 	    job.setReducerClass(test.WordCountReducer.class);
+
 	        
 	    job.setInputFormatClass(TextInputFormat.class);
 	    job.setOutputFormatClass(TextOutputFormat.class);

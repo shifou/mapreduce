@@ -2,6 +2,7 @@ package main;
 
 import hdfs.NameNodeRemoteInterface;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -37,7 +38,7 @@ public class Command  {
 			return;
 		}
 
-		if (args[0].equals("hadoop") == false && args[0].equals("dfs") == false) {
+		if (args[0].equals("mapred") == false && args[0].equals("dfs") == false) {
 			printUsage();
 			return;
 		}
@@ -210,6 +211,7 @@ public class Command  {
 	            
 	            String className = je.getName().substring(0, je.getName().length() - 6);
 	            className = className.replace('/', '.');
+	            System.out.println(className);
 	            if (className.equals(mainClassName)) {
 	            	mainClass =  cl.loadClass(className);
 	            }
@@ -364,6 +366,9 @@ public class Command  {
 					Environment.Dfs.NAME_NODE_REGISTRY_PORT);
 			NameNodeRemoteInterface nameNodeStub = (NameNodeRemoteInterface) nameNodeRegistry
 					.lookup(Environment.Dfs.NAMENODE_SERVICENAME);
+			File f= new File(localFilePath);
+			if(f.exists()==false)
+				f.mkdir();
 			String ans = nameNodeStub.copyToLocalR(hdfsFilePath, localFilePath);
 			System.out.println(ans);
 		} catch (RemoteException e) {
