@@ -17,10 +17,10 @@ public class JobInfo implements Serializable {
 	private String ID;
 	private int status;
 	
-	private int num_reducers;
-	private int num_mappers;
-	private int compl_reducers;
-	private int compl_mappers;
+	public int num_reducers;
+	public int num_mappers;
+	public int compl_reducers;
+	public int compl_mappers;
 	
 	
 	public JobInfo(String ID){
