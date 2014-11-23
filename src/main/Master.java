@@ -158,6 +158,17 @@ public class Master {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		jobTracker = new JobTracker();
+		try {
+			if (jobTracker.start() == false){
+				System.err.println("JobTracker cannot start!");
+				System.exit(-1);
+			} else {
+				System.out.println("JobTracker started successfully!");
+			} 
+		} catch (Exception e){
+			e.printStackTrace();
+		}
 		startDataNodeTimer();
 		startTaskTrackerTimer();
 	}
