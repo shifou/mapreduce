@@ -12,7 +12,7 @@ public class BigramMap {
 	        System.out.println(value);
 	        while (tokenizer.hasMoreTokens()) {
 	        	String hold = tokenizer.nextToken();
-	            context.write(hold, one.toString());
+	            context.write(hold, "1");
 	           // System.out.println(word.toString()+"\t1");
 	        }
 	    }
