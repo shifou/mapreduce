@@ -173,6 +173,11 @@ public class Environment {
 									break;
 								case "SLOTS":
 									MapReduceInfo.SLOTS=hold;
+									if(hold<2)
+									{
+										System.out.println("error slots at least 2\n");
+										return false;
+									}
 									break;
 								case "JOBTRACKER_PORT":
 									MapReduceInfo.JOBTRACKER_PORT=hold;
