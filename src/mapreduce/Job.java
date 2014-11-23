@@ -70,6 +70,11 @@ public class Job implements Serializable {
 					System.out.println(date.toString() + " Job " + info.getID()
 							+ ": map " + info.getPrecentMapCompleted()
 							+ " reduce " + info.getPrecentReduceCompleted());
+				} else if (info.getStatus() == JobInfo.WAITING) {
+					System.out.println(date.toString() + " Job " + info.getID() + " Queued");
+				}
+				else if (info.getStatus() == JobInfo.KILLED){
+					System.out.println(date.toString() + " Job " + info.getID() + " Killed");
 				}
 			}
 
