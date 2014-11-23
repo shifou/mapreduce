@@ -17,9 +17,6 @@ public class Job implements Serializable {
 
 	private static final long serialVersionUID = -2872789904155820699L;
 	public Configuration conf;
-	private String jarName;
-	private String jarPath;
-	private Class<?> jarClass;
 	public JobInfo info;
 	
 	public Job(Configuration conf) {
@@ -29,14 +26,15 @@ public class Job implements Serializable {
 	public void waitForCompletion(boolean b) {
 
 		try {
+			System.out.println("begin running job!");
 			Registry reg = LocateRegistry.getRegistry(
 					Environment.Dfs.NAME_NODE_IP,
-					Environment.Dfs.NAME_NODE_REGISTRY_PORT);
+					Environment.MapReduceInfo.JOBTRACKER_PORT);
 			JobTrackerRemoteInterface jobTracker = (JobTrackerRemoteInterface) reg
 					.lookup(Environment.MapReduceInfo.JOBTRACKER_SERVICENAME);
 			JobInfo info = jobTracker.submitJob(this);
 			
-			File jFile = new File(this.jarPath);
+			File jFile = new File(conf.jarPath);
 			FileInputStream in = new FileInputStream(jFile);
 			byte[] temp = new byte[Environment.Dfs.BUF_SIZE];
 			int bCount = 0;
@@ -45,10 +43,10 @@ public class Job implements Serializable {
 				for (int i = 0; i < bCount; i++){
 					data[i] = temp[i];
 				}
-				jobTracker.putJar(info.getID(), this.jarName, data, bCount);
+				jobTracker.putJar(info.getID(), conf.jarName, data, bCount);
 			}
 			in.close();
-
+			System.out.println("put jar done!");
 			while (true) {
 				Thread.sleep(5000);
 				info = jobTracker.getJobStatus(info.getID());
