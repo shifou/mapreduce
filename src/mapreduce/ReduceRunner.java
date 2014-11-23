@@ -182,8 +182,8 @@ public class ReduceRunner implements Runnable {
 				reducer.reduce(a.getKey(), (ArrayList<String>)a.getValues(), ct);
 			}
 			outpath = Environment.Dfs.DIRECTORY + "/" + taskServiceName + "/"
-					+ jobid + "/reducer/" + this.taskid;
-			if(TextOutputFormat.writeTolocal(outpath, ct)==false)
+					+ jobid + "/reducer/" ;
+			if(TextOutputFormat.writeTolocal(outpath+ this.taskid, ct)==false)
 			{
 				TaskInfo res = new TaskInfo(TaskStatus.FAILED,
 						"write reduce results to local failed for reduce" + taskid , jobid,
@@ -191,13 +191,12 @@ public class ReduceRunner implements Runnable {
 						TaskType.Reducer, outpath);
 				report(res);
 			}
-			Command a = new Command();
-			a.putHandler(outpath, conf.getOutputPath() + "/part-" + this.taskid);
 			TaskInfo res = new TaskInfo(TaskStatus.FINISHED, "finish reduce"
 					+ taskid, jobid, this.taskServiceName, taskid,
 					TaskType.Reducer, outpath);
+			TaskTracker.updateFile(jobid,conf.getOutputPath());
 			report(res);
-		} catch (Exception e) {
+			} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			TaskInfo res = new TaskInfo(TaskStatus.FAILED, "start reduce error"

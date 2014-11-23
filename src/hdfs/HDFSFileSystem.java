@@ -78,9 +78,11 @@ public class HDFSFileSystem {
 			return res;
 	}
 	public String putFolder(String localFolderName, String hdfsFolderPath) {
-			if(folderList.containsKey(hdfsFolderPath))
-				return "this folder duplicate in the hdfs filesystem";
-			HDFSFolder folder = new HDFSFolder(hdfsFolderPath);
+		HDFSFolder folder;	
+		if(folderList.containsKey(hdfsFolderPath))
+			folder = folderList.get(hdfsFolderPath);
+		else
+			folder = new HDFSFolder(hdfsFolderPath);
 			String ans = folder.createFrom(localFolderName);
 			folderList.put(hdfsFolderPath,folder);
 			return ans;

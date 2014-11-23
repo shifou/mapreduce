@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -35,12 +36,16 @@ public class TaskTracker implements TaskTrackerRemoteInterface {
 	public int curSlots;
 	public String serviceName;
 	public int partionNum;
+	public static HashMap<String,String> job2filepath;
 	public HashMap<String, HashMap<String,Thread>> mapTasks;
 	public HashMap<String, HashMap<String,Thread>> reduceTasks;
 	private static JobTrackerRemoteInterface jobTrackerStub;
 	private TaskTrackerRemoteInterface taskTrackerStub;
 	public TaskTracker(){
 		curSlots= Environment.MapReduceInfo.SLOTS;
+		job2filepath= new HashMap<String,String>();
+		mapTasks=new  HashMap<String, HashMap<String,Thread>>();
+		reduceTasks =new  HashMap<String, HashMap<String,Thread>>();
 	}
 	// HDFS
 		// |---tasktrackerServiceName
@@ -212,13 +217,19 @@ public class TaskTracker implements TaskTrackerRemoteInterface {
 		
 		return ans;
 	}
-	/*
-	public boolean uplodaToHDFS(String jobid, String taskid) throws RemoteException
+	
+	public boolean uplodaToHDFS(String jobid) throws RemoteException
 	{
+		if(job2filepath.containsKey(jobid)==false)
+			return false;
+		String localpath= Environment.Dfs.DIRECTORY + "/" + this.serviceName + "/"
+				+ jobid + "/reducer/";
 		Command a = new Command();
-		a.putHandler(outpath, conf.getOutputPath() + "/part-" + taskid);
+		a.putRHandler(localpath, this.job2filepath.get(jobid));
+		job2filepath.remove(jobid);
+		return true;
 	}
-	*/
+	
 	@Override
 	public boolean killFaildJob(String jobid) throws RemoteException {
 		boolean flag=false;
@@ -244,6 +255,10 @@ public class TaskTracker implements TaskTrackerRemoteInterface {
 			return false;
 		else
 			return true;
+	}
+	public static void updateFile(String jobid, String outpath) {
+		job2filepath.put(jobid,outpath);
+		
 	}
 	
 }

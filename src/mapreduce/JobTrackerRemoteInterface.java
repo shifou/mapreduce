@@ -19,5 +19,6 @@ public interface JobTrackerRemoteInterface extends Remote {
 	public String listjob() throws RemoteException;
 
 	public String killJob(String jobid) throws RemoteException;
+	public void commit(String jobid) throws RemoteException;
 
 }

@@ -48,30 +48,46 @@ public class Command  {
 					return;
 				}
 				String localFilePath = args[2];
-				String hdfsFilePath = args[3];
+				String hdfsFilePath = "";
+				if(args.length==3)
+					hdfsFilePath = args[2];
+				else
+					hdfsFilePath = args[3];
 				putHandler(localFilePath, hdfsFilePath);
 			} else if (args[1].equals("putr")) {
-				if (args.length != 4) {
+				if (args.length <3) {
 					printPutrUsage();
 					return;
 				}
 				String localFilePath = args[2];
-				String hdfsFilePath = args[3];
+				String hdfsFilePath = "";
+				if(args.length==3)
+					hdfsFilePath = args[2];
+				else
+					hdfsFilePath = args[3];
 				putRHandler(localFilePath, hdfsFilePath);
 			} else if (args[1].equals("get")) {
 				if (args.length != 4) {
 					printGetUsage();
 					return;
 				}
-				String localFilePath = args[3];
+				String localFilePath="";
+				if(args.length==3)
+					localFilePath= args[2];
+				else
+					localFilePath= args[3];
 				String hdfsFilePath = args[2];
 				getHandler(hdfsFilePath, localFilePath);
 			} else if (args[1].equals("getr")) {
-				if (args.length != 4) {
+				if (args.length <3 ) {
 					printGetrUsage();
 					return;
 				}
-				String localFilePath = args[3];
+				String localFilePath="";
+				if(args.length==3)
+					localFilePath= args[2];
+				else
+					localFilePath= args[3];
 				String hdfsFilePath = args[2];
 				getRHandler(hdfsFilePath, localFilePath);
 			} else if (args[1].equals("rm")) {
@@ -385,7 +401,7 @@ public class Command  {
 		}
 	}
 
-	private static void putRHandler(String localFilePath, String hdfsFilePath) {
+	public static void putRHandler(String localFilePath, String hdfsFilePath) {
 		try {
 			Registry nameNodeRegistry = LocateRegistry.getRegistry(
 					Environment.Dfs.NAME_NODE_IP,
