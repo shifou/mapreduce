@@ -346,8 +346,10 @@ public class JobTracker implements JobTrackerRemoteInterface {
 						this.taskTrackerToTasks.get(tracker).remove(t);
 						if (this.jobs.get(info.jobid).info
 								.getPrecentReduceCompleted() == 100) {
-							commit(info.jobid);
+							//commit(info.jobid);
+							System.out.println("Hello!");
 							this.jobs.get(info.jobid).info.setStatus(JobInfo.SUCCEEDED);
+							System.out.println("Bye!");
 							this.jobToMappers.remove(info.jobid);
 							this.jobToReducers.remove(info.jobid);
 							this.completedMaps.remove(info.jobid);

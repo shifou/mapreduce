@@ -74,6 +74,7 @@ public class Job implements Serializable {
 				}
 				else if (info.getStatus() == JobInfo.KILLED){
 					System.out.println(date.toString() + " Job " + info.getID() + " Killed");
+					break;
 				}
 			}
 
