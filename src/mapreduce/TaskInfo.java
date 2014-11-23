@@ -20,7 +20,7 @@ public class TaskInfo implements Serializable {
 		who=taskName;
 	}
 	// for reduce
-	public TaskInfo(TaskStatus stt, String reas, String jobid2,String taskid2, String taskName, TaskType tp, String loc)
+	public TaskInfo(TaskStatus stt, String reas, String jobid2,String taskName, String taskid2, TaskType tp, String loc)
 	{
 		st=stt;
 		reason = reas;
