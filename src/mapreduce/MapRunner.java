@@ -42,10 +42,12 @@ public class MapRunner implements Runnable {
 		local=loc;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void run() {
 		TaskInfo res;
 		Class<Mapper> mapClass;
+		System.out.println("begin running map thread: "+this.jobid+"\t"+this.taskid+"\t"+this.partitionNum+"\n"+this.taskServiceName+"\n"+this.jarpath);
 		try {
 			mapClass = load(jarpath);
 			Constructor<Mapper> constructors = mapClass
@@ -91,6 +93,8 @@ public class MapRunner implements Runnable {
 				return;
 			}
 			}
+
+			System.out.println("finished get data------");
 			Class<RecordReader> inputFormatClass = (Class<RecordReader>) Class
 					.forName(conf.getInputFormat());
 			Constructor<RecordReader> constuctor = inputFormatClass
@@ -103,6 +107,7 @@ public class MapRunner implements Runnable {
 				mapper.map(nextLine.getKey(), nextLine.getValue(), ct);
 			}
 
+			System.out.println("finished map------");
 			ConcurrentHashMap<Integer, String> loc = ct
 					.writeToDisk(this.partitionNum);
 			if (loc.size() != this.partitionNum) {
@@ -112,6 +117,7 @@ public class MapRunner implements Runnable {
 				report(res);
 				return;
 			} else
+				System.out.println("finished------");
 				res = new TaskInfo(TaskStatus.FINISHED,
 						"ok", this.jobid, this.taskid,this.taskServiceName,
 						this.partitionNum, Task.TaskType.Mapper, loc);
@@ -120,11 +126,13 @@ public class MapRunner implements Runnable {
 
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
+			e.printStackTrace();
+			System.out.println("++++++++++");
 			res = new TaskInfo(TaskStatus.FAILED,
 					e.getMessage(), this.jobid, this.taskid,this.taskServiceName,
 					this.partitionNum, Task.TaskType.Mapper, null);
 			report(res);
-			e.printStackTrace();
+		
 		} 
 	}
 	public Class<Mapper> load (String jarFilePath)
