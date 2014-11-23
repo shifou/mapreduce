@@ -64,7 +64,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 		}
 		try {
 			Registry registry = LocateRegistry
-					.getRegistry(Environment.Dfs.NAME_NODE_REGISTRY_PORT);
+					.createRegistry(Environment.MapReduceInfo.JOBTRACKER_PORT);
 			this.jobTrackerStub = (JobTrackerRemoteInterface) UnicastRemoteObject
 					.exportObject(this, 0);
 			registry.rebind(Environment.MapReduceInfo.JOBTRACKER_SERVICENAME,
@@ -136,6 +136,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 	}
 
 	private void jobStart(Job job) {
+		System.out.println("Starting job: " + job.info.getID()+"...");
 		try {
 			Registry r = LocateRegistry
 					.getRegistry(Environment.Dfs.NAME_NODE_REGISTRY_PORT);
@@ -160,6 +161,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 	}
 
 	private void allocateMapTask(Task t) {
+		System.out.println("Allocating mapTask: taskId" + t.taskid+" JobID: " + t.jobid);
 		HashSet<Integer> locations = t.getSplit().getLocations();
 		String bestNode = null;
 		int bestLoad = Environment.MapReduceInfo.SLOTS;
@@ -200,7 +202,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 			try {
 				r = LocateRegistry.getRegistry(
 						JobTracker.taskTrackers.get(bestNode).IP,
-						Environment.Dfs.DATA_NODE_REGISTRY_PORT);
+						Environment.MapReduceInfo.TASKTRACKER_PORT);
 				TaskTrackerRemoteInterface taskTracker = (TaskTrackerRemoteInterface) r
 						.lookup(bestNode);
 				taskTracker.runTask(t);
@@ -252,6 +254,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 			if (type == TaskType.Mapper) {
 				for (Task t : this.jobToMappers.get(info.jobid).keySet()) {
 					if (t.taskid.equals(info.taskid)) {
+						System.out.println("MapTask completed: TaskID: "+ info.taskid + " JobID: " + info.jobid);
 						String tracker = this.jobToMappers.get(info.jobid).get(
 								t).serviceName;
 						JobTracker.taskTrackers.get(tracker).slotsFilled = Math
@@ -274,6 +277,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 						this.completedMaps.put(info.jobid, completed);
 						if (this.jobs.get(info.jobid).info
 								.getPrecentMapCompleted() == 100) {
+							System.out.println("All maps completed: " + info.jobid);
 							startReduceForJob(this.jobs.get(info.jobid));
 						} else {
 							if (!this.queuedTasks.isEmpty()) {
@@ -287,6 +291,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 					}
 				}
 			} else if (type == TaskType.Reducer) {
+				System.out.println("ReduceTask completed: TaskID: "+ info.taskid + " JobID: " + info.jobid);
 				for (Task t : this.jobToReducers.get(info.jobid).keySet()) {
 					if (t.taskid.equals(info.taskid)) {
 						String tracker = this.jobToReducers.get(info.jobid)
@@ -325,7 +330,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 					String tracker = tInfo.serviceName;
 					Registry reg;
 					try {
-						reg = LocateRegistry.getRegistry(tInfo.IP, Environment.Dfs.DATA_NODE_REGISTRY_PORT);
+						reg = LocateRegistry.getRegistry(tInfo.IP, Environment.MapReduceInfo.TASKTRACKER_PORT);
 						TaskTrackerRemoteInterface taskTracker = (TaskTrackerRemoteInterface)reg.lookup(tracker);
 						taskTracker.killFaildJob(info.jobid);
 					} catch (RemoteException | NotBoundException e) {
@@ -372,6 +377,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 	}
 
 	private void allocateReduceTask(String jobID, Task t, String taskTrackerName) {
+		System.out.println("Allocating reduceTask: taskId" + t.taskid+" JobID: " + t.jobid);
 		if (JobTracker.taskTrackers.get(taskTrackerName).slotsFilled < Environment.MapReduceInfo.SLOTS){
 			if (this.jobToReducers.get(jobID) != null) {
 				JobTracker.taskTrackers.get(taskTrackerName).slotsFilled += 1;
@@ -387,7 +393,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 			try {
 				r = LocateRegistry.getRegistry(
 						JobTracker.taskTrackers.get(taskTrackerName).IP,
-						Environment.Dfs.DATA_NODE_REGISTRY_PORT);
+						Environment.MapReduceInfo.TASKTRACKER_PORT);
 				TaskTrackerRemoteInterface taskTracker = (TaskTrackerRemoteInterface) r
 						.lookup(taskTrackerName);
 				taskTracker.runTask(t);
@@ -419,6 +425,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 	}
 	
 	public void handleNodeFailure(String taskTrackerName){
+		System.out.println("TaskTracker failure: "+taskTrackerName + "... Rescheduling lost tasks...");
 		taskTrackers.remove(taskTrackerName);
 		for (Task t: this.taskTrackerToTasks.get(taskTrackerName)){
 			this.jobToTaskTrackers.get(t.jobid).remove(taskTrackerName);

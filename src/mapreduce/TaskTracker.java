@@ -55,14 +55,14 @@ public class TaskTracker implements TaskTrackerRemoteInterface {
 		
 		try {
 			
-			Registry reg = LocateRegistry.getRegistry(Environment.Dfs.NAME_NODE_IP, Environment.Dfs.NAME_NODE_REGISTRY_PORT);
-			this.jobTrackerStub = (JobTrackerRemoteInterface)reg.lookup(Environment.MapReduceInfo.JOBTRACKER_SERVICENAME);
-			this.serviceName = this.jobTrackerStub.join(InetAddress.getLocalHost().getHostAddress());
+			Registry reg = LocateRegistry.getRegistry(Environment.Dfs.NAME_NODE_IP, Environment.MapReduceInfo.JOBTRACKER_PORT);
+			jobTrackerStub = (JobTrackerRemoteInterface)reg.lookup(Environment.MapReduceInfo.JOBTRACKER_SERVICENAME);
+			this.serviceName = jobTrackerStub.join(InetAddress.getLocalHost().getHostAddress());
 			if (!Environment.createDirectory(this.serviceName)){
 				return false;
 			}
 			this.taskTrackerStub = (TaskTrackerRemoteInterface)UnicastRemoteObject.exportObject(this, 0);
-			Registry r = LocateRegistry.getRegistry(Environment.Dfs.DATA_NODE_REGISTRY_PORT);
+			Registry r = LocateRegistry.createRegistry(Environment.MapReduceInfo.TASKTRACKER_PORT);
 			r.rebind(this.serviceName, this.taskTrackerStub);
 			
 		} catch (RemoteException | NotBoundException | UnknownHostException e) {
@@ -199,6 +199,7 @@ public class TaskTracker implements TaskTrackerRemoteInterface {
 				Record inp =new Record(tt[0],tt[1]);
 				ans.add(inp);
 			}
+			reader.close();
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
