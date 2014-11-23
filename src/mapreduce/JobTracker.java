@@ -241,46 +241,45 @@ public class JobTracker implements JobTrackerRemoteInterface {
 				}
 			}
 		}
-		System.out.println("3");
 		if (this.jobToMappers.get(t.jobid) != null) {
-			JobTracker.taskTrackers.get(bestNode).mapSlotsFilled += 1;
-			this.jobToMappers.get(t.jobid).put(t,
-					JobTracker.taskTrackers.get(bestNode));
+			if (bestNode != null){
+				JobTracker.taskTrackers.get(bestNode).mapSlotsFilled += 1;
+				this.jobToMappers.get(t.jobid).put(t,
+						JobTracker.taskTrackers.get(bestNode));
+			}
 		} else {
-			ConcurrentHashMap<Task, TaskTrackerInfo> temp = new ConcurrentHashMap<Task, TaskTrackerInfo>();
-			JobTracker.taskTrackers.get(bestNode).mapSlotsFilled += 1;
-			temp.put(t, JobTracker.taskTrackers.get(bestNode));
-			this.jobToMappers.put(t.jobid, temp);
+			if (bestNode != null){
+				ConcurrentHashMap<Task, TaskTrackerInfo> temp = new ConcurrentHashMap<Task, TaskTrackerInfo>();
+				JobTracker.taskTrackers.get(bestNode).mapSlotsFilled += 1;
+				temp.put(t, JobTracker.taskTrackers.get(bestNode));
+				this.jobToMappers.put(t.jobid, temp);
+			}
+			
 		}
-		System.out.println("4");
 		if (bestNode == null) {
 			if (this.queuedMapTasks.get(t.jobid) == null){
 				this.queuedMapTasks.put(t.jobid, new ConcurrentLinkedQueue<Task>());
 			}
 			this.queuedMapTasks.get(t.jobid).add(t);
-			System.out.println("4.1");
 		} else {
 			Registry r;
 			try {
 				r = LocateRegistry.getRegistry(
 						JobTracker.taskTrackers.get(bestNode).IP,
 						Environment.MapReduceInfo.TASKTRACKER_PORT);
-				System.out.println("4.2");
-				TaskTrackerRemoteInterface taskTracker = (TaskTrackerRemoteInterface) r
-						.lookup(bestNode);
-				System.out.println("4.3");
-				System.out.println(taskTracker.runTask(t));
-				System.out.println("4.4");
 				if (this.taskTrackerToTasks.get(bestNode) == null){
 					this.taskTrackerToTasks.put(bestNode, new HashSet<Task>());
 				}
 				this.taskTrackerToTasks.get(bestNode).add(t);
+				TaskTrackerRemoteInterface taskTracker = (TaskTrackerRemoteInterface) r
+						.lookup(bestNode);
+				System.out.println(taskTracker.runTask(t));
+				
 			} catch (RemoteException | NotBoundException e) {
 				e.printStackTrace();
 			}
 
 		}
-		System.out.println("5");
 	}
 
 	@Override
@@ -290,7 +289,8 @@ public class JobTracker implements JobTrackerRemoteInterface {
 
 	
 	@Override
-	public synchronized void getReport(TaskInfo info) {
+	public void getReport(TaskInfo info) throws RemoteException {
+		System.out.println("REPORT RECVD!");
 		TaskStatus status = info.st;
 		Task.TaskType type = info.type;
 		if (status == TaskStatus.FINISHED) {
@@ -436,7 +436,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 		job.info.setNumReducers(i);
 	}
 
-	private synchronized void allocateReduceTask(String jobID, Task t, String taskTrackerName) {
+	private void allocateReduceTask(String jobID, Task t, String taskTrackerName) {
 		System.out.println("Allocating reduceTask: taskId" + t.taskid+" JobID: " + t.jobid);
 		if (JobTracker.taskTrackers.get(taskTrackerName).reduceSlotsFilled < this.ReduceSlots){
 			if (this.jobToReducers.get(jobID) != null) {
@@ -447,7 +447,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 				ConcurrentHashMap<Task, TaskTrackerInfo> temp = new ConcurrentHashMap<Task, TaskTrackerInfo>();
 				JobTracker.taskTrackers.get(taskTrackerName).reduceSlotsFilled += 1;
 				temp.put(t, JobTracker.taskTrackers.get(taskTrackerName));
-				this.jobToMappers.put(jobID, temp);
+				this.jobToReducers.put(jobID, temp);
 			}
 			Registry r;
 			try {
@@ -456,8 +456,9 @@ public class JobTracker implements JobTrackerRemoteInterface {
 						Environment.MapReduceInfo.TASKTRACKER_PORT);
 				TaskTrackerRemoteInterface taskTracker = (TaskTrackerRemoteInterface) r
 						.lookup(taskTrackerName);
-				System.out.println(taskTracker.runTask(t));
 				this.taskTrackerToTasks.get(taskTrackerName).add(t);
+				System.out.println(taskTracker.runTask(t));
+				
 			} catch (RemoteException | NotBoundException e) {
 				e.printStackTrace();
 			}
