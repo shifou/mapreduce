@@ -106,7 +106,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 		return "put jar ok";
 	}
 	@Override
-	public synchronized Byte[] getJar(String jobid, long pos) throws RemoteException {
+	public Byte[] getJar(String jobid, long pos) throws RemoteException {
 		if (jobid2JarName.containsKey(jobid) == false)
 		{
 			System.out.println("??????????");
@@ -149,7 +149,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 
 	}
 	
-	public String getJobID(Job job) throws RemoteException {
+	public synchronized String getJobID(Job job) throws RemoteException {
 		String jobid = String.format("%d", new Date().getTime()) + "_"
 				+ this.globalJobID;
 		jobid2JarName.put(jobid, job.conf.jarName);
@@ -161,7 +161,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 		return jobid;
 	}
 
-	public JobInfo submitJob(String id) throws RemoteException {
+	public synchronized JobInfo submitJob(String id) throws RemoteException {
 		Job job = this.jobs.get(id);
 		System.out.println("In submitJob!");
 		boolean startJob = false;
@@ -269,13 +269,18 @@ public class JobTracker implements JobTrackerRemoteInterface {
 				r = LocateRegistry.getRegistry(
 						JobTracker.taskTrackers.get(bestNode).IP,
 						Environment.MapReduceInfo.TASKTRACKER_PORT);
+				System.out.println(1);
 				if (this.taskTrackerToTasks.get(bestNode) == null){
 					this.taskTrackerToTasks.put(bestNode, new HashSet<Task>());
 				}
+				System.out.println(2);
 				this.taskTrackerToTasks.get(bestNode).add(t);
+				System.out.println(3);
 				TaskTrackerRemoteInterface taskTracker = (TaskTrackerRemoteInterface) r
 						.lookup(bestNode);
+				System.out.println(4);
 				System.out.println(taskTracker.runTask(t));
+				System.out.println(5);
 				
 			} catch (RemoteException | NotBoundException e) {
 				e.printStackTrace();
@@ -500,7 +505,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 		
 	}
 	
-	public void handleNodeFailure(String taskTrackerName){
+	public synchronized void handleNodeFailure(String taskTrackerName){
 		System.out.println("TaskTracker failure: "+taskTrackerName + "... Rescheduling lost tasks...");
 		taskTrackers.remove(taskTrackerName);
 		if (this.taskTrackerToTasks.get(taskTrackerName) != null){
