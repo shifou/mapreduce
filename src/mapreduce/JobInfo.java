@@ -44,14 +44,14 @@ public class JobInfo implements Serializable {
 		return this.ID;
 	}
 	
-	public int getPrecentMapCompleted(){
+	public int getPercentMapCompleted(){
 		if (this.num_mappers == 0){
 			return 0;
 		}
 		return (this.compl_mappers * 100)/this.num_mappers;
 	}
 	
-	public int getPrecentReduceCompleted(){
+	public int getPercentReduceCompleted(){
 		if (this.num_reducers == 0){
 			return 0;
 		}
