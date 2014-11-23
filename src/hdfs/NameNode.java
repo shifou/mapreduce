@@ -165,8 +165,8 @@ public class NameNode implements NameNodeRemoteInterface {
 	}
 
 	private String handlerCopyToLocalR(String hdfsFilePath, String localFilePath) {
-		if(fileSystem.folderList.containsKey(hdfsFilePath))
-			return "folder duplicate in the hdfs";
+		if(fileSystem.folderList.containsKey(hdfsFilePath)==false)
+			return "no such folder in the hdfs in the hdfs";
 		else
 		{
 			String ans = fileSystem.getFolder(hdfsFilePath,localFilePath);
