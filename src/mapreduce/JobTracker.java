@@ -231,7 +231,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 				TaskTrackerRemoteInterface taskTracker = (TaskTrackerRemoteInterface) r
 						.lookup(bestNode);
 				System.out.println("4.3");
-				taskTracker.runTask(t);
+				System.out.println(taskTracker.runTask(t));
 				System.out.println("4.4");
 				if (this.taskTrackerToTasks.get(bestNode) == null){
 					this.taskTrackerToTasks.put(bestNode, new HashSet<Task>());
@@ -432,7 +432,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 						Environment.MapReduceInfo.TASKTRACKER_PORT);
 				TaskTrackerRemoteInterface taskTracker = (TaskTrackerRemoteInterface) r
 						.lookup(taskTrackerName);
-				taskTracker.runTask(t);
+				System.out.println(taskTracker.runTask(t));
 				this.taskTrackerToTasks.get(taskTrackerName).add(t);
 			} catch (RemoteException | NotBoundException e) {
 				e.printStackTrace();
