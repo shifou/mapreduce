@@ -437,7 +437,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 			i += 1;
 			allocateReduceTask(job.info.getID(), t, tracker);
 		}
-		job.info.setNumReducers(i);
+		this.jobs.get(job.info.getID()).info.setNumReducers(i);
 	}
 
 	private void allocateReduceTask(String jobID, Task t, String taskTrackerName) {
