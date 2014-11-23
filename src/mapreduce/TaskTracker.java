@@ -30,8 +30,6 @@ import main.Command;
 import main.Environment;
 import mapreduce.io.Record;
 import mapreduce.io.RecordReader;
-import mapreduce.io.Text;
-import mapreduce.io.Writable;
 
 public class TaskTracker implements TaskTrackerRemoteInterface {
 	public int curSlots;

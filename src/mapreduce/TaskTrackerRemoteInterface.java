@@ -5,8 +5,6 @@ import java.rmi.RemoteException;
 import java.util.Vector;
 
 import mapreduce.io.Record;
-import mapreduce.io.Text;
-import mapreduce.io.Writable;
 
 public interface TaskTrackerRemoteInterface extends Remote {
 

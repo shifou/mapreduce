@@ -17,9 +17,7 @@ import mapreduce.Mapper;
 import mapreduce.io.Context;
 import mapreduce.io.Record;
 import mapreduce.io.RecordReader;
-import mapreduce.io.Text;
 import mapreduce.io.TextInputFormat;
-import mapreduce.io.Writable;
 
 public class mapTest implements Runnable {
 	public String inpath;

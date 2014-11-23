@@ -5,9 +5,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import mapreduce.io.Context;
-import mapreduce.io.IntWritable;
-import mapreduce.io.Text;
-import mapreduce.io.Writable;
 
 
 public interface Reducer {
