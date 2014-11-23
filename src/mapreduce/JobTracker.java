@@ -225,16 +225,13 @@ public class JobTracker implements JobTrackerRemoteInterface {
 		String bestNode = null;
 		int bestLoad = this.MapSlots;
 		t.locality = true;
-		System.out.println("1");
 		for (int i : locations) {
 			String taskTrackerName = "t" + i;
-			if ((JobTracker.taskTrackers.get(taskTrackerName).mapSlotsFilled < this.MapSlots)
-					&& (JobTracker.taskTrackers.get(taskTrackerName).mapSlotsFilled < bestLoad)) {
+			if ((JobTracker.taskTrackers.get(taskTrackerName).mapSlotsFilled < bestLoad)) {
 				bestNode = taskTrackerName;
 				bestLoad = JobTracker.taskTrackers.get(taskTrackerName).mapSlotsFilled;
 			}
 		}
-		System.out.println("2");
 		if (bestNode == null) {
 			for (String s : JobTracker.taskTrackers.keySet()) {
 				TaskTrackerInfo i = JobTracker.taskTrackers.get(s);
@@ -433,12 +430,14 @@ public class JobTracker implements JobTrackerRemoteInterface {
 	private void startReduceForJob(Job job) {
 		HashSet<String> trackers = this.jobToTaskTrackers.get(job.info.getID());
 		int i = 0;
+		job.info.setNumReducers(trackers.size());
+		this.jobs.get(job.info.getID()).info.setNumReducers(trackers.size());
 		for (String tracker : trackers) {
 			Task t = createReduceTask(i, job);
 			i += 1;
 			allocateReduceTask(job.info.getID(), t, tracker);
 		}
-		this.jobs.get(job.info.getID()).info.setNumReducers(i);
+		
 	}
 
 	private void allocateReduceTask(String jobID, Task t, String taskTrackerName) {
