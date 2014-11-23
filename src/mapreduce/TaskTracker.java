@@ -182,7 +182,7 @@ public class TaskTracker implements TaskTrackerRemoteInterface {
 	//				|----taskid(1-Slave_size)
 	//			xxx.jar
 	@Override
-	public Vector<Record<Text,Text>> getPartition(String jobid, Integer maptaskid,
+	public Vector<Record> getPartition(String jobid, Integer maptaskid,
 			String taskid) {
 		String path=Environment.Dfs.DIRECTORY+"/"+this.serviceName+"/"+jobid+"/mapper/"+maptaskid+"_"+taskid;
 		System.out.println("get partition from local: "+path);
@@ -191,12 +191,12 @@ public class TaskTracker implements TaskTrackerRemoteInterface {
 			return null;
 		String line="";
 		BufferedReader reader;
-		Vector<Record<Text,Text>> ans= new Vector<Record<Text,Text>>();
+		Vector<Record> ans= new Vector<Record>();
 		try {
 			reader = new BufferedReader(new FileReader(a));
 			while ((line = reader.readLine()) != null) {
 				String []tt=line.split("\t");
-				Record<Text,Text> inp =new Record<Text,Text>(new Text(tt[0]),new Text(tt[1]));
+				Record inp =new Record(new Text(tt[0]),new Text(tt[1]));
 				ans.add(inp);
 			}
 		} catch (FileNotFoundException e) {

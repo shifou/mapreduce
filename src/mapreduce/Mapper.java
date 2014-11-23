@@ -7,5 +7,5 @@ import mapreduce.io.Writable;
 
 public interface Mapper<K1 extends Writable, V1 extends Writable, K2 extends Writable, V2 extends Writable> {
 	
-	public void map(K1 key, V1 value, Context<K2, V2> context) throws IOException;
+	public void map(Object key, Object value, Context<?, ?> context) throws IOException;
 }

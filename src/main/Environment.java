@@ -133,6 +133,8 @@ public class Environment {
 
 				doc.getDocumentElement().normalize();
 				NodeList nList = doc.getElementsByTagName("MapReduceInfo");
+				
+				
 				for (int temp = 0; temp < nList.getLength(); temp++) {
 
 					Node nNode = nList.item(temp);

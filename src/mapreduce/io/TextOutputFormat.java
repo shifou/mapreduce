@@ -9,10 +9,9 @@ public class TextOutputFormat {
 	{
 		try {
 			BufferedWriter out=new BufferedWriter(new FileWriter(filepath));
-			for(Object o :ct.ans.keySet())
+			for(Record o :ct.ans)
 			{
-				Text a  = (Text) ct.ans.get(o);
-				out.write(((Text)o).toString()+"\t"+a.toString()+"\n");
+					out.write(((Text)o.key).toString()+"\t"+((Text)o.value).toString()+"\n");
 			}
 			out.close();
 			return true;

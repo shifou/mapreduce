@@ -57,6 +57,14 @@ public class MapRunner implements Runnable {
 			Constructor<Mapper<Writable, Writable, Writable, Writable>> constructors = mapClass
 					.getConstructor();
 			mapper = constructors.newInstance();
+			if(mapper==null)
+			{
+				res = new TaskInfo(TaskStatus.FAILED,
+						"load map class from jar failed", this.jobid, this.taskid,this.taskServiceName,
+						this.partitionNum, Task.TaskType.Mapper, null);
+				report(res);
+				return;
+			}
 			byte[] data = new byte[Environment.Dfs.BUF_SIZE];
 			if(local)
 			{
@@ -97,7 +105,7 @@ public class MapRunner implements Runnable {
 			Context<Writable, Writable> ct = new Context<Writable, Writable>(
 					jobid, taskid, taskServiceName, true);
 			while (read.hasNext()) {
-				Record<Writable, Writable> nextLine = read.nextKeyValue();
+				Record nextLine = read.nextKeyValue();
 				mapper.map(nextLine.getKey(), nextLine.getValue(), ct);
 			}
 

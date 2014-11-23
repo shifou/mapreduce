@@ -14,40 +14,9 @@ import mapreduce.io.LongWritable;
 import mapreduce.io.Text;
 import mapreduce.io.TextInputFormat;
 import mapreduce.io.TextOutputFormat;
-import mapreduce.io.Writable;
 public class WordCount {
-    
-	 public static class Map implements Mapper<LongWritable, Text, Text, IntWritable> {
-	    private final static IntWritable one = new IntWritable(1);
-	    private Text word = new Text();
-	        
-	    public void map(LongWritable key, Text value, Context<Text,IntWritable> context) throws IOException {
-	        String line = value.toString();
-	        StringTokenizer tokenizer = new StringTokenizer(line);
-	        while (tokenizer.hasMoreTokens()) {
-	            word.set(tokenizer.nextToken());
-	            context.write(word, one);
-	        }
-	    }
-	 } 
-	        
-	 public static class Reduce implements Reducer<Text, IntWritable, Text, Text> {
+  
 
-		public void reduce(Text key, Iterator<IntWritable> values,
-				Context<Text, Text> context) throws IOException {
-			 int sum = 0;
-			 while (values.hasNext()) {
-		            sum += values.next().get();
-		        }
-		        context.write(key, new Text(sum));
-		}
-
-
-
-	
-
-	 }
-	        
 	 public static void main(String[] args) throws Exception {
 	    Configuration conf = new Configuration();
 	        
@@ -57,8 +26,8 @@ public class WordCount {
 	    job.setOutputKeyClass(Text.class);
 	    job.setOutputValueClass(IntWritable.class);
 	        
-	    job.setMapperClass(Map.class);
-	    job.setReducerClass(Reduce.class);
+	    job.setMapperClass(test.WordCountMap.class);
+	    job.setReducerClass(test.WordCountReducer.class);
 	        
 	    job.setInputFormatClass(TextInputFormat.class);
 	    job.setOutputFormatClass(TextOutputFormat.class);

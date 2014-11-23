@@ -1,7 +1,7 @@
 package mapreduce.io;
 
 
-public class Text extends Writable {
+public class Text extends Writable implements Comparable<Text> {
 
 
 	private static final long serialVersionUID = 982087407444447124L;
@@ -24,7 +24,7 @@ public class Text extends Writable {
 	}
 
 	@Override
-	public int getHashValue() {
+	public int hashCode() {
 		return this.value.hashCode();
 	}
 	
@@ -34,6 +34,11 @@ public class Text extends Writable {
 
 	public void set(String nextToken) {
 		value=nextToken;
+	}
+
+	@Override
+	public int compareTo(Text o) {
+		return this.value.compareTo(o.value);
 	}
 	
 }

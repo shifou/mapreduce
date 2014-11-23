@@ -70,6 +70,16 @@ public class ReduceRunner implements Runnable {
 			Constructor<Reducer<Writable, Writable, Writable, Writable>> constructors = reduceClass
 					.getConstructor();
 			reducer = constructors.newInstance();
+			if(reducer==null)
+			{
+
+				TaskInfo res = new TaskInfo(TaskStatus.FAILED,
+						"reducer load from jar failed" , jobid,
+						this.taskServiceName, this.taskid,
+						TaskType.Reducer, outpath);
+				report(res);
+				return;
+			}
 			HashMap<String, List<String>> merge = new HashMap<String, List<String>>();
 			for (String taskSerName : loc.keySet()) {
 				if (taskSerName.equals(this.taskServiceName) == false) {
@@ -94,7 +104,7 @@ public class ReduceRunner implements Runnable {
 					TaskTrackerRemoteInterface taskTracker = (TaskTrackerRemoteInterface) registry
 							.lookup(taskSerName);
 					for (Integer maptaskid : loc.get(taskSerName).keySet()) {
-						Vector<Record<Text,Text>> target = taskTracker.getPartition(
+						Vector<Record> target = taskTracker.getPartition(
 								this.jobid, maptaskid, this.taskid);
 						if (target == null) {
 							TaskInfo res = new TaskInfo(TaskStatus.FAILED,
@@ -105,7 +115,7 @@ public class ReduceRunner implements Runnable {
 							report(res);
 							return;
 						}
-						for (Record<Text,Text> a : target) {
+						for (Record  a : target) {
 							if (merge.containsKey(a.key.toString()))
 								merge.get(a.key.toString()).add(a.value.toString());
 							else {
@@ -133,13 +143,13 @@ public class ReduceRunner implements Runnable {
 					}
 					try {
 						BufferedReader reader = new BufferedReader(new FileReader(file));
-						Vector<Record<Text,Text>> target= new Vector<Record<Text,Text>>();
+						Vector<Record> target= new Vector<Record>();
 							while ((line = reader.readLine()) != null) {
 								String []tt=line.split("\t");
-								Record<Text,Text> inp =new Record<Text,Text>(new Text(tt[0]),new Text(tt[1]));
+								Record inp =new Record(new Text(tt[0]),new Text(tt[1]));
 								target.add(inp);
 							}
-							for (Record<Text,Text> a : target) {
+							for (Record a : target) {
 								if (merge.containsKey(a.key.toString()))
 									merge.get(a.key.toString()).add(a.value.toString());
 								else {

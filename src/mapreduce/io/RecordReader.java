@@ -8,7 +8,7 @@ public abstract class RecordReader<K extends Writable,V extends Writable> implem
 
 	private static final long serialVersionUID = -7591521790480016188L;
 
-	public abstract Record<K, V> nextKeyValue();
+	public abstract Record nextKeyValue();
 	
 	public abstract boolean hasNext();
 

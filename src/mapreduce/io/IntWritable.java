@@ -2,7 +2,7 @@ package mapreduce.io;
 
 
 
-public class IntWritable extends Writable {
+public class IntWritable extends Writable implements Comparable<IntWritable> {
 	private static final long serialVersionUID = -9120629456558794008L;
 	private Integer value;
 	
@@ -19,7 +19,7 @@ public class IntWritable extends Writable {
 	}
 
 	@Override
-	public int getHashValue() {
+	public int hashCode() {
 		return this.value.hashCode();
 	}
 	
@@ -31,6 +31,11 @@ public class IntWritable extends Writable {
 	public int get() {
 		// TODO Auto-generated method stub
 		return value;
+	}
+
+	@Override
+	public int compareTo(IntWritable o) {
+		return this.value-o.value;
 	}
 	
 	

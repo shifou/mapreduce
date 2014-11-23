@@ -5,7 +5,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
-public class TextInputFormat extends RecordReader<LongWritable, Text> {
+public class TextInputFormat extends RecordReader {
 
 	private static final long serialVersionUID = -8587742415571171518L;
 	public String[] data;
@@ -16,6 +16,7 @@ public class TextInputFormat extends RecordReader<LongWritable, Text> {
 		curLine = 0;
 		data = input.split("\n");
 		linenum = data.length;
+		System.out.println("ffffff-----"+input);
 	}
 	/*
 	public boolean readRecords() {
@@ -42,8 +43,8 @@ public class TextInputFormat extends RecordReader<LongWritable, Text> {
 		return curLine < linenum;
 	}
 
-	public Record<LongWritable, Text> nextKeyValue() {
-		Record<LongWritable, Text> ans = new Record<LongWritable, Text>();
+	public Record nextKeyValue() {
+		Record  ans = new Record();
 		ans.key = new LongWritable(curLine);
 		ans.value = new Text(data[curLine++]);
 		return ans;
