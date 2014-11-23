@@ -173,7 +173,7 @@ public class HDFSFile implements Serializable{
 	public String moveTo(String localFilePath) {
 		FileOutputStream out = null;
 		try {
-			out =  new FileOutputStream(localFilePath);
+			out =  new FileOutputStream(localFilePath+"/"+this.filename);
 		
 		int c;
 		int counter = 0;
