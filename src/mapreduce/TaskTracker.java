@@ -144,8 +144,10 @@ public class TaskTracker implements TaskTrackerRemoteInterface {
 		System.out.println("begin running task thread");
     	if(tk.getType().equals(Task.TaskType.Mapper))
     	{
-    		
-			MapRunner mapRunner = new MapRunner(tk.jobid, tk.taskid, tk.getSplit(), tk.config,serviceName, tk.reduceNum,jarpath,true);
+    		boolean flag=false;
+    		if(tk.getSplit().block.getServiceName().equals(this.serviceName))
+    			flag=true;
+			MapRunner mapRunner = new MapRunner(tk.jobid, tk.taskid, tk.getSplit(), tk.config,serviceName, tk.reduceNum,jarpath,flag);
 			 Thread temp = new Thread(mapRunner);
 			 temp.run();
 			if(mapTasks.containsKey(tk.jobid))

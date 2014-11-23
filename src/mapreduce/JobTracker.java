@@ -204,6 +204,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 				task.taskid = "" + splits[i].getBlock().getID();
 				task.reduceNum = taskTrackers.size();
 				allocateMapTask(task);
+				System.out.println("set size: "+task.reduceNum);
 			}
 			job.info.setStatus(JobInfo.RUNNING);
 
