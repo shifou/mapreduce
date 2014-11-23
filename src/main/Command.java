@@ -68,7 +68,7 @@ public class Command  {
 					hdfsFilePath = args[3];
 				putRHandler(localFilePath, hdfsFilePath);
 			} else if (args[1].equals("get")) {
-				if (args.length != 4) {
+				if (args.length <3) {
 					printGetUsage();
 					return;
 				}

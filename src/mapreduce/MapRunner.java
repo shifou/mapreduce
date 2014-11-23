@@ -1,7 +1,9 @@
 package mapreduce;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.rmi.RemoteException;
@@ -47,7 +49,7 @@ public class MapRunner implements Runnable {
 	public void run() {
 		TaskInfo res;
 		Class<Mapper> mapClass;
-		System.out.println("begin running map thread: "+this.jobid+"\t"+this.taskid+"\t"+this.partitionNum+"\n"+this.taskServiceName+"\n"+this.jarpath);
+		System.out.println("begin running map thread: "+this.jobid+"\t"+this.taskid+"\t"+this.partitionNum+"\t"+this.taskServiceName+"\t"+this.jarpath);
 		try {
 			mapClass = load(jarpath);
 			Constructor<Mapper> constructors = mapClass
@@ -62,25 +64,30 @@ public class MapRunner implements Runnable {
 				return;
 			}
 			byte[] data = new byte[Environment.Dfs.BUF_SIZE];
+			byte[] input ;
+			String path,line,inn="";
 			if(local)
 			{
 				String folder= taskServiceName.substring(1);
-				String path;
+				
 				if(block.block.getFolderName()==null)
 					path = Environment.Dfs.DIRECTORY+"/d"+folder+"/"+block.block.getFileName()+"."+taskid;
 				else
 					path = Environment.Dfs.DIRECTORY+"/d"+folder+"/"+block.block.getFolderName()+"/"+block.block.getFileName()+"."+taskid;
 				System.out.println("-----"+path);
 				File jFile = new File(path);
-				FileInputStream in = new FileInputStream(jFile);
-				int len = in.read(data);
-				if(len==-1)
+				if(jFile.exists()==false)
 				{
 					res = new TaskInfo(TaskStatus.FAILED,
 							"can not get the block data from local", this.jobid, this.taskid,this.taskServiceName,
 							this.partitionNum, Task.TaskType.Mapper, null);
 					report(res);
 					return;
+				}
+				BufferedReader reader;
+				reader = new BufferedReader(new FileReader(jFile));
+				while ((line = reader.readLine()) != null) {
+					inn += (line + "\n");
 				}
 			}
 			else{
@@ -92,14 +99,18 @@ public class MapRunner implements Runnable {
 				report(res);
 				return;
 			}
+			input =new byte[len];
+			for(int i=0;i<input.length;i++)
+				input[i]=data[i];
+			inn=input.toString();
 			}
-
+			
 			System.out.println("finished get data------");
 			Class<RecordReader> inputFormatClass = (Class<RecordReader>) Class
 					.forName(conf.getInputFormat());
 			Constructor<RecordReader> constuctor = inputFormatClass
 					.getConstructor(String.class);
-			RecordReader  read = constuctor.newInstance(data.toString());
+			RecordReader  read = constuctor.newInstance(inn);
 			Context  ct = new Context (
 					jobid, taskid, taskServiceName, true);
 			while (read.hasNext()) {

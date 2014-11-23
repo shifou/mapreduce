@@ -16,7 +16,7 @@ public class HDFSBlock implements Serializable {
 	
 	private String blockFileName;
 	private int ID; 
-	private ConcurrentHashMap<Integer, DataNodeInfo> repIDtoLoc; 
+	public ConcurrentHashMap<Integer, DataNodeInfo> repIDtoLoc; 
 	private String blockFolderName;
 
 	private static final long serialVersionUID = -3110335214705117456L;
@@ -43,20 +43,8 @@ public class HDFSBlock implements Serializable {
 		
 	}
 
-	public static String getIp() {
-		
-		return null;
-	}
 
-	public static int getPort() {
-		
-		return 0;
-	}
 
-	public static String getServiceName() {
-		
-		return null;
-	}
 	
 	public String getFileName(){
 		return this.blockFileName;

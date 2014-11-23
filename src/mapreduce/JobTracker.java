@@ -209,6 +209,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 					task.reduceNum = taskTrackers.size();
 				}
 				allocateMapTask(task);
+				System.out.println("set size: "+task.reduceNum);
 			}
 			job.info.setStatus(JobInfo.RUNNING);
 
