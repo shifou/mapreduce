@@ -52,9 +52,6 @@ public class MapRunner implements Runnable {
 		System.out.println("begin running map thread: "+this.jobid+"\t"+this.taskid+"\t"+this.partitionNum+"\t"+this.taskServiceName+"\t"+this.jarpath);
 		try {
 			mapClass = load(jarpath);
-			Constructor<Mapper> constructors = mapClass
-					.getConstructor();
-			mapper = constructors.newInstance();
 			if(mapper==null)
 			{
 				res = new TaskInfo(TaskStatus.FAILED,
@@ -63,6 +60,10 @@ public class MapRunner implements Runnable {
 				report(res);
 				return;
 			}
+			Constructor<Mapper> constructors = mapClass
+					.getConstructor();
+			mapper = constructors.newInstance();
+			
 			byte[] data = new byte[Environment.Dfs.BUF_SIZE];
 			byte[] input ;
 			String path,line,inn="";

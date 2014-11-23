@@ -62,9 +62,6 @@ public class ReduceRunner implements Runnable {
 		String outpath = "";
 		try {
 			reduceClass = load(this.jarpath);
-			Constructor<Reducer> constructors = reduceClass
-					.getConstructor();
-			reducer = constructors.newInstance();
 			if(reducer==null)
 			{
 
@@ -75,6 +72,10 @@ public class ReduceRunner implements Runnable {
 				report(res);
 				return;
 			}
+			Constructor<Reducer> constructors = reduceClass
+					.getConstructor();
+			reducer = constructors.newInstance();
+			
 			HashMap<String, List<String>> merge = new HashMap<String, List<String>>();
 			for (String taskSerName : loc.keySet()) {
 				if (taskSerName.equals(this.taskServiceName) == false) {
