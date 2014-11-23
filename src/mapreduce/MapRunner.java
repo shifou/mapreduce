@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.rmi.RemoteException;
 import java.util.Enumeration;
 import java.util.concurrent.ConcurrentHashMap;
@@ -14,16 +13,11 @@ import java.util.jar.JarFile;
 import main.Environment;
 import mapreduce.io.Context;
 
-import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.net.URLClassLoader;
 
-import mapreduce.io.LongWritable;
 import mapreduce.io.Record;
 import mapreduce.io.RecordReader;
-import mapreduce.io.Text;
-import mapreduce.io.TextInputFormat;
-import mapreduce.io.Writable;
 
 public class MapRunner implements Runnable {
 	public Mapper mapper;
@@ -98,7 +92,7 @@ public class MapRunner implements Runnable {
 			}
 			}
 			Class<RecordReader> inputFormatClass = (Class<RecordReader>) Class
-					.forName(conf.getInputFormat().getName());
+					.forName(conf.getInputFormat());
 			Constructor<RecordReader> constuctor = inputFormatClass
 					.getConstructor(String.class);
 			RecordReader  read = constuctor.newInstance(data.toString());
@@ -154,7 +148,7 @@ public class MapRunner implements Runnable {
             
             String className = je.getName().substring(0, je.getName().length() - 6);
             className = className.replace('/', '.');
-            if (className.equals(this.conf.getMapperClass().getName())) {
+            if (className.equals(this.conf.getMapperClass())) {
             	mapperClass = (Class<Mapper>) cl.loadClass(className);
             }
         }

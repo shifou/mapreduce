@@ -11,12 +11,13 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.Date;
 
-import javax.xml.soap.Text;
-
 import main.Environment;
+<<<<<<< HEAD
 import mapreduce.io.LongWritable;
 import mapreduce.io.TextInputFormat;
 import mapreduce.io.TextOutputFormat;
+=======
+>>>>>>> 63a2041214d8fd0d38c727b27fdfefd97a4310b0
 
 public class Job implements Serializable {
 
@@ -24,15 +25,19 @@ public class Job implements Serializable {
 	public Configuration conf;
 	private String jarName;
 	private String jarPath;
+<<<<<<< HEAD
 	private String inputPath;
 	private String outputPath;
+=======
+>>>>>>> 63a2041214d8fd0d38c727b27fdfefd97a4310b0
 	private Class<?> jarClass;
 	public JobInfo info;
 	
 	public Job(Configuration conf) {
-		conf= new Configuration();
+		this.conf= conf;
 		
 	}
+<<<<<<< HEAD
 
 	public void setOutputKeyClass(Class<?> class1) {
 		conf.setOutputKeyClass(class1);
@@ -51,6 +56,8 @@ public class Job implements Serializable {
 		conf.setReducerClass(class1);
 	}
 
+=======
+>>>>>>> 63a2041214d8fd0d38c727b27fdfefd97a4310b0
 	public void waitForCompletion(boolean b) {
 
 		try {
@@ -103,6 +110,7 @@ public class Job implements Serializable {
 
 	}
 
+<<<<<<< HEAD
 	public void setInputPath(String path) {
 		this.inputPath = path;
 
@@ -148,5 +156,7 @@ public class Job implements Serializable {
 	public Class<?> getJarClass(){
 		return this.jarClass;
 	}
+=======
+>>>>>>> 63a2041214d8fd0d38c727b27fdfefd97a4310b0
 
 }

@@ -6,9 +6,6 @@ import java.util.StringTokenizer;
 import mapreduce.Mapper;
 import mapreduce.io.Context;
 import mapreduce.io.IntWritable;
-import mapreduce.io.LongWritable;
-import mapreduce.io.Text;
-import mapreduce.io.Writable;
 
 public class WordCountMap implements Mapper{
 	 private final static IntWritable one = new IntWritable(1);
