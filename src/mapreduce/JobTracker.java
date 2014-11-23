@@ -24,7 +24,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 	public ConcurrentHashMap<String, Job> jobs;
 	private JobTrackerRemoteInterface jobTrackerStub;
 	private int taskTrackerAssignID;
-	public int jobID;
+	public int globalJobID;
 	public static ConcurrentHashMap<String, TaskTrackerInfo> taskTrackers;
 	public ConcurrentHashMap<String, String> jobid2JarName;
 	private ConcurrentHashMap<String, ConcurrentHashMap<Task, TaskTrackerInfo>> jobToMappers; // JobID  -> Map of Task -> TaskTrackerInfo
@@ -40,7 +40,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 	private int ReduceSlots;
 
 	public JobTracker() {
-		this.jobID = 1;
+		this.globalJobID = 1;
 		this.jobs = new ConcurrentHashMap<String, Job>();
 		this.taskTrackerAssignID = 1;
 		JobTracker.taskTrackers = new ConcurrentHashMap<String, TaskTrackerInfo>();
@@ -125,8 +125,8 @@ public class JobTracker implements JobTrackerRemoteInterface {
 	@Override
 	public synchronized JobInfo submitJob(Job job) throws RemoteException {
 		String jobid = String.format("%d", new Date().getTime()) + "_"
-				+ this.jobID;
-		jobID++;
+				+ this.globalJobID;
+		globalJobID++;
 		JobInfo info = new JobInfo(jobid);
 		job.info = info;
 		jobs.put(jobid, job);
@@ -478,7 +478,7 @@ public class JobTracker implements JobTrackerRemoteInterface {
 						if (this.queuedReduceTasks.get(t.jobid) == null){
 							this.queuedReduceTasks.put(t.jobid, new ConcurrentLinkedQueue<Task>());
 						}
-						this.queuedReduceTasks.get(jobID).add(t);
+						this.queuedReduceTasks.get(t.jobid).add(t);
 					}
 				}
 			}
@@ -487,6 +487,67 @@ public class JobTracker implements JobTrackerRemoteInterface {
 		else {
 			System.out.println("But nothing to reschedule!");
 		}
+		
+	}
+
+	@Override
+	public synchronized String listjob() throws RemoteException {
+		String ret = "";
+		for (String jobID : this.jobs.keySet()){
+			Job job = this.jobs.get(jobID);
+			String mapName = job.conf.getMapperClass().getName();
+			String reduceName = job.conf.getReducerClass().getName();
+			String inputPath = job.conf.getInputPath();
+			String outputPath = job.conf.getOutputPath();
+			String jarName = job.conf.getJarName();
+			String temp = jobID + " " + mapName + " " + " " + reduceName + " " + inputPath + " "+outputPath+" "+jarName+"\n";
+			ret = ret + temp;
+		}
+		return ret;
+	}
+
+	@Override
+	public synchronized String killJob(String jobid) throws RemoteException {
+		if (this.jobs.containsKey(jobid) && (this.jobs.get(jobid).info.getStatus() != JobInfo.FAILED)){
+			ConcurrentHashMap<Task, TaskTrackerInfo> temp = this.jobToMappers.get(jobid);
+			HashSet<TaskTrackerInfo> trackers = new HashSet<TaskTrackerInfo>();
+			for (Task t: temp.keySet()){
+				trackers.add(temp.get(t));
+			}
+			for (TaskTrackerInfo tInfo: trackers){
+				String tracker = tInfo.serviceName;
+				Registry reg;
+				try {
+					reg = LocateRegistry.getRegistry(tInfo.IP, Environment.MapReduceInfo.TASKTRACKER_PORT);
+					TaskTrackerRemoteInterface taskTracker = (TaskTrackerRemoteInterface)reg.lookup(tracker);
+					taskTracker.killFaildJob(jobid);
+				} catch (RemoteException | NotBoundException e) {
+					e.printStackTrace();
+				}
+			}
+			for (Task t: this.jobToMappers.get(jobid).keySet()){
+				if (t.jobid.equals(jobid)){
+					taskTrackers.get(this.jobToMappers.get(jobid).get(t)).mapSlotsFilled = Math.max(0, taskTrackers.get(this.jobToMappers.get(jobid).get(t)).mapSlotsFilled-1);
+					this.taskTrackerToTasks.get(this.jobToMappers.get(jobid).get(t).serviceName).remove(t);
+				}
+			}
+			this.jobToMappers.remove(jobid);
+			for (Task t: this.jobToReducers.get(jobid).keySet()){
+				if (t.jobid.equals(jobid)){
+					taskTrackers.get(this.jobToReducers.get(jobid).get(t)).reduceSlotsFilled = Math.max(0, taskTrackers.get(this.jobToReducers.get(jobid).get(t)).reduceSlotsFilled-1);
+					this.taskTrackerToTasks.get(this.jobToReducers.get(jobid).get(t).serviceName).remove(t);
+				}
+			}
+			this.jobToReducers.remove(jobid);
+			this.queuedMapTasks.remove(jobid);
+			this.queuedReduceTasks.remove(jobid);
+			this.jobs.get(jobid).info.setStatus(JobInfo.KILLED);
+			return "Job Kill Successful: " + jobid;
+		}
+		else {
+			return  "Job Kill Fail: " + jobid + " Job had failed before kill could be sent!";
+		}
+		
 		
 	}
 	

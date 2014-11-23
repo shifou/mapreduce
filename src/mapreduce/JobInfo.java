@@ -8,6 +8,7 @@ public class JobInfo implements Serializable {
 	public static final int SUCCEEDED = 2;
 	public static final int FAILED = 3;
 	public static final int WAITING = 4;
+	public static final int KILLED = 5;
 
 	
 	private static final long serialVersionUID = 5437349646548467135L;
