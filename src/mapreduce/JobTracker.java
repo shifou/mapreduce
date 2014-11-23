@@ -316,11 +316,11 @@ public class JobTracker implements JobTrackerRemoteInterface {
 						JobTracker.taskTrackers.get(tracker).reduceSlotsFilled = Math
 								.max(0,
 										JobTracker.taskTrackers.get(tracker).reduceSlotsFilled - 1);
-						this.jobToReducers.get(info.jobid).remove(t);
 						this.jobs.get(info.jobid).info.incrementComplReducers();
 						this.taskTrackerToTasks.get(tracker).remove(t);
 						if (this.jobs.get(info.jobid).info
 								.getPrecentReduceCompleted() == 100) {
+							commit(info.jobid);
 							this.jobs.get(info.jobid).info.setStatus(JobInfo.SUCCEEDED);
 							this.jobToMappers.remove(info.jobid);
 							this.jobToReducers.remove(info.jobid);
@@ -551,10 +551,23 @@ public class JobTracker implements JobTrackerRemoteInterface {
 		
 	}
 
-	@Override
-	public void commit(String jobid) throws RemoteException {
-		// TODO Auto-generated method stub
-		
+
+
+	public void commit(String jobid)  {
+		ConcurrentHashMap<Task, TaskTrackerInfo> tToTinfo = this.jobToReducers.get(jobid);
+		for (Task t: tToTinfo.keySet()){
+			TaskTrackerInfo info = tToTinfo.get(t);
+			Registry reg;
+			try {
+				reg = LocateRegistry.getRegistry(taskTrackers.get(info.serviceName).IP, Environment.MapReduceInfo.TASKTRACKER_PORT);
+				TaskTrackerRemoteInterface taskTracker = (TaskTrackerRemoteInterface)reg.lookup(info.serviceName);
+				taskTracker.uplodaToHDFS(jobid);
+			} catch (RemoteException | NotBoundException e) {
+				
+				e.printStackTrace();
+			}
+		}
+
 	}
 	
 	
