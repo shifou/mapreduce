@@ -15,4 +15,5 @@ public interface TaskTrackerRemoteInterface extends Remote {
 	public boolean killFaildJob(String jobid) throws RemoteException;
 	public Vector<Record> getPartition(String jobid, Integer maptaskid,
 			String taskid) throws RemoteException;
+	public boolean uplodaToHDFS(String jobid) throws RemoteException;
 }
