@@ -12,12 +12,12 @@ public class WordCount {
 	        
 
 	    conf.setJobName("wordcount");
-	    conf.setMapperClass("WordCountMap");
-	    conf.setReducerClass("WordCountReducer");
+	    conf.setMapperClass("test.WordCountMap");
+	    conf.setReducerClass("test.WordCountReducer");
 
 	        
-	    conf.setInputFormat("TextInputFormat");
-	    conf.setOutputFormat("TextOutputFormat");
+	    conf.setInputFormat("mapreduce.io.TextInputFormat");
+	    conf.setOutputFormat("mapreduce.io.TextOutputFormat");
 	        
 	    conf.setInputPath(args[0]);
 	    conf.setOutputPath(args[1]);
