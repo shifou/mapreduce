@@ -102,10 +102,6 @@ public class NameNode implements NameNodeRemoteInterface {
 			ans= handlerJoin(f1);
 			lock.unlock();
 			return ans;
-		case EXIT:
-			ans= handlerExit();
-			lock.unlock();
-			return ans;
 		default:
 			ans= "wrong operation received!";
 			lock.unlock();
@@ -120,10 +116,7 @@ public class NameNode implements NameNodeRemoteInterface {
 	}
 	
 
-	private String handlerExit() {
-		// TODO Auto-generated method stub
-		return "exit ok\n";
-	}
+
 
 	private String handlerJoin(String ip) {
 
@@ -238,10 +231,6 @@ public class NameNode implements NameNodeRemoteInterface {
 	@Override
 	public String join(String ip) throws RemoteException{
 		return handler(hdfsOP.JOIN,ip,null,null);
-	}
-	@Override
-	public String quit() throws RemoteException{
-		return handler(hdfsOP.EXIT,null,null, null);
 	}
 
 	@Override
